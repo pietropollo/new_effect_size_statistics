@@ -54,6 +54,10 @@ If you have any questions, errors or bug reports, please contact Pietro Pollo (p
 
 This online material is a supplement to our paper "Beyond sex differences in mean: meta-analysis of differences in skewness, kurtosis, and correlation". You will see how to calculate the new effect size statistics we have proposed and how to use them in a meta-analytical model using the `metafor` package in `R`.
 
+# Content
+
+In this online material, we will show how to (1) calculate our newly proposed effect sizes ($\Delta sk$, $\Delta ku$, $\Delta Zr$) and (2) exemplify their use with data from the International Mouse Phenotyping Consortium.
+
 # Prerequisites
 
 ## Loading packages
@@ -74,6 +78,7 @@ pacman::p_load(corrr,
                here,
                janitor,
                metafor,
+               pander,
                patchwork,
                tidyverse)
 
@@ -88,125 +93,59 @@ options(DT.options = list(rownames = FALSE,
 source("layout.R")
 ```
 
-# Equations and custom functions to calculate effect sizes
+## Custom functions
 
-## Skewness
+We also provide some additional helper functions to calculate effect sizes, process data, and visualise our results.
+The most straightforward way to use these custom functions is to run the code chunk below.
+Alternatively, paste the code into the console and hit `Enter` to have `R` ‘learn’ these custom functions.
 
-Following Pick et al. (2022).  
-
-
-$$
-sk = \frac{\frac{1}{n} \sum_{i = 1}^{n}(x_{i} - \bar{x}) ^ 3}{[\frac{1}{n} \sum_{i = 1}^{n}(x - \bar{x}) ^ 2] ^ \frac{3}{2}}
-\frac{\sqrt{n (n - 1)}}{n - 2}
-$$
-$$
-s^2_{sk} = \frac{6n(n - 1)}{(n - 2)(n + 1)(n + 3)}
-$$
+If you want to use these custom functions in your own data, you will need to change the variable names according to your own data (check out the `R` code and you will see what we mean).
 
 ```{r}
 #| code-fold: true
 
+# calculate effect sizes ----
+## skewness ----
 calc.skewness <- function(x, output = "est") {
   n <- length(x)
   
-  if (output == "est") {
+  if (output == "est") { # skewness estimate
     (sqrt(n * (n - 1)) / (n - 2)) *
       (((1 / n) * sum((x - mean(x)) ^ 3)) /
          (((1 / n) * sum((x - mean(x)) ^ 2)) ^ (3/2)))
     
-  } else if (output == "var") {
+  } else if (output == "var") { # skewness sampling variance
     (6 * n * (n - 1)) /
       ((n - 2) * (n + 1) * (n + 3))
   }
 }
-```
 
-$$
-\Delta sk = sk_{1} - sk_{2}
-$$
-
-$$
-s^2_{\Delta sk} = s^2_{sk_1} + s^2_{sk_2} - 2r s_{sk_1} s_{sk_2}
-$$
-
-## Kurtosis 
-
-$$
-ku = \frac{n (n + 1) (n - 1)}{(n - 2)(n - 3)} 
-\frac{\sum_{i = 1}^{n}(x_{i} - \bar{x}) ^ 4}
-{[\sum_{i = 1}^{n}(x_{i} - \bar{x}) ^ 2]^ 2} -
-\frac{3(n - 1) ^ 2}{(n - 2)(n - 3)}
-$$
-$$
-s^2_{ku} = \frac{24 n (n - 1) ^ 2}{(n - 3)(n - 2)(n + 3)(n + 5)} 
-$$
-
-```{r}
-#| code-fold: true
-
+## kurtosis ----
 calc.kurtosis <- function(x, output = "est") {
   n <- length(x)
   
-  if (output == "est") {
+  if (output == "est") { # kurtosis estimate
     ((((n + 1) * n * (n - 1)) / ((n - 2) * (n - 3))) *
        (sum((x - mean(x)) ^ 4) / (sum((x - mean(x)) ^ 2) ^ 2))) -
       (3 * ((n - 1) ^ 2) / ((n - 2) * (n - 3)))
-  } else if (output == "var") {
+  } else if (output == "var") { # kurtosis sampling variance
     (24 * n * ((n - 1) ^ 2)) /
       ((n - 3) * (n - 2) * (n + 3) * (n + 5))
   }
 }
-```
 
-$$
-\Delta ku = ku_{1} - ku_{2}
-$$
-
-$$
-s^2_{\Delta ku} = s^2_{ku_1} + s^2_{ku_2} - 2r s_{ku_1} s_{ku_2}
-$$
-
-## Zr
-
-$$
-Zr =  \frac{ln(\frac{1 + r}{1 - r})}{2}
-$$
-
-```{r}
-#| code-fold: true
-
+## Zr ----
 r.to.zr <- # Zr estimate
   function(r) { 
     0.5 * log((1 + r) / (1 - r))
   }
-```
-
-$$
-s^2_{Zr} = \frac{1}{n - 3}
-$$
-
-```{r}
-#| code-fold: true
 
 zr.variance <- # Zr variance 
   function(n) {
     1 / (n - 3)
   }
-```
 
-$$
-\Delta Zr = Zr_{1} - Zr_{2}
-$$
-
-$$
-s^2_{\Delta Zr} = s^2_{Zr_1} + s^2_{Zr_2} -2 r s_{Zr_1} s_{Zr_2}
-$$
-
-## Other already established effect size statistics (lnRR, lnVR)
-
-```{r}
-#| code-fold: true
-
+## other effect sizes (lnRR and lnVR) ----
 calc.effect <- function(data = raw_data, 
                         m) { # calculates other already established effect size statistics 
   escalc(measure = m,
@@ -221,104 +160,7 @@ calc.effect <- function(data = raw_data,
                        paste0(m,
                               "_var")))
 }
-```
 
-# Data loading and preparation
-
-We use data from the International Mouse Phenotyping Consortium (IMPC, version 18.0; Dickinson et al., 2016; http://www.mousephenotype.org/).
-
-```{r data}
-# raw data ----
-df_raw <- 
-  read_csv("mice_data_sample.csv") %>% 
-  # small adjustments to make plots more readable:
-  mutate(phenotyping_center = 
-           ifelse(phenotyping_center == "MRC Harwell",
-                  "MRC H",
-                  phenotyping_center),
-         strain_fig = case_when(strain_accession_id == "MGI:2159965" ~ 
-                                  "N",
-                                strain_accession_id == "MGI:2683688" ~ 
-                                  "NCrl",
-                                strain_accession_id == "MGI:2164831" ~ 
-                                  "NTac",
-                                strain_accession_id == "MGI:3056279" ~ 
-                                  "NJ",
-                                strain_accession_id == "MGI:2160139" ~ 
-                                  "NJcl"))
-
-df_meta_analysed <-
-  df_raw %>% 
-  group_by(sex,
-           trait_name,
-           phenotyping_center,
-           strain_fig) %>% 
-  summarize(mean = mean(value,
-                        na.rm = T),
-            sd = sd(value,
-                    na.rm = T),
-            n = n(),
-            SK_est = calc.skewness(value),
-            SK_var = calc.skewness(value, output = "var"),
-            KU_est = calc.kurtosis(value),
-            KU_var = calc.kurtosis(value, output = "var")) %>% 
-  pivot_wider(id_cols = c(trait_name,
-                          phenotyping_center,
-                          strain_fig),
-              names_from = sex,
-              values_from = c(mean:KU_var)) %>% 
-  mutate(SK_delta_est = SK_est_male - SK_est_female,
-         SK_delta_var = SK_var_male + SK_var_female,
-         KU_delta_est = KU_est_male - KU_est_female,
-         KU_delta_var = KU_var_male + KU_var_female) %>% 
-  bind_cols(calc.effect(., m = "ROM")) %>% # lnRR
-  bind_cols(calc.effect(., m = "CVR")) %>% # lnCVR
-  bind_cols(calc.effect(., m = "VR")) %>% # lnVR
-  filter(!is.na(CVR_est)) %>% 
-  mutate(n_total = n_female + n_male,
-         prop_females = n_female / (n_female + n_male)) %>% 
-  select(trait_name,
-         phenotyping_center,
-         strain_fig,
-         n_total,
-         prop_females,
-         ROM_est,
-         ROM_var,
-         CVR_est,
-         CVR_var,
-         VR_est,
-         VR_var,
-         SK_delta_est,
-         SK_delta_var,
-         KU_delta_est,
-         KU_delta_var) %>% 
-  mutate(ROM_upper = ROM_est + qt(0.975, 
-                                  n_total - 1) * sqrt(ROM_var),
-         ROM_lower = ROM_est - qt(0.975, 
-                                  n_total - 1) * sqrt(ROM_var),
-         CVR_upper = CVR_est + qt(0.975, 
-                                  n_total - 1) * sqrt(CVR_var),
-         CVR_lower = CVR_est - qt(0.975, 
-                                  n_total - 1) * sqrt(CVR_var),
-         VR_upper = VR_est + qt(0.975, 
-                                n_total - 1) * sqrt(VR_var),
-         VR_lower = VR_est - qt(0.975, 
-                                n_total - 1) * sqrt(VR_var),
-         SK_delta_upper = SK_delta_est + qt(0.975, 
-                                            n_total - 1) * sqrt(SK_delta_var),
-         SK_delta_lower = SK_delta_est - qt(0.975, 
-                                            n_total - 1) * sqrt(SK_delta_var),
-         KU_delta_upper = KU_delta_est + qt(0.975, 
-                                            n_total - 1) * sqrt(KU_delta_var),
-         KU_delta_lower = KU_delta_est - qt(0.975, 
-                                            n_total - 1) * sqrt(KU_delta_var))
-```
-
-# Meta-analytical models
-
-We then use the data from multiple phenotyping centres and mice strains to calculate average effect sizes ($\Delta$*sk*, $\Delta$*ku*, and $\Delta$*Zr*).
-
-```{r process}
 # processing functions ----
 process.ind_effects <- function(chosen_trait = "fat_mass",
                                 measure = "KU_delta") {
@@ -449,52 +291,8 @@ process.cor_effects <- function(chosen_trait_1 = "fat_mass",
                                       levels = c("Mean\nES",
                                                  rev(levels(centre_and_strain)[-5]))))
 }
-```
 
-## Single variable effect sizes
-
-```{r}
-map2_dfr(.x = rep(c("fat_mass",
-                    "heart_weight",
-                    "glucose",
-                    "total_cholesterol"),
-                  each = 4),
-         .y = rep(c("ROM",
-                    "VR",
-                    "SK_delta",
-                    "KU_delta"), 
-                  4),
-         .f = process.ind_effects) %>% 
-  mutate(est_type = case_when(est_type == "ROM" ~ "lnRR",
-                              est_type == "VR" ~ "lnVR",
-                              est_type == "SK_delta" ~ "delta_sk",
-                              est_type == "KU_delta" ~ "delta_ku")) %>% 
-  datatable(.,
-            extensions = "Buttons",
-            rownames = FALSE)
-```
-
-## Correlational effect sizes
-
-```{r}
-map2_dfr(.x = c("fat_mass",
-                "glucose"),
-         .y = c("heart_weight",
-                "total_cholesterol"),
-         .f = process.cor_effects) %>% 
-  mutate(relationship = rep(c("fat mass and heart weight",
-                              "glucose and total cholesterol"),
-                            each = 7)) %>% 
-  relocate(relationship) %>%  
-  datatable(.,
-            extensions = "Buttons",
-            rownames = FALSE)
-```
-
-# Plots
-
-```{r}
-# plotting functions ----
+# visualisation functions ----
 caterpillar.custom <- 
   function(chosen_trait = "fat_mass",
            measure = "KU_delta") {
@@ -711,9 +509,207 @@ cor.plot.custom <-
     
     return(plot_list)
   }
+```
 
-# actual plots ----
 
+# Equations and custom functions to calculate effect sizes
+
+## Skewness
+
+Following Pick et al. (2022).  
+
+
+$$
+sk = \frac{\frac{1}{n} \sum_{i = 1}^{n}(x_{i} - \bar{x}) ^ 3}{[\frac{1}{n} \sum_{i = 1}^{n}(x - \bar{x}) ^ 2] ^ \frac{3}{2}}
+\frac{\sqrt{n (n - 1)}}{n - 2}
+$$
+$$
+s^2_{sk} = \frac{6n(n - 1)}{(n - 2)(n + 1)(n + 3)}
+$$
+
+$$
+\Delta sk = sk_{1} - sk_{2}
+$$
+
+$$
+s^2_{\Delta sk} = s^2_{sk_1} + s^2_{sk_2} - 2 \rho_{sk} s_{sk_1} s_{sk_2}
+$$
+
+## Kurtosis 
+
+$$
+ku = \frac{n (n + 1) (n - 1)}{(n - 2)(n - 3)} 
+\frac{\sum_{i = 1}^{n}(x_{i} - \bar{x}) ^ 4}
+{[\sum_{i = 1}^{n}(x_{i} - \bar{x}) ^ 2]^ 2} -
+\frac{3(n - 1) ^ 2}{(n - 2)(n - 3)}
+$$
+$$
+s^2_{ku} = \frac{24 n (n - 1) ^ 2}{(n - 3)(n - 2)(n + 3)(n + 5)} 
+$$
+
+$$
+\Delta ku = ku_{1} - ku_{2}
+$$
+
+$$
+s^2_{\Delta ku} = s^2_{ku_1} + s^2_{ku_2} - 2 \rho_{ku} s_{ku_1} s_{ku_2}
+$$
+
+## Zr
+
+$$
+Zr =  \frac{ln(\frac{1 + r}{1 - r})}{2}
+$$
+
+$$
+s^2_{Zr} = \frac{1}{n - 3}
+$$
+$$
+\Delta Zr = Zr_{1} - Zr_{2}
+$$
+
+$$
+s^2_{\Delta Zr} = s^2_{Zr_1} + s^2_{Zr_2} -2 \rho_{Zr} s_{Zr_1} s_{Zr_2}
+$$
+
+# Data loading and preparation
+
+We use data from the International Mouse Phenotyping Consortium (IMPC, version 18.0; Dickinson et al., 2016; http://www.mousephenotype.org/).
+
+```{r data}
+# raw data ----
+df_raw <- 
+  read_csv("mice_data_sample.csv") %>% 
+  # small adjustments to make plots more readable:
+  mutate(phenotyping_center = 
+           ifelse(phenotyping_center == "MRC Harwell",
+                  "MRC H",
+                  phenotyping_center),
+         strain_fig = case_when(strain_accession_id == "MGI:2159965" ~ 
+                                  "N",
+                                strain_accession_id == "MGI:2683688" ~ 
+                                  "NCrl",
+                                strain_accession_id == "MGI:2164831" ~ 
+                                  "NTac",
+                                strain_accession_id == "MGI:3056279" ~ 
+                                  "NJ",
+                                strain_accession_id == "MGI:2160139" ~ 
+                                  "NJcl"))
+
+df_meta_analysed <-
+  df_raw %>% 
+  group_by(sex,
+           trait_name,
+           phenotyping_center,
+           strain_fig) %>% 
+  summarize(mean = mean(value,
+                        na.rm = T),
+            sd = sd(value,
+                    na.rm = T),
+            n = n(),
+            SK_est = calc.skewness(value),
+            SK_var = calc.skewness(value, output = "var"),
+            KU_est = calc.kurtosis(value),
+            KU_var = calc.kurtosis(value, output = "var")) %>% 
+  pivot_wider(id_cols = c(trait_name,
+                          phenotyping_center,
+                          strain_fig),
+              names_from = sex,
+              values_from = c(mean:KU_var)) %>% 
+  mutate(SK_delta_est = SK_est_male - SK_est_female,
+         SK_delta_var = SK_var_male + SK_var_female,
+         KU_delta_est = KU_est_male - KU_est_female,
+         KU_delta_var = KU_var_male + KU_var_female) %>% 
+  bind_cols(calc.effect(., m = "ROM")) %>% # lnRR
+  bind_cols(calc.effect(., m = "CVR")) %>% # lnCVR
+  bind_cols(calc.effect(., m = "VR")) %>% # lnVR
+  filter(!is.na(CVR_est)) %>% 
+  mutate(n_total = n_female + n_male,
+         prop_females = n_female / (n_female + n_male)) %>% 
+  select(trait_name,
+         phenotyping_center,
+         strain_fig,
+         n_total,
+         prop_females,
+         ROM_est,
+         ROM_var,
+         CVR_est,
+         CVR_var,
+         VR_est,
+         VR_var,
+         SK_delta_est,
+         SK_delta_var,
+         KU_delta_est,
+         KU_delta_var) %>% 
+  mutate(ROM_upper = ROM_est + qt(0.975, 
+                                  n_total - 1) * sqrt(ROM_var),
+         ROM_lower = ROM_est - qt(0.975, 
+                                  n_total - 1) * sqrt(ROM_var),
+         CVR_upper = CVR_est + qt(0.975, 
+                                  n_total - 1) * sqrt(CVR_var),
+         CVR_lower = CVR_est - qt(0.975, 
+                                  n_total - 1) * sqrt(CVR_var),
+         VR_upper = VR_est + qt(0.975, 
+                                n_total - 1) * sqrt(VR_var),
+         VR_lower = VR_est - qt(0.975, 
+                                n_total - 1) * sqrt(VR_var),
+         SK_delta_upper = SK_delta_est + qt(0.975, 
+                                            n_total - 1) * sqrt(SK_delta_var),
+         SK_delta_lower = SK_delta_est - qt(0.975, 
+                                            n_total - 1) * sqrt(SK_delta_var),
+         KU_delta_upper = KU_delta_est + qt(0.975, 
+                                            n_total - 1) * sqrt(KU_delta_var),
+         KU_delta_lower = KU_delta_est - qt(0.975, 
+                                            n_total - 1) * sqrt(KU_delta_var))
+```
+
+# Meta-analytical models
+
+We then use the data from multiple phenotyping centres and mice strains to calculate average effect sizes ($\Delta sk$, $\Delta ku$, and $\Delta Zr$).
+
+## Single variable effect sizes
+
+```{r}
+map2_dfr(.x = rep(c("fat_mass",
+                    "heart_weight",
+                    "glucose",
+                    "total_cholesterol"),
+                  each = 4),
+         .y = rep(c("ROM",
+                    "VR",
+                    "SK_delta",
+                    "KU_delta"), 
+                  4),
+         .f = process.ind_effects) %>% 
+  mutate(est_type = case_when(est_type == "ROM" ~ "lnRR",
+                              est_type == "VR" ~ "lnVR",
+                              est_type == "SK_delta" ~ "delta_sk",
+                              est_type == "KU_delta" ~ "delta_ku")) %>% 
+  datatable(.,
+            extensions = "Buttons",
+            rownames = FALSE)
+```
+
+## Correlational effect sizes
+
+```{r}
+map2_dfr(.x = c("fat_mass",
+                "glucose"),
+         .y = c("heart_weight",
+                "total_cholesterol"),
+         .f = process.cor_effects) %>% 
+  mutate(relationship = rep(c("fat mass and heart weight",
+                              "glucose and total cholesterol"),
+                            each = 7)) %>% 
+  relocate(relationship) %>%  
+  datatable(.,
+            extensions = "Buttons",
+            rownames = FALSE)
+```
+
+# Visualisations
+
+```{r}
 ## figure_2 ----
 list_figure_2 <- list()
 list_figure_2[[1]] <- ridgeline.custom("fat_mass")
@@ -778,4 +774,11 @@ list_figure_4[7:10] <- map2(.x = rep("total_cholesterol", 4),
     list_figure_4 %>% 
     wrap_plots(ncol = 5) +
     plot_annotation(tag_levels = "A"))
+```
+
+# Software and package versions  
+
+```{r versions}
+sessionInfo() %>% 
+  pander()
 ```
