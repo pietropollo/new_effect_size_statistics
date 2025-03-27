@@ -328,16 +328,16 @@ caterpillar.custom <-
         theme(axis.title.x = ggtext::element_markdown(face = "italic"))
     } else if (measure == "SK_delta") {
       plot +
-        labs(x = "&Delta;sk") +
+        labs(x = "&Delta;*sk*") +
         scale_x_continuous(limits = c(-2.1, 2.1),
                            breaks = c(-2, 0, 2)) +
-        theme(axis.title.x = ggtext::element_markdown(face = "italic"))
+        theme(axis.title.x = ggtext::element_markdown())
     } else if (measure == "KU_delta") {
       plot +
-        labs(x = "&Delta;ku") +
+        labs(x = "&Delta;*ku*") +
         scale_x_continuous(limits = c(-15, 15),
                            breaks = c(-15, 0, 15)) +
-        theme(axis.title.x = ggtext::element_markdown(face = "italic"))
+        theme(axis.title.x = ggtext::element_markdown())
     }
   }
 
@@ -404,7 +404,7 @@ cor.caterpillar.custom <-
       geom_vline(xintercept = 0,
                  linetype = "dotted") +
       labs(y = "Phenotyping centre and mice strain",
-           x = "&Delta;Zr", 
+           x = "&Delta;*Zr*", 
            shape = "Strain") +
       scale_x_continuous(limits = c(-1, 1),
                          breaks = c(-1, 0, 1)) +
@@ -412,12 +412,13 @@ cor.caterpillar.custom <-
       theme(legend.position = "none",
             axis.title.x = ggtext::element_markdown(size = 12, 
                                                     margin = margin(t = 0.2,
-                                                                    unit = "cm"),
-                                                    face = "italic"),
-            axis.title.y = element_text(size = 12),
+                                                                    unit = "cm")),
+            axis.title.y = element_text(size = 12,
+                                        margin = margin(r = - 0.1,
+                                                        unit = "cm")),
             axis.text.x = element_text(size = 10),
             axis.text.y = element_text(size = 10),
-            plot.tag.position = c(0.15, 0.99))
+            plot.tag.position = c(0.3, 0.99))
   }
 
 cor.plot.custom <- 
@@ -484,7 +485,7 @@ cor.plot.custom <-
                         " (scaled)")) +
         theme_classic() +
         theme(legend.position = "none",
-              plot.tag.position = c(0.31, 0.905),
+              plot.tag.position = c(0.05, 0.91),
               axis.title.x = element_text(size = 12, 
                                           margin = margin(t = 0.2,
                                                           unit = "cm")),
@@ -751,7 +752,15 @@ list_figure_3[[14]] <- cor.caterpillar.custom(chosen_trait_1 = "glucose",
                 heights = c(rep(1, 6), 0.6),
                 widths = c(rep(0.23, 2), 0.02, rep(0.23, 2)),
                 axes = "collect",
-                guides = "collect"))
+                guides = "collect") +
+    plot_annotation(tag_levels = list(c("A", 
+                                        rep("", 
+                                            5), 
+                                        "B",
+                                        "C",
+                                        rep("", 
+                                            5),
+                                        "D"))))
 
 ## figure_4 ----
 list_figure_4 <- list()
