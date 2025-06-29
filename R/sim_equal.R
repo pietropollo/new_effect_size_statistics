@@ -12,10 +12,10 @@
 	    mean_g2 <- c(0, 5, 10, 15, 20)
 	variance_g1 <- c(1, 2, 3, 4, 5)
 	variance_g2 <- c(1, 2, 3, 4, 5)
-	skewness_g1 <- c(0.5, 1, 1.5, 2, 3)
-	skewness_g2 <- c(0.5, 1, 1.5, 2, 3)
-	kurtosis_g1 <- c(1, 3, 4, 5, 6)
-	kurtosis_g2 <- c(1, 3, 4, 5, 6)
+	skewness_g1 <- c(1, 1.5, 2, 3)
+	skewness_g2 <- c(1, 1.5, 2, 3)
+	kurtosis_g1 <- c(3, 4, 5, 6)
+	kurtosis_g2 <- c(3, 4, 5, 6)
           nsims <- 1000  # Number of simulations
 
 # Create combinations of parameters
@@ -84,6 +84,7 @@ sim_equal <- function(n, params, nsims = nsims) {
   return(data.frame(bias = mean(bias, na.rm = TRUE), coverage = sum(coverage, na.rm = TRUE) / nsims))
 }
 
+params <- params_all[1,]  # Select the first row of parameters for testing
 system.time(
 t <- sim_equal(n = params[1,"n"], params = params[1,], nsims = 1000)
 )
