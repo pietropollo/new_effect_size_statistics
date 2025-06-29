@@ -16,7 +16,7 @@
 	skewness_g2 <- c(1, 1.5, 2, 3)
 	kurtosis_g1 <- c(3, 4, 5, 6)
 	kurtosis_g2 <- c(3, 4, 5, 6)
-          nsims <- 1000  # Number of simulations
+          nsims <- 5000  # Number of simulations
 
 # Create combinations of parameters
 	params_all <- expand.grid(      n = n, 
@@ -86,5 +86,5 @@ sim_equal <- function(n, params, nsims = nsims) {
 
 params <- params_all[1,]  # Select the first row of parameters for testing
 system.time(
-t <- sim_equal(n = params[1,"n"], params = params[1,], nsims = 1000)
+t <- sim_equal(n = params[1,"n"], params = params[1,], nsims = 5000)
 )
