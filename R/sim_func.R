@@ -68,7 +68,7 @@ for(i in 1:nsims) {
 ##-------------------------------------------------##
 ## BELOW IS JUST AN EXAMPLE WE NEED TO MODIFY FOR VARIOUS EFFECTS
 # Calculate bias between groups, which is how much the difference between means deviates from the true difference
-  bias1[i] = (mean(x1) - mean(x2)) - (params$mean_g1 + params$mean_g2)  
+  bias1[i] = (mean(x1) - mean(x2)) - (params$mean_g1 - params$mean_g2)  
 
 # Calculate coverage, which is the proportion of times the confidence interval contains the true difference
            ci <- tryCatch(t.test(x1, x2)$conf.int, error = function(e) {
