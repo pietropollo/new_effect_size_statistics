@@ -8,26 +8,18 @@
 
 # Parameters
 	          n <- c(10, 25, 50, 75, 100, 150) 
-	    mean_g1 <- c(0, 5, 10, 15, 20)
-	    mean_g2 <- c(0, 5, 10, 15, 20)
-	variance_g1 <- c(1, 2, 3, 4, 5)
-	variance_g2 <- c(1, 2, 3, 4, 5)
-	skewness_g1 <- c(1, 1.5, 2, 3)
-	skewness_g2 <- c(1, 1.5, 2, 3)
-	kurtosis_g1 <- c(3, 4, 5, 6)
-	kurtosis_g2 <- c(3, 4, 5, 6)
+	    scenarios  <- data.frame(mean_g1 = c(0, 5, 10, 15, 20),
+	    mean_g2 = c(0, 5, 10, 15, 20),
+	variance_g1 = c(1, 2, 3, 4, 5),
+	variance_g2 = c(1, 2, 3, 4, 5),
+	skewness_g1 = c(1, 1.5, 2, 3, 4),
+	skewness_g2 = c(1, 1.5, 2, 3, 4),
+	kurtosis_g1 = c(3, 4, 5, 6, 7),
+	kurtosis_g2 = c(3, 4, 5, 6, 7))
           nsims <- 5000  # Number of simulations
 
-# Create combinations of parameters
-	params_all <- expand.grid(      n = n, 
-	                          mean_g1 = mean_g1, 
-	                          mean_g2 = mean_g2, 
-	                      variance_g1 = variance_g1, 
-	                      variance_g2 = variance_g2, 
-	                      skewness_g1 = skewness_g1, 
-	                      skewness_g2 = skewness_g2, 
-	                      kurtosis_g1 = kurtosis_g1, 
-	                      kurtosis_g2 = kurtosis_g2)
+# Create combinations of parameters expanded by sample size vector. Each row is a scenario with a sample size which is used to set up the simulation
+	params_all <- data.frame(tidyr::crossing(scenarios, n = n))
 
 #| @title Simulate Pearson distribution with equal sample sizes 
 #| @description Function to simulate Pearson distribution with equal sample sizes
@@ -41,7 +33,7 @@
 
 sim_equal <- function(n, params, nsims = nsims) {
   # Vectos to store results
-      bias <- numeric(nsims)
+      bias1 <- numeric(nsims)
   coverage <- numeric(nsims)
   
   for(i in 1:nsims) {
@@ -68,7 +60,7 @@ sim_equal <- function(n, params, nsims = nsims) {
                  })
 
 # Calculate bias between groups, which is how much the difference between means deviates from the true difference
-  bias[i] = (mean(x1) - mean(x2)) - (params$mean_g1 + params$mean_g2)  
+  bias1[i] = (mean(x1) - mean(x2)) - (params$mean_g1 + params$mean_g2)  
 
 # Calculate coverage, which is the proportion of times the confidence interval contains the true difference
            ci <- tryCatch(t.test(x1, x2)$conf.int, error = function(e) {
@@ -81,10 +73,20 @@ sim_equal <- function(n, params, nsims = nsims) {
   }
   
   # Return a data frame with bias and coverage
-  return(data.frame(bias = mean(bias, na.rm = TRUE), coverage = sum(coverage, na.rm = TRUE) / nsims))
+  return(data.frame(bias = mean(bias1, na.rm = TRUE), 
+  				coverage = sum(coverage, na.rm = TRUE) / nsims,
+					   n = length(bias1)))
 }
 
 params <- params_all[1,]  # Select the first row of parameters for testing
 system.time(
-t <- sim_equal(n = params[1,"n"], params = params[1,], nsims = 5000)
+t <- sim_equal(n = params[5,"n"], params = params[5,], nsims = 5000)
 )
+
+# Run simulations for all scenarios assuming equal sample size 
+result <- data.frame()
+for(i in 1:nrow(params_all)) {
+  params <- params_all[i,]
+  result <- rbind(result, sim_equal(n = params$n, params = params, nsims = nsims))
+  print(paste("Simulation for scenario", i, "completed. Bias:", round(result$bias, 2), "Coverage:", round(result$coverage, 2)))
+}
