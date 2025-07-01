@@ -25,19 +25,21 @@
 #| @description Function to simulate Pearson distribution with equal sample sizes
 #| and calculate bias and coverage
 #| @param n Sample size for each group
-#| @param params Data frame containing parameters for the simulation. Note that this is from a params data frame created by the expand.grid function above and so included data from a single row which is a single scenerio.
+#| @param params Data frame containing parameters for the simulation. Note that this is from a params data frame created by the expand.grid function above and so included data from a single row which is a single scenario.
 #| @param nsims Number of simulations to run (default is 1000)
 #| @return A data frame with bias and coverage for each simulation
 #| @examples
-#| sim_equal(n = 50, params = params[i,], nsims = 1000)
+#| sim_func(n = 50, params = params[i,], nsims = 1000)
 
-sim_equal <- function(n, params, nsims = nsims) {
-  # Vectos to store results
+sim_func <- function(n, params, nsims = nsims) {
+  # Vectors to store results
       bias1 <- numeric(nsims)
-  coverage <- numeric(nsims)
+   coverage <- numeric(nsims)
   
-  for(i in 1:nsims) {
+for(i in 1:nsims) {
+##---------------------------##
   # Simulate data for group 1
+##---------------------------##
   x1 <- tryCatch(rpearson(n, 
 				 moments = c(    mean = params$mean_g1, 
 							 variance = params$variance_g1, 
@@ -47,8 +49,10 @@ sim_equal <- function(n, params, nsims = nsims) {
                    message("Error in rpearson for group 1: ", e)
                    return(NA)
                  })
-
+				 
+##---------------------------##
   # Simulate data for group 2
+##---------------------------##
   x2 <- tryCatch(rpearson(n, 
 				 moments = c(    mean = params$mean_g2, 
 							 variance = params$variance_g2, 
@@ -59,6 +63,10 @@ sim_equal <- function(n, params, nsims = nsims) {
                    return(NA)
                  })
 
+##-------------------------------------------------##
+  # Calculate bias and coverage for effect statistics
+##-------------------------------------------------##
+## BELOW IS JUST AN EXAMPLE WE NEED TO MODIFY FOR VARIOUS EFFECTS
 # Calculate bias between groups, which is how much the difference between means deviates from the true difference
   bias1[i] = (mean(x1) - mean(x2)) - (params$mean_g1 + params$mean_g2)  
 
@@ -70,23 +78,25 @@ sim_equal <- function(n, params, nsims = nsims) {
   coverage[i] <- ifelse(ci[1] <= (params$mean_g1 - params$mean_g2) && 
 					    ci[2] >= (params$mean_g1 - params$mean_g2), 1, 0)
 
-  }
+}
   
-  # Return a data frame with bias and coverage
+##-------------------------------------------------##
+  # Return data with all the simulation results
+##-------------------------------------------------##
   return(data.frame(bias = mean(bias1, na.rm = TRUE), 
   				coverage = sum(coverage, na.rm = TRUE) / nsims,
 					   n = length(bias1)))
 }
 
-params <- params_all[1,]  # Select the first row of parameters for testing
-system.time(
-t <- sim_equal(n = params[5,"n"], params = params[5,], nsims = 5000)
-)
-
+###------------------------------------------------------------------------###
 # Run simulations for all scenarios assuming equal sample size 
+###------------------------------------------------------------------------###
+# Initialize an empty data frame to store results
 result <- data.frame()
+
+# Loop through each scenario and run the simulation function
 for(i in 1:nrow(params_all)) {
   params <- params_all[i,]
-  result <- rbind(result, sim_equal(n = params$n, params = params, nsims = nsims))
+  result <- rbind(result, sim_func(n = params$n, params = params, nsims = nsims))
   print(paste("Simulation for scenario", i, "completed. Bias:", round(result$bias, 2), "Coverage:", round(result$coverage, 2)))
 }
