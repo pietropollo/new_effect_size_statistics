@@ -52,6 +52,18 @@ calc.kurtosis <- function(x, output = "est") {
   }
 }
 
+# Little function to summaries all the moments of a distribution. Used for testing
+dist_summary <- function(x) {
+  data.frame(
+	mean = mean(x, na.rm = TRUE),
+	variance = var(x, na.rm = TRUE),
+	skewness = moments::skewness(x),
+	kurtosis = moments::kurtosis(x)
+  )
+}
+
+# Testing params object # out when done. This would give normal distribution with slight skewness 
+params <- data.frame(mean_g1 = 0, mean_g2 = 0, variance_g1 = 1, variance_g2 = 1, skewness_g1 = 1, skewness_g2 = 1.5, kurtosis_g1 = 6, kurtosis_g2 = 6, n = 1000000)
 
 #| @title Simulate Pearson distribution with specified moments
 #| @description Function to simulate Pearson distribution with defined moments: mean, variance, skewness and kurtosis
