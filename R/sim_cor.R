@@ -15,6 +15,19 @@
 # Create combinations of parameters expanded by sample size vector. Each row is a scenario with a sample size which is used to set up the simulation
 	params_all <- expand.grid(n = n, cor_g1 = cor_g1, cor_g2 = cor_g2)
 
+  ## Zr ----
+r.to.zr <- # Zr estimate
+  function(r) { 
+    0.5 * log((1 + r) / (1 - r))
+  }
+
+zr.variance <- # Zr variance 
+  function(n) {
+    1 / (n - 3)
+  }
+
+
+
 sim_cor <- function(n, params, nsims = nsims) {
   # Vectors to store results
       bias1 <- numeric(nsims)

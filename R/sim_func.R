@@ -21,6 +21,37 @@
 # Create combinations of parameters expanded by sample size vector. Each row is a scenario with a sample size which is used to set up the simulation
 	params_all <- data.frame(tidyr::crossing(scenarios, n = n))
 
+# functions for calculating effect sizes ----
+## skewness ----
+calc.skewness <- function(x, output = "est") {
+  n <- length(x)
+  
+  if (output == "est") { # skewness estimate
+    (sqrt(n * (n - 1)) / (n - 2)) *
+      (((1 / n) * sum((x - mean(x)) ^ 3)) /
+         (((1 / n) * sum((x - mean(x)) ^ 2)) ^ (3/2)))
+    
+  } else if (output == "var") { # skewness sampling variance
+    (6 * n * (n - 1)) /
+      ((n - 2) * (n + 1) * (n + 3))
+  }
+}
+
+## kurtosis ----
+calc.kurtosis <- function(x, output = "est") {
+  n <- length(x)
+  
+  if (output == "est") { # kurtosis estimate
+    ((((n + 1) * n * (n - 1)) / ((n - 2) * (n - 3))) *
+       (sum((x - mean(x)) ^ 4) / (sum((x - mean(x)) ^ 2) ^ 2))) -
+      (3 * ((n - 1) ^ 2) / ((n - 2) * (n - 3)))
+  } else if (output == "var") { # kurtosis sampling variance
+    (24 * n * ((n - 1) ^ 2)) /
+      ((n - 3) * (n - 2) * (n + 3) * (n + 5))
+  }
+}
+
+
 #| @title Simulate Pearson distribution with equal sample sizes 
 #| @description Function to simulate Pearson distribution with equal sample sizes
 #| and calculate bias and coverage
@@ -33,8 +64,9 @@
 
 sim_func <- function(n, params, nsims = nsims) {
   # Vectors to store results
-      bias1 <- numeric(nsims)
-   coverage <- numeric(nsims)
+      bias_sk <- numeric(nsims)
+	  bias_ku <- numeric(nsims)
+     coverage <- numeric(nsims)
   
 for(i in 1:nsims) {
 ##---------------------------##
@@ -67,8 +99,9 @@ for(i in 1:nsims) {
   # Calculate bias and coverage for effect statistics
 ##-------------------------------------------------##
 ## BELOW IS JUST AN EXAMPLE WE NEED TO MODIFY FOR VARIOUS EFFECTS
-# Calculate bias between groups, which is how much the difference between means deviates from the true difference
-  bias1[i] = (mean(x1) - mean(x2)) - (params$mean_g1 - params$mean_g2)  
+# Calculate bias between groups, which is how much the difference between estimated sk and kur deviates from the true differences
+  bias_sk[i] = (calc.skewness(x1) - calc.skewness(x2)) - (params$skewness_g1 - params$skewness_g2)
+  bias_ku[i] = (calc.kurtosis(x1) - calc.kurtosis(x2)) - (params$kurtosis_g1 - params$kurtosis_g2)
 
 # Calculate coverage, which is the proportion of times the confidence interval contains the true difference
            ci <- tryCatch(t.test(x1, x2)$conf.int, error = function(e) {
