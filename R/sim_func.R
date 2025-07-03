@@ -39,12 +39,13 @@ calc.skewness <- function(x, output = "est") {
 }
 
 ## kurtosis ---- !!!!# Need to check because this function does not match `moments::kurtosis`
+
 calc.kurtosis <- function(x, output = "est") {
   n <- length(x)
   
   if (output == "est") { # kurtosis estimate
-    (((n + 1) * n) / ((n - 1) * (n - 2) * (n - 3))) *
-          (sum((x - mean(x))^4) / (sum((x - mean(x))^2)^2)) - (3 * (n - 1)^2 / ((n - 2) * (n - 3)))
+    ((((n + 1) * n * (n - 1)) / ((n - 2) * (n - 3))) *
+       (sum((x - mean(x)) ^ 4) / (sum((x - mean(x)) ^ 2) ^ 2))) -(3 * ((n - 1) ^ 2) / ((n - 2) * (n - 3))) # 
   } else if (output == "var") { # kurtosis sampling variance
     (24 * n * ((n - 1) ^ 2)) /
       ((n - 3) * (n - 2) * (n + 3) * (n + 5))
