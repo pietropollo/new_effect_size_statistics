@@ -105,7 +105,7 @@ if(type == "skewness") {
 
 if(type == "kurtosis") {
      ku[i] = tryCatch((calc.kurtosis(x1) - calc.kurtosis(x2)), error = function(e) {return(NA)})
-  ku_sv[i] = tryCatch((calc.kurtosis(x1, output = "var") - calc.kurtosis(x2, output = "var")), error = function(e) {return(NA)}) 
+  ku_sv[i] = tryCatch((calc.kurtosis(x1, output = "var") + calc.kurtosis(x2, output = "var")), error = function(e) {return(NA)}) 
 }
   
 ##-------------------------------------------------##
