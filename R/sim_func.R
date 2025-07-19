@@ -7,17 +7,31 @@
 	pacman::p_load(moments, PearsonDS)
 
 # Parameters
-	                        n = c(10, 25, 50, 75, 100, 150) 
-	    							mean_g1 = c(0, 0, 0)
-									mean_g2 = c(0, 10, 20)
-								variance_g1 = c(2)
-								variance_g2 = c(2)
-								skewness_g1 = c(1, 1.5, 2, 3, 4)
-								skewness_g2 = c(1, 1.5, 2, 3, 4)
-								kurtosis_g1 = c(3, 6)
-								kurtosis_g2 = c(3, 6)
+	# Skewness simulation
+	                        n = c(10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 150, 500)  
+	    							mean_g1 = c(0, 0)
+									  mean_g2 = c(0, 5)
+								variance_g1 = c(1, 1)
+								variance_g2 = c(1, 2)
+								skewness_g1 = c(-1, -0.5, 0, 0.5, 1)
+								skewness_g2 = c(-1, -0.5, 0, 0.5, 1)
+								kurtosis_g1 = c(3)
+								kurtosis_g2 = c(3)
+
+	# Kurtosis simulation
+								n = c(10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 150, 500)  
+								mean_g1 = c(0, 0)
+								mean_g2 = c(0, 5)
+								variance_g1 = c(1, 1)
+								variance_g2 = c(1, 2)
+								skewness_g1 = c(0)
+								skewness_g2 = c(0)
+								kurtosis_g1 = c(2.5, 3, 4, 5, 6)
+								kurtosis_g2 = c(2.5, 3, 4, 5, 6)
+								
+																
 		scenarios <- expand.grid(mean_g1 = mean_g1, mean_g2 = mean_g2, variance_g1 = variance_g1, variance_g2 = variance_g2, skewness_g1 = skewness_g1, skewness_g2 = skewness_g2, kurtosis_g1 = kurtosis_g1, kurtosis_g2 = kurtosis_g2) # Create all combinations of scenarios
-          nsims <- 1000  # Number of simulations
+          nsims <- 1000  # Number of simulations, stick with 5000 min but maybe increase to 10,000
 
 # Create combinations of parameters expanded by sample size vector. Each row is a scenario with a sample size which is used to set up the simulation
 	params_all <- data.frame(tidyr::crossing(scenarios, n = n))
@@ -132,10 +146,14 @@ for(i in 1:nsims) {
 ##-------------------------------------------------##
   # Return data with all the simulation results
 ##-------------------------------------------------##
-  return(data.frame(bias_sk = mean(sk) - (params$skewness_g1 - params$skewness_g2), # Bias for skewness from true value
-  				          bias_ku = mean(ku) - (params$kurtosis_g1 - params$kurtosis_g2), # Bias for kurtosis from true value
-				         bias_sk_sv = ((mean(sk_sv) - sd(sk)^2) / sd(sk)^2)*100, # Relative Bias for skewness sampling variance from analytical approximation
-				         bias_ku_sv = ((mean(ku_sv) - sd(ku)^2) / sd(ku)^2)*100, # Relative Bias for kurtosis sampling variance from analytical approximation
+  return(data.frame(     bias_sk = mean(sk) - (params$skewness_g1 - params$skewness_g2), # Bias for skewness from true value       
+                         bias_ku = mean(ku) - (params$kurtosis_g1 - params$kurtosis_g2), # Bias for kurtosis from true value
+                    mcse_bias_sk = sqrt(var(sk) / length(sk)), # Monte Carlo Standard error for bias of skewness
+                    mcse_bias_ku = sqrt(var(ku) / length(ku)), # Monte Carlo Standard error for bias of kurtosis
+				              bias_sk_sv = ((mean(sk_sv) - sd(sk)^2) / sd(sk)^2)*100, # Relative Bias for skewness sampling variance from analytical approximation
+				              bias_ku_sv = ((mean(ku_sv) - sd(ku)^2) / sd(ku)^2)*100, # Relative Bias for kurtosis sampling variance from analytical approximation
+				         mcse_bias_sv_sk = sqrt(var(sk_sv) / length(sk_sv)), # Monte Carlo Standard error for bias of skewness, if, for example values are greater than 2, then it indicates that you need more simulations, change from nsim of 1000 to 5000. We want this to be low in relation to the point estimate. 
+				         mcse_bias_sv_ku = sqrt(var(ku_sv) / length(ku_sv)), # Monte Carlo Standard error for bias of kurtosis
 					           n_sims = nsims)) 
 }
 
