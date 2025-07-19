@@ -7,9 +7,9 @@
 	pacman::p_load(moments, PearsonDS, MASS)
 
 # Parameters
-	             n <- c(10, 25, 50, 75, 100, 150) 
-	    	cor_g1 <- c(-0.8, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8)
-            cor_g2 <- c(-0.8, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8)
+	                n <- c(10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 150, 500) 
+	    	     cor_g1 <- c(-0.8, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8)
+             cor_g2 <- c(-0.8, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8)
              nsims <- 5000  # Number of simulations
 
 # Create combinations of parameters expanded by sample size vector. Each row is a scenario with a sample size which is used to set up the simulation
