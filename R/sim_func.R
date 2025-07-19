@@ -6,11 +6,7 @@
 # Load required packages
 	pacman::p_load(moments, PearsonDS)
 
-
-
-
 # functions for calculating effect sizes ----
-## skewness ---- !!!!# Need to check because this function does not match `moments::skewness`
 calc.skewness <- function(x, output = "est") {
   n <- length(x)
   
@@ -25,7 +21,7 @@ calc.skewness <- function(x, output = "est") {
   }
 }
 
-## kurtosis ---- !!!!# Need to check because this function does not match `moments::kurtosis`
+## kurtosis ---- 
 
 calc.kurtosis <- function(x, output = "est") {
   n <- length(x)
@@ -48,21 +44,8 @@ kurtosis_uncorrected <- function(x) {
   return(kurt)
 }
 
-# Little function to summaries all the moments of a distribution. Used for testing
-dist_summary <- function(x) {
-  data.frame(
-	mean = mean(x, na.rm = TRUE),
-	variance = var(x, na.rm = TRUE),
-	skewness = moments::skewness(x),
-  skewness_ours = calc.skewness(x, output = "est"),
-	kurtosis = moments::kurtosis(x),
-  kurtosis_ours = calc.kurtosis(x, output = "est")
-  )
-}
-dist_summary(x1)
-
 # Testing params object # out when done. This would give normal distribution with slight skewness 
-params <- data.frame(mean_g1 = 0, mean_g2 = 0, variance_g1 = 1, variance_g2 = 1, skewness_g1 = 1, skewness_g2 = 1.5, kurtosis_g1 = 6, kurtosis_g2 = 6, n = 100)
+#params <- data.frame(mean_g1 = 0, mean_g2 = 0, variance_g1 = 1, variance_g2 = 1, skewness_g1 = 1, skewness_g2 = 1.5, kurtosis_g1 = 6, kurtosis_g2 = 6, n = 100)
 
 #| @title Simulate Pearson distribution with specified moments
 #| @description Function to simulate Pearson distribution with defined moments: mean, variance, skewness and kurtosis
@@ -74,11 +57,13 @@ params <- data.frame(mean_g1 = 0, mean_g2 = 0, variance_g1 = 1, variance_g2 = 1,
 #| sim_func(n = 50, params = params[i,], nsims = 1000)
 
 sim_func <- function(params, nsims = nsims, type = c("skewness", "kurtosis")) {
-  type <- match.arg(type)
+       type <- match.arg(type)
   
   # Vectors to store results
-      sk <- numeric(nsims)
-	    ku <- numeric(nsims)
+         sk <- numeric(nsims)
+         ku <- numeric(nsims)
+      sk_sv <- numeric(nsims)
+      ku_sv <- numeric(nsims)
 
 for(i in 1:nsims) {
 ##---------------------------##
@@ -114,12 +99,12 @@ for(i in 1:nsims) {
 #Calculate and store the effect statistics for skewness and kurtosis
 
 if(type == "skewness") {
-  sk[i] = tryCatch((calc.skewness(x1) - calc.skewness(x2)), error = function(e) {return(NA)})
+     sk[i] = tryCatch((calc.skewness(x1) - calc.skewness(x2)), error = function(e) {return(NA)})
   sk_sv[i] = tryCatch((calc.skewness(x1, output = "var") + calc.skewness(x2, output = "var")), error = function(e) {return(NA)})
 }
 
 if(type == "kurtosis") {
-  ku[i] = tryCatch((calc.kurtosis(x1) - calc.kurtosis(x2)), error = function(e) {return(NA)})
+     ku[i] = tryCatch((calc.kurtosis(x1) - calc.kurtosis(x2)), error = function(e) {return(NA)})
   ku_sv[i] = tryCatch((calc.kurtosis(x1, output = "var") - calc.kurtosis(x2, output = "var")), error = function(e) {return(NA)}) 
 }
   
@@ -134,7 +119,7 @@ if(type == "skewness") {
     mcse_bias_sk = sqrt(var(sk) / length(sk)), # Monte Carlo Standard error for bias of skewness
     bias_sk_sv = ((mean(sk_sv) - sd(sk)^2) / sd(sk)^2)*100, # Relative Bias for skewness sampling variance from analytical approximation
     mcse_bias_sv_sk = sqrt(var(sk_sv) / length(sk_sv)), # Monte Carlo Standard error for bias of skewness, if, for example values are greater than 2, then it indicates that you need more simulations, change from nsim of 1000 to 5000. We want this to be low in relation to the point estimate. 
-					           n_sims = nsims)) 
+					           n_sims = length(sk_sv))) # Number of simulations
     }
 
 if(type == "kurtosis") {
@@ -143,7 +128,7 @@ if(type == "kurtosis") {
                     mcse_bias_ku = sqrt(var(ku) / length(ku)), # Monte Carlo Standard error for bias of kurtosis      
                     mcse_bias_sv_ku = sqrt(var(ku_sv) / length(ku_sv)), # Monte Carlo Standard error for bias of kurtosis     
                     bias_ku_sv = ((mean(ku_sv) - sd(ku)^2) / sd(ku)^2)*100, # Relative Bias for kurtosis sampling variance from analytical approximation
-                     n_sims = nsims))
+                     n_sims = length(ku_sv)))
  
     }
   }
@@ -157,7 +142,7 @@ if(type == "kurtosis") {
 # # Skewness simulation 
 ###------------------------------------------------------------------------###
 # Parameters
-                      nsims = 1000  # simulations, stick with 5000 min but maybe increase to 10,000
+                      nsims = 5000  # simulations, stick with 5000 min but maybe increase to 10,000
 	                        n = c(10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 150, 500)  
 	    							mean_g1 = c(0, 0)
 									  mean_g2 = c(0, 5)
@@ -177,7 +162,8 @@ scenarios <- expand.grid(    mean_g1 = mean_g1,
                          skewness_g2 = skewness_g2, 
                          kurtosis_g1 = kurtosis_g1, 
                          kurtosis_g2 = kurtosis_g2) # Create all combinations of scenarios
-          
+scenarios <- scenarios[!duplicated(scenarios), ] # Remove duplicate rows if any
+
 # Create combinations of parameters expanded by sample size vector. Each row is a scenario with a sample size which is used to set up the simulation
 	params_all <- data.frame(tidyr::crossing(scenarios, n = n))               
 
@@ -185,18 +171,23 @@ scenarios <- expand.grid(    mean_g1 = mean_g1,
 result_skewness <- data.frame()
 
 # Loop through each scenario and run the simulation function
+system.time(
 for(i in 1:nrow(params_all)) {
            params <- params_all[i,]
-  result_skewness <- rbind(result_skewness, sim_func(params = params, nsims = nsims))
-  
-  print(paste("Simulation for scenario", i, "completed. Bias_sk:", round(result_skewness$bias_sk[i], 2), "Bias_ku:", round(result_skewness$bias_ku[i], 2)))
+  result_skewness <- rbind(result_skewness, sim_func(params = params, nsims = nsims, type = "skewness"))
+
+  print(paste("Simulation for scenario", i, "completed. Bias_sk:", round(result_skewness$bias_sk[i], 2), "mcse_bias_sv_sk:", round(result_skewness$mcse_bias_sv_sk[i], 2), "mcse_bias_sk:", round(result_skewness$mcse_bias_sk[i], 2)))
 }
+)
+
+# Merge the results with the scenario parameters
+result_skewness <- cbind(params_all, result_skewness)
 
 ###------------------------------------------------------------------------###
 # # Kurtosis simulation
 ###------------------------------------------------------------------------###
 	# Parameters
-                      nsims = 1000  # simulations, stick with 5000 min but maybe increase to 10,000
+                      nsims = 5000  # simulations, stick with 5000 min but maybe increase to 10,000
 								          n = c(10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 150, 500)  
 								    mean_g1 = c(0, 0)
 								    mean_g2 = c(0, 5)
@@ -216,6 +207,7 @@ for(i in 1:nrow(params_all)) {
                              skewness_g2 = skewness_g2, 
                              kurtosis_g1 = kurtosis_g1, 
                              kurtosis_g2 = kurtosis_g2) # Create all combinations of scenarios
+   scenarios <- scenarios[!duplicated(scenarios), ] # Remove duplicate rows if any
 
 # Create combinations of parameters expanded by sample size vector. Each row is a scenario with a sample size which is used to set up the simulation
 	params_all_kur <- data.frame(tidyr::crossing(scenarios, n = n))
@@ -224,9 +216,13 @@ for(i in 1:nrow(params_all)) {
      result_kurt <- data.frame()
 
 # Loop through each scenario and run the simulation function
+system.time(
 for(i in 1:nrow(params_all_kur)) {
        params <- params_all_kur[i,]
-  result_kurt <- rbind(result_kurt, sim_func(params = params, nsims = nsims))
+  result_kurt <- rbind(result_kurt, sim_func(params = params, nsims = nsims, type = "kurtosis"))
 
-  print(paste("Simulation for scenario", i, "completed.", "Bias_ku:", round(result_kurt$bias_ku[i], 2)))
+  print(paste("Simulation for scenario", i, "completed.", "Bias_ku:", round(result_kurt$bias_ku[i], 2), "mcse_bias_sv_ku:", round(result_kurt$mcse_bias_sv_ku[i], 2), "mcse_bias_ku:", round(result_kurt$mcse_bias_ku[i], 2)))
 }
+)
+# Merge the results with the scenario parameters
+result_kurt <- cbind(params_all_kur, result_kurt)
