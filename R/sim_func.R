@@ -115,20 +115,21 @@ if(type == "kurtosis") {
 if(type == "skewness") {
 
   return(data.frame(     
-    bias_sk = mean(sk) - (params$skewness_g1 - params$skewness_g2), # Bias for skewness from true value       
-    mcse_bias_sk = sqrt(var(sk) / length(sk)), # Monte Carlo Standard error for bias of skewness
-    bias_sk_sv = ((mean(sk_sv) - sd(sk)^2) / sd(sk)^2)*100, # Relative Bias for skewness sampling variance from analytical approximation
+            bias_sk = mean(sk) - (params$skewness_g1 - params$skewness_g2), # Bias for skewness from true value       
+       mcse_bias_sk = sqrt(var(sk) / length(sk)), # Monte Carlo Standard error for bias of skewness
+         bias_sk_sv = ((mean(sk_sv) - sd(sk)^2) / sd(sk)^2)*100, # Relative Bias for skewness sampling variance from analytical approximation
     mcse_bias_sv_sk = sqrt(var(sk_sv) / length(sk_sv)), # Monte Carlo Standard error for bias of skewness, if, for example values are greater than 2, then it indicates that you need more simulations, change from nsim of 1000 to 5000. We want this to be low in relation to the point estimate. 
-					           n_sims = length(sk_sv))) # Number of simulations
+					   n_sims = length(sk_sv))) # Number of simulations
     }
 
 if(type == "kurtosis") {
 
-  return(data.frame(     bias_ku = mean(ku) - (params$kurtosis_g1 - params$kurtosis_g2), # Bias for kurtosis from true value         
-                    mcse_bias_ku = sqrt(var(ku) / length(ku)), # Monte Carlo Standard error for bias of kurtosis      
-                    mcse_bias_sv_ku = sqrt(var(ku_sv) / length(ku_sv)), # Monte Carlo Standard error for bias of kurtosis     
-                    bias_ku_sv = ((mean(ku_sv) - sd(ku)^2) / sd(ku)^2)*100, # Relative Bias for kurtosis sampling variance from analytical approximation
-                     n_sims = length(ku_sv)))
+  return(data.frame(     
+            bias_ku = mean(ku) - (params$kurtosis_g1 - params$kurtosis_g2), # Bias for kurtosis from true value         
+       mcse_bias_ku = sqrt(var(ku) / length(ku)), # Monte Carlo Standard error for bias of kurtosis      
+    mcse_bias_sv_ku = sqrt(var(ku_sv) / length(ku_sv)), # Monte Carlo Standard error for bias of kurtosis     
+         bias_ku_sv = ((mean(ku_sv) - sd(ku)^2) / sd(ku)^2)*100, # Relative Bias for kurtosis sampling variance from analytical approximation
+             n_sims = length(ku_sv)))
  
     }
   }
@@ -163,6 +164,7 @@ scenarios <- expand.grid(    mean_g1 = mean_g1,
                          kurtosis_g1 = kurtosis_g1, 
                          kurtosis_g2 = kurtosis_g2) # Create all combinations of scenarios
 scenarios <- scenarios[!duplicated(scenarios), ] # Remove duplicate rows if any
+scenarios$scenario <- 1:nrow(scenarios) # Add a scenario number column
 
 # Create combinations of parameters expanded by sample size vector. Each row is a scenario with a sample size which is used to set up the simulation
 	params_all <- data.frame(tidyr::crossing(scenarios, n = n))               
@@ -208,6 +210,7 @@ result_skewness <- cbind(params_all, result_skewness)
                              kurtosis_g1 = kurtosis_g1, 
                              kurtosis_g2 = kurtosis_g2) # Create all combinations of scenarios
    scenarios <- scenarios[!duplicated(scenarios), ] # Remove duplicate rows if any
+   scenarios$scenario <- 1:nrow(scenarios) # Add a scenario number column
 
 # Create combinations of parameters expanded by sample size vector. Each row is a scenario with a sample size which is used to set up the simulation
 	params_all_kur <- data.frame(tidyr::crossing(scenarios, n = n))
@@ -226,3 +229,8 @@ for(i in 1:nrow(params_all_kur)) {
 )
 # Merge the results with the scenario parameters
 result_kurt <- cbind(params_all_kur, result_kurt)
+
+
+# Some visuals of the scenarios
+scen_dat <- create_dat(params)
+scenario_plot(scen_dat)
