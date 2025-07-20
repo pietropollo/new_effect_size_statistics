@@ -1,11 +1,16 @@
 
 
-scenario_plot <- function(listdat) {
-  ggplot() + 
+scenario_plot <- function(listdat, print = TRUE, xpos = 6) {
+ p <-  ggplot() + 
     geom_density(data = listdat[["df1"]], aes(x = value), fill = "gray70", alpha = 0.6) + 
     geom_density(data = listdat[["df2"]], aes(x = value), fill = "black", alpha = 0.4) + 
     labs(x = "", y = "Density") + 
     theme_classic()
+
+if(print){
+	p  <- p + annotate("text", x = xpos, y = seq(0.1, 0.3, length.out = ncol(listdat$params)), label = paste(names(listdat$params), " = ", listdat$params[1,]), size = 5)
+}	
+return(p)
 }
 
 create_dat <- function(params){
@@ -21,5 +26,11 @@ create_dat <- function(params){
 
   return(list(df1 = data.frame(value = df1), df2 = data.frame(value = df2), params = params))
 }
+
+plot_scenario <- function(params, print = TRUE, xpos = 6) {
+  dat <- create_dat(params)
+  scenario_plot(dat, print = print, xpos = xpos)
+}
+
 
 
