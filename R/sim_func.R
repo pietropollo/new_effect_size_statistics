@@ -4,7 +4,7 @@
 ###------------------------------------------------------------------------###
 
 # Load required packages
-	pacman::p_load(moments, PearsonDS)
+	pacman::p_load(moments, PearsonDS, tidyverse)
   source("./R/func.R") # Load the functions from func.R
   
 # functions for calculating effect sizes ----
@@ -167,6 +167,15 @@ scenarios <- expand.grid(    mean_g1 = mean_g1,
                          kurtosis_g2 = kurtosis_g2) # Create all combinations of scenarios
 scenarios <- scenarios[!duplicated(scenarios), ] # Remove duplicate rows if any
 scenarios$scenario <- 1:nrow(scenarios) # Add a scenario number column
+
+# Visualise the scenarios
+plots <- list() # Initialize an empty list to store plots
+for(i in 1:24) {
+  params <- scenarios[i,]
+  plots[[i]] <- plot_scenario(params, print = FALSE, xpos = 3)
+}
+# Combine all plots into a grid layout
+wrap_plots(plots, ncol = 2)
 
 # Create combinations of parameters expanded by sample size vector. Each row is a scenario with a sample size which is used to set up the simulation
 	params_all <- data.frame(tidyr::crossing(scenarios, n = n))               
