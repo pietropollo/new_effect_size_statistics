@@ -233,6 +233,6 @@ result_kurt <- cbind(params_all_kur, result_kurt)
 
 # Some visuals of the scenarios
 # Testing params object # out when done. This would give normal distribution with slight skewness 
-params <- data.frame(mean_g1 = 0, mean_g2 = 0, variance_g1 = 1, variance_g2 = 1, skewness_g1 = 0, skewness_g2 = 1.5, kurtosis_g1 = 6, kurtosis_g2 = 6)
-plot_scenario(params, print = FALSE, xpos = 8)
+params <- data.frame(mean_g1 = 0, mean_g2 = 0, variance_g1 = 1, variance_g2 = 1, skewness_g1 = 0, skewness_g2 = 0.5, kurtosis_g1 = 3, kurtosis_g2 = 3)
+plot_scenario(params, print = TRUE, xpos = 4)
 t <- create_dat(params)
