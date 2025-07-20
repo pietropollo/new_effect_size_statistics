@@ -170,9 +170,9 @@ scenarios$scenario <- 1:nrow(scenarios) # Add a scenario number column
 
 # Visualise the scenarios
 plots <- list() # Initialize an empty list to store plots
-for(i in 1:24) {
+for(i in 1:12) {
   params <- scenarios[i,]
-  plots[[i]] <- plot_scenario(params, print = FALSE, xpos = 3)
+  plots[[i]] <- plot_scenario(params, print = TRUE, xpos = 3)
 }
 # Combine all plots into a grid layout
 wrap_plots(plots, ncol = 2)
