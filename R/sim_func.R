@@ -98,15 +98,15 @@ for(i in 1:nsims) {
 
 #Calculate and store the effect statistics for skewness and kurtosis
 
-if(type == "skewness") {
-     sk[i] = tryCatch((calc.skewness(x1) - calc.skewness(x2)), error = function(e) {return(NA)})
-  sk_sv[i] = tryCatch((calc.skewness(x1, output = "var") + calc.skewness(x2, output = "var")), error = function(e) {return(NA)})
-}
+  if(type == "skewness") {
+       sk[i] = tryCatch((calc.skewness(x1) - calc.skewness(x2)), error = function(e) {return(NA)})
+    sk_sv[i] = tryCatch((calc.skewness(x1, output = "var") + calc.skewness(x2, output = "var")), error = function(e) {return(NA)})
+  }
 
-if(type == "kurtosis") {
-     ku[i] = tryCatch((calc.kurtosis(x1) - calc.kurtosis(x2)), error = function(e) {return(NA)})
-  ku_sv[i] = tryCatch((calc.kurtosis(x1, output = "var") + calc.kurtosis(x2, output = "var")), error = function(e) {return(NA)}) 
-}
+  if(type == "kurtosis") {
+       ku[i] = tryCatch((calc.kurtosis(x1) - calc.kurtosis(x2)), error = function(e) {return(NA)})
+    ku_sv[i] = tryCatch((calc.kurtosis(x1, output = "var") + calc.kurtosis(x2, output = "var")), error = function(e) {return(NA)}) 
+  }
 }
 
 ##-------------------------------------------------##
@@ -182,9 +182,10 @@ for(i in 1:nrow(params_all)) {
   print(paste("Simulation for scenario", i, "completed. Bias_sk:", round(result_skewness$bias_sk[i], 2), "mcse_bias_sv_sk:", round(result_skewness$mcse_bias_sv_sk[i], 2), "mcse_bias_sk:", round(result_skewness$mcse_bias_sk[i], 2)))
 }
 )
-
+# 1096.327 seconds elapsed or 18 minutes
 # Merge the results with the scenario parameters
 result_skewness <- cbind(params_all, result_skewness)
+saveRDS(result_skewness, file = "./output/result_skewness.rds") # Save the results to a file
 
 ###------------------------------------------------------------------------###
 # # Kurtosis simulation
@@ -228,8 +229,13 @@ for(i in 1:nrow(params_all_kur)) {
   print(paste("Simulation for scenario", i, "completed.", "Bias_ku:", round(result_kurt$bias_ku[i], 2), "mcse_bias_sv_ku:", round(result_kurt$mcse_bias_sv_ku[i], 2), "mcse_bias_ku:", round(result_kurt$mcse_bias_ku[i], 2)))
 }
 )
+# 982.916 seconds elapsed or 16 minutes
+
 # Merge the results with the scenario parameters
 result_kurt <- cbind(params_all_kur, result_kurt)
+
+# Save the results to a file
+saveRDS(result_kurt, file = "./output/result_kurt.rds") 
 
 
 # Some visuals of the scenarios
