@@ -4,7 +4,7 @@
 ###------------------------------------------------------------------------###
 
 # Load required packages
-	pacman::p_load(moments, PearsonDS, tidyverse)
+	pacman::p_load(moments, PearsonDS, tidyverse, patchwork)
   source("./R/func.R") # Load the functions from func.R
   
 # functions for calculating effect sizes ----
@@ -169,13 +169,15 @@ scenarios <- scenarios[!duplicated(scenarios), ] # Remove duplicate rows if any
 scenarios$scenario <- 1:nrow(scenarios) # Add a scenario number column
 
 # Visualise the scenarios
-plots <- list() # Initialize an empty list to store plots
-for(i in 1:12) {
-  params <- scenarios[i,]
-  plots[[i]] <- plot_scenario(params, print = TRUE, xpos = 3)
-}
-# Combine all plots into a grid layout
-wrap_plots(plots, ncol = 2)
+# Split into roughly equal chunks of 10 rows
+n_per_group <- 10
+   n_chunks <- ceiling(nrow(scenarios) / n_per_group)
+
+# Split the scenarios into chunks
+df_chunks <- split(scenarios, cut(seq_len(nrow(scenarios)), breaks = n_chunks, labels = FALSE))
+
+# Plot each chunk of scenarios. This will create a grid of plots for each scenario
+lapply(df_chunks, function(x) multi_plot_scenarios(x, folder = "output/figs/skewness/")) 
 
 # Create combinations of parameters expanded by sample size vector. Each row is a scenario with a sample size which is used to set up the simulation
 	params_all <- data.frame(tidyr::crossing(scenarios, n = n))               
@@ -223,6 +225,17 @@ saveRDS(result_skewness, file = "./output/result_skewness.rds") # Save the resul
                              kurtosis_g2 = kurtosis_g2) # Create all combinations of scenarios
    scenarios <- scenarios[!duplicated(scenarios), ] # Remove duplicate rows if any
    scenarios$scenario <- 1:nrow(scenarios) # Add a scenario number column
+
+# Visualise the scenarios
+# Split into roughly equal chunks of 10 rows
+n_per_group <- 10
+   n_chunks <- ceiling(nrow(scenarios) / n_per_group)
+
+# Split the scenarios into chunks
+df_chunks <- split(scenarios, cut(seq_len(nrow(scenarios)), breaks = n_chunks, labels = FALSE))
+
+# Plot each chunk of scenarios. This will create a grid of plots for each scenario
+lapply(df_chunks, function(x) multi_plot_scenarios(x, folder = "output/figs/kurtosis/")) 
 
 # Create combinations of parameters expanded by sample size vector. Each row is a scenario with a sample size which is used to set up the simulation
 	params_all_kur <- data.frame(tidyr::crossing(scenarios, n = n))
