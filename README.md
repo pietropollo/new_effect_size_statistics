@@ -12,3 +12,6 @@ Sample from the International Mouse Phenotyping Consortium (IMPC; Dickinson et a
 - `phenotyping_center`: phenotyping center; open-ended text
 - `value`: trait value; numeric
 - `trait_name`: name of the trait measured; open-ended text
+
+### Notes
+- Formulas for analytical approximation for sampling variances for skewness and kurtosis are seem to only apply to situations where data are normally distributed.
