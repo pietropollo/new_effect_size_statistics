@@ -73,6 +73,7 @@ boot_skew <- function(x, B = 2000, bias.correct = TRUE,
   est.bc <- if (bias.correct) 2 * est - mean(b.reps) else est
   out    <- list(est     = est,
                  est_bc  = est.bc,
+                 var     = sd(b.reps)^2,
                  se      = sd(b.reps))
   if (return.replicates) out$boot <- b.reps
   out
@@ -94,6 +95,7 @@ boot_kurt <- function(x, B = 2000, bias.correct = TRUE,
   est.bc <- if (bias.correct) 2 * est - mean(b.reps) else est
   out    <- list(est     = est,
                  est_bc  = est.bc,
+                 var     = sd(b.reps)^2,
                  se      = sd(b.reps))
   if (return.replicates) out$boot <- b.reps
   out
@@ -126,6 +128,7 @@ jack_skew <- function(x, bias.correct = TRUE,
   
   out <- list(est    = theta,
               est_bc = theta_bc,
+              var    = se_jack^2,
               se     = se_jack)
   
   if (return.replicates) out$jack <- theta_i
@@ -156,6 +159,7 @@ jack_kurt <- function(x, bias.correct = TRUE,
   
   out <- list(est    = theta,
               est_bc = theta_bc,
+              var    = se_jack^2,
               se     = se_jack)
   
   if (return.replicates) out$jack <- theta_i
