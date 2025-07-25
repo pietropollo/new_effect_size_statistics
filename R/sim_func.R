@@ -70,10 +70,14 @@ sim_func <- function(params, nsims = nsims, type = c("skewness", "kurtosis")) {
  skew_delta <- numeric(nsims) # Delta method for skewness
  kurt_delta <- numeric(nsims) # Delta method for kurtosis
   boot_skew <- numeric(nsims) # Bootstrap method for skewness
+  boot_skew_bc <- numeric(nsims) # Bootstrap bias-corrected method for skewness
   boot_kurt <- numeric(nsims) # Bootstrap method for kurtosis
+  boot_kurt_bc <- numeric(nsims) # Bootstrap bias-corrected method for kurtosis
   jack_skew <- numeric(nsims) # Jackknife method for skewness
   jack_kurt <- numeric(nsims) # Jackknife method for kurtosis
-  
+  jack_skew_bc <- numeric(nsims) # Jackknife bias-corrected method for skewness
+  jack_kurt_bc <- numeric(nsims) # Jackknife bias-corrected method for kurtosis
+
   skew_delta_sv <- numeric(nsims) # Delta method sampling variance for skewness
   kurt_delta_sv <- numeric(nsims) # Delta method sampling variance for kurtosis
   boot_skew_sv <- numeric(nsims) # Bootstrap method sampling variance for skewness
@@ -121,7 +125,9 @@ for(i in 1:nsims) {
   # Add in new methods for skewness
         skew_delta[i] = tryCatch((skew_delta(x1)$est - skew_delta(x2)$est), error = function(e) {return(NA)})
          boot_skew[i] = tryCatch((boot_skew(x1)$est - boot_skew(x2)$est), error = function(e) {return(NA)})
+         boot_skew_bc[i] = tryCatch((boot_skew(x1)$est_bc - boot_skew(x2)$est_bc), error = function(e) {return(NA)})
          jack_skew[i] = tryCatch((jack_skew(x1)$est - jack_skew(x2)$est), error = function(e) {return(NA)})
+         jack_skew_bc[i] = tryCatch((jack_skew(x1)$est_bc - jack_skew(x2)$est_bc), error = function(e) {return(NA)})
 
   # Add in new methods for skewness sampling variance
     skew_delta_sv[i] = tryCatch((skew_delta(x1)$var + skew_delta(x2)$var), error = function(e) {return(NA)})
@@ -136,7 +142,9 @@ for(i in 1:nsims) {
   # Add in new methods for kurtosis
         kurt_delta[i] = tryCatch((kurt_delta(x1)$est - kurt_delta(x2)$est), error = function(e) {return(NA)})
          boot_kurt[i] = tryCatch((boot_kurt(x1)$est - boot_kurt(x2)$est), error = function(e) {return(NA)})
+         boot_kurt_bc[i] = tryCatch((boot_kurt(x1)$est_bc - boot_kurt(x2)$est_bc), error = function(e) {return(NA)})
          jack_kurt[i] = tryCatch((jack_kurt(x1)$est - jack_kurt(x2)$est), error = function(e) {return(NA)})
+         jack_kurt_bc[i] = tryCatch((jack_kurt(x1)$est_bc - jack_kurt(x2)$est_bc), error = function(e) {return(NA)})
   
   # Add in new methods for kurtosis sampling variance
     kurt_delta_sv[i] = tryCatch((kurt_delta(x1)$var + kurt_delta(x2)$var), error = function(e) {return(NA)})
@@ -151,20 +159,26 @@ for(i in 1:nsims) {
 
 if(type == "skewness") {
 
-  return(data.frame(     
+  return(data.frame(
+    # Original analytical formulas for skewness     
             bias_sk = mean(sk) - (params$skewness_g1 - params$skewness_g2), # Bias for skewness from true value       
        mcse_bias_sk = sqrt(var(sk) / length(sk)), # Monte Carlo Standard error for bias of skewness
          bias_sk_sv = ((mean(sk_sv) - sd(sk)^2) / sd(sk)^2)*100, # Relative Bias for skewness sampling variance from analytical approximation
     mcse_bias_sv_sk = sqrt(var(sk_sv) / length(sk_sv)), # Monte Carlo Standard error for bias of skewness sampling variance
 
-        bias_sk_delta = mean(skew_delta) - (params$skewness_g1 - params$skewness_g2), # Bias for skewness from delta method
-   mcse_bias_delta_sk = sqrt(var(skew_delta) / length(skew_delta)), # Monte Carlo Standard error for bias of skewness from delta method
-     bias_sk_delta_sv = ((mean(skew_delta_sv) - sd(sk)^2) / sd(sk)^2)*100, # Relative Bias for skewness sampling variance from delta method
-mcse_bias_sv_delta_sk = sqrt(var(skew_delta_sv) / length(skew_delta_sv)), # Monte Carlo Standard error for bias of skewness sampling variance from delta method
+    # Delta method for skewness
+         bias_sk_delta = mean(skew_delta) - (params$skewness_g1 - params$skewness_g2), # Bias for skewness from delta method
+    mcse_bias_delta_sk = sqrt(var(skew_delta) / length(skew_delta)), # Monte Carlo Standard error for bias of skewness from delta method
+      bias_sk_delta_sv = ((mean(skew_delta_sv) - sd(sk)^2) / sd(sk)^2)*100, # Relative Bias for skewness sampling variance from delta method
+ mcse_bias_sv_delta_sk = sqrt(var(skew_delta_sv) / length(skew_delta_sv)), # Monte Carlo Standard error for bias of skewness 
+
+    # Bootstrap method for skewness
          bias_sk_boot = mean(boot_skew) - (params$skewness_g1 - params$skewness_g2), # Bias for skewness from bootstrap method
     mcse_bias_boot_sk = sqrt(var(boot_skew) / length(boot_skew)), # Monte Carlo Standard error for bias of skewness from bootstrap method
       bias_sk_boot_sv = ((mean(boot_skew_sv) - sd(sk)^2) / sd(sk)^2)*100, # Relative Bias for skewness sampling variance from bootstrap method
- mcse_bias_sv_boot_sk = sqrt(var(boot_skew_sv) / length(boot_skew_sv)), # Monte Carlo Standard error for bias of skewness sampling variance from bootstrap method  
+ mcse_bias_sv_boot_sk = sqrt(var(boot_skew_sv) / length(boot_skew_sv)), # Monte Carlo Standard error for bias of skewness sampling variance from bootstrap method
+
+    # Jackknife method for skewness  
          bias_sk_jack = mean(jack_skew) - (params$skewness_g1 - params$skewness_g2), # Bias for skewness from jackknife method
     mcse_bias_jack_sk = sqrt(var(jack_skew) / length(jack_skew)), # Monte Carlo Standard error for bias of skewness from jackknife method
       bias_sk_jack_sv = ((mean(jack_skew_sv) - sd(sk)^2) / sd(sk)^2)*100, # Relative Bias for skewness sampling variance from jackknife method
@@ -180,15 +194,19 @@ if(type == "kurtosis") {
     mcse_bias_sv_ku = sqrt(var(ku_sv) / length(ku_sv)), # Monte Carlo Standard error for bias of kurtosis     
          bias_ku_sv = ((mean(ku_sv) - sd(ku)^2) / sd(ku)^2)*100, # Relative Bias for kurtosis sampling variance from analytical approximation
         
+      # Delta method for skewness
         bias_ku_delta = mean(kurt_delta) - (params$kurtosis_g1 - params$kurtosis_g2), # Bias for kurtosis from delta method
    mcse_bias_delta_ku = sqrt(var(kurt_delta) / length(kurt_delta)), # Monte Carlo Standard error for bias of kurtosis from delta method
      bias_ku_delta_sv = ((mean(kurt_delta_sv) - sd(ku)^2) / sd(ku)^2)*100, # Relative Bias for kurtosis sampling variance from delta method
 mcse_bias_sv_delta_ku = sqrt(var(kurt_delta_sv) / length(kurt_delta_sv)), # Monte Carlo Standard error for bias of kurtosis sampling variance from delta method
+
+    # Bootstrap method for kurtosis
          bias_ku_boot = mean(boot_kurt) - (params$kurtosis_g1 - params$kurtosis_g2), # Bias for kurtosis from bootstrap method
     mcse_bias_boot_ku = sqrt(var(boot_kurt) / length(boot_kurt)), # Monte Carlo Standard error for bias of kurtosis from bootstrap method
       bias_ku_boot_sv = ((mean(boot_kurt_sv) - sd(ku)^2) / sd(ku)^2)*100, # Relative Bias for kurtosis sampling variance from bootstrap method
  mcse_bias_sv_boot_ku = sqrt(var(boot_kurt_sv) / length(boot_kurt_sv)), # Monte Carlo Standard error for bias of kurtosis sampling variance from bootstrap method
          
+    # Jackknife method for kurtosis
          bias_ku_jack = mean(jack_kurt) - (params$kurtosis_g1 - params$kurtosis_g2), # Bias for kurtosis from jackknife method
     mcse_bias_jack_ku = sqrt(var(jack_kurt) / length(jack_kurt)), # Monte Carlo Standard error for bias of kurtosis from jackknife method   
       bias_ku_jack_sv = ((mean(jack_kurt_sv) - sd(ku)^2) / sd(ku)^2)*100, # Relative Bias for kurtosis sampling variance from jackknife method
