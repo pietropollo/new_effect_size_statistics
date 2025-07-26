@@ -190,10 +190,10 @@ if(type == "skewness") {
 
     # Jackknife method for skewness  
          bias_sk_jack_bc = mean(jack_skew_bc) - (params$skewness_g1 - params$skewness_g2), # Bias for skewness from jackknife method
-    mcse_bias_jack_sk = sqrt(var(jack_skew_bc) / length(jack_skew_bc)), # Monte Carlo Standard error 
-      bias_sk_jack_sv = ((mean(jack_skew_sv) - sd(sk)^2) / sd(sk)^2)*100, # Relative Bias for skewness from jackknife method
- mcse_bias_sv_jack_sk = sqrt(var(jack_skew_sv) / length(jack_skew_sv)), # Monte Carlo Standard error 
-					   n_sims = length(sk_sv))) # Number of simulations
+       mcse_bias_jack_sk = sqrt(var(jack_skew_bc) / length(jack_skew_bc)), # Monte Carlo Standard error 
+         bias_sk_jack_sv = ((mean(jack_skew_sv) - sd(sk)^2) / sd(sk)^2)*100, # Relative Bias for skewness from jackknife method
+    mcse_bias_sv_jack_sk = sqrt(var(jack_skew_sv) / length(jack_skew_sv)), # Monte Carlo Standard error 
+					        n_sims = length(sk_sv))) # Number of simulations
     }
 
 if(type == "kurtosis") {
@@ -205,23 +205,23 @@ if(type == "kurtosis") {
          bias_ku_sv = ((mean(ku_sv) - sd(ku)^2) / sd(ku)^2)*100, # Relative Bias for kurtosis sampling variance from analytical approximation
         
       # Delta method for skewness
-        bias_ku_delta = mean(kurt_delta) - (params$kurtosis_g1 - params$kurtosis_g2), # Bias for kurtosis from delta method
-   mcse_bias_delta_ku = sqrt(var(kurt_delta) / length(kurt_delta)), # Monte Carlo Standard error for bias of kurtosis from delta method
-     bias_ku_delta_sv = ((mean(kurt_delta_sv) - sd(ku)^2) / sd(ku)^2)*100, # Relative Bias for kurtosis sampling variance from delta method
-mcse_bias_sv_delta_ku = sqrt(var(kurt_delta_sv) / length(kurt_delta_sv)), # Monte Carlo Standard error for bias of kurtosis sampling variance from delta method
+        bias_ku_delta = mean(kurt_delta) - (params$kurtosis_g1 - params$kurtosis_g2), 
+   mcse_bias_delta_ku = sqrt(var(kurt_delta) / length(kurt_delta)), 
+     bias_ku_delta_sv = ((mean(kurt_delta_sv) - sd(ku)^2) / sd(ku)^2)*100, 
+mcse_bias_sv_delta_ku = sqrt(var(kurt_delta_sv) / length(kurt_delta_sv)), 
 
     # Bootstrap method for kurtosis
-         bias_ku_boot_bc = mean(boot_kurt_bc) - (params$kurtosis_g1 - params$kurtosis_g2), # Bias for kurtosis from bootstrap method
-    mcse_bias_boot_ku_bc = sqrt(var(boot_kurt_bc) / length(boot_kurt_bc)), # Monte Carlo Standard error for bias of kurtosis from bootstrap method
-      bias_ku_boot_sv = ((mean(boot_kurt_sv) - sd(ku)^2) / sd(ku)^2)*100, # Relative Bias for kurtosis sampling variance from bootstrap method
- mcse_bias_sv_boot_ku = sqrt(var(boot_kurt_sv) / length(boot_kurt_sv)), # Monte Carlo Standard error for bias of kurtosis sampling variance from bootstrap method
+         bias_ku_boot_bc = mean(boot_kurt_bc) - (params$kurtosis_g1 - params$kurtosis_g2), 
+    mcse_bias_boot_ku_bc = sqrt(var(boot_kurt_bc) / length(boot_kurt_bc)), 
+         bias_ku_boot_sv = ((mean(boot_kurt_sv) - sd(ku)^2) / sd(ku)^2)*100, 
+    mcse_bias_sv_boot_ku = sqrt(var(boot_kurt_sv) / length(boot_kurt_sv)), 
          
     # Jackknife method for kurtosis
-         bias_ku_jack_bc = mean(jack_kurt_bc) - (params$kurtosis_g1 - params$kurtosis_g2), # Bias for kurtosis from jackknife method
-    mcse_bias_jack_ku_bc = sqrt(var(jack_kurt_bc) / length(jack_kurt_bc)), # Monte Carlo Standard error for bias of kurtosis from jackknife method
-      bias_ku_jack_sv = ((mean(jack_kurt_sv) - sd(ku)^2) / sd(ku)^2)*100, # Relative Bias for kurtosis sampling variance from jackknife method
- mcse_bias_sv_jack_ku = sqrt(var(jack_kurt_sv) / length(jack_kurt_sv)), # Monte Carlo Standard error for bias of kurtosis sampling variance from jackknife method
-               n_sims = length(ku_sv)))
+         bias_ku_jack_bc = mean(jack_kurt_bc) - (params$kurtosis_g1 - params$kurtosis_g2), 
+    mcse_bias_jack_ku_bc = sqrt(var(jack_kurt_bc) / length(jack_kurt_bc)), 
+         bias_ku_jack_sv = ((mean(jack_kurt_sv) - sd(ku)^2) / sd(ku)^2)*100, 
+    mcse_bias_sv_jack_ku = sqrt(var(jack_kurt_sv) / length(jack_kurt_sv)), 
+                  n_sims = length(ku_sv)))
  
     }
 }
