@@ -28,6 +28,11 @@ sim_cor <- function(params, nsims = nsims) {
   # Vectors to store results
       bias_d_cor <- numeric(nsims)
    bias_d_cor_sv <- numeric(nsims)
+
+   boot_cor_bc <- numeric(nsims)
+   boot_cor_sv <- numeric(nsims)
+   jack_cor_bc <- numeric(nsims)
+   jack_cor_sv <- numeric(nsims)
   
 for(i in 1:nsims) {
 ##---------------------------##
@@ -58,16 +63,36 @@ for(i in 1:nsims) {
 # Calculate bias between groups, which is how much the difference between correlations deviates from the true difference in values
      bias_d_cor[i] = (r.to.zr(cor(g1)[1,2]) - r.to.zr(cor(g2)[1,2])) - (r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2))
   bias_d_cor_sv[i] = (1 / (params$n - 3)) + (1 / (params$n - 3)) # sampling variance of the difference in correlations
+
+  ## Add jacknife and bootstrap methods
+  g1_cor_boot <- tryCatch(boot_cor(g1), error = function(e) {return(NA)})
+  g2_cor_boot <- tryCatch(boot_cor(g2), error = function(e) {return(NA)})
+  g1_cor_jack <- tryCatch(jack_cor(g1), error = function(e) {return(NA)})
+  g2_cor_jack <- tryCatch(jack_cor(g2), error = function(e) {return(NA)})
+
+  ## Calculate the bias-corrected estimates
+  boot_cor_bc[i] <- g1_cor_boot$est_bc - g2_cor_boot$est_bc
+  boot_cor_sv[i] <- g1_cor_boot$var + g2_cor_boot$var
+  jack_cor_bc[i] <- g1_cor_jack$est_bc - g2_cor_jack$est_bc
+  jack_cor_sv[i] <- g1_cor_jack$var + g2_cor_jack$var
 }
   
 ##-------------------------------------------------##
   # Return data with all the simulation results
 ##-------------------------------------------------##
-  return(data.frame(   bias_d_cor = mean(bias_d_cor, na.rm = TRUE),
-                    bias_d_cor_sv = ((mean(bias_d_cor_sv) - sd(bias_d_cor)^2) / sd(bias_d_cor)^2)*100,
-                     mcse_bias_sv = sqrt(var(bias_d_cor_sv, na.rm = TRUE) / nsims),
-                        mcse_bias = sqrt(var(bias_d_cor, na.rm = TRUE) / nsims),
-					                  nsims = length(bias_d_cor)))
+  return(data.frame(          bias_d_cor = mean(bias_d_cor, na.rm = TRUE),
+                           bias_d_cor_sv = ((mean(bias_d_cor_sv) - sd(bias_d_cor)^2) / sd(bias_d_cor)^2)*100,
+                            mcse_bias_sv = sqrt(var(bias_d_cor_sv, na.rm = TRUE) / nsims),
+                               mcse_bias = sqrt(var(bias_d_cor, na.rm = TRUE) / nsims),
+                           bias_boot_d_cor = mean(boot_cor_bc, na.rm = TRUE),
+                        bias_boot_d_cor_sv = ((mean(boot_cor_sv) - sd(bias_d_cor)^2) / sd(bias_d_cor)^2)*100,
+                        mcse_boot_d_cor_sv = sqrt(var(boot_cor_sv, na.rm = TRUE) / nsims),
+                           mcse_boot_d_cor = sqrt(var(boot_cor_bc, na.rm = TRUE) / nsims),
+                           bias_jack_d_cor = mean(jack_cor_bc, na.rm = TRUE),
+                        bias_jack_d_cor_sv = ((mean(jack_cor_sv) - sd(bias_d_cor)^2) / sd(bias_d_cor)^2)*100,
+                        mcse_jack_d_cor_sv = sqrt(var(jack_cor_sv, na.rm = TRUE) / nsims),
+                           mcse_jack_d_cor = sqrt(var(jack_cor_bc, na.rm = TRUE) / nsims),
+                                         n = length(bias_d_cor)))
 }
 
 ###------------------------------------------------------------------------###
