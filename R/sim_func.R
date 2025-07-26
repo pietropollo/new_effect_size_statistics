@@ -173,26 +173,26 @@ if(type == "skewness") {
     # Original analytical formulas for skewness     
             bias_sk = mean(sk) - (params$skewness_g1 - params$skewness_g2), # Bias for skewness from true value       
        mcse_bias_sk = sqrt(var(sk) / length(sk)), # Monte Carlo Standard error for bias of skewness
-         bias_sk_sv = ((mean(sk_sv) - sd(sk)^2) / sd(sk)^2)*100, # Relative Bias for skewness sampling variance from analytical approximation
+         bias_sk_sv = ((mean(sk_sv) - sd(sk)^2) / sd(sk)^2)*100, # Relative Bias for skewness sampling variance 
     mcse_bias_sv_sk = sqrt(var(sk_sv) / length(sk_sv)), # Monte Carlo Standard error for bias of skewness sampling variance
 
     # Delta method for skewness
          bias_sk_delta = mean(skew_delta) - (params$skewness_g1 - params$skewness_g2), # Bias for skewness from delta method
-    mcse_bias_delta_sk = sqrt(var(skew_delta) / length(skew_delta)), # Monte Carlo Standard error for bias of skewness from delta method
+    mcse_bias_delta_sk = sqrt(var(skew_delta) / length(skew_delta)), # Monte Carlo Standard error 
       bias_sk_delta_sv = ((mean(skew_delta_sv) - sd(sk)^2) / sd(sk)^2)*100, # Relative Bias for skewness sampling variance from delta method
- mcse_bias_sv_delta_sk = sqrt(var(skew_delta_sv) / length(skew_delta_sv)), # Monte Carlo Standard error for bias of skewness 
+ mcse_bias_sv_delta_sk = sqrt(var(skew_delta_sv) / length(skew_delta_sv)), # Monte Carlo Standard error  
 
     # Bootstrap method for skewness
          bias_sk_boot_bc = mean(boot_skew_bc) - (params$skewness_g1 - params$skewness_g2), # Bias for skewness from bootstrap method
-    mcse_bias_boot_sk = sqrt(var(boot_skew_bc) / length(boot_skew_bc)), # Monte Carlo Standard error for bias of skewness from bootstrap method
-      bias_sk_boot_sv = ((mean(boot_skew_sv) - sd(sk)^2) / sd(sk)^2)*100, # Relative Bias for skewness sampling variance from bootstrap method
- mcse_bias_sv_boot_sk = sqrt(var(boot_skew_sv) / length(boot_skew_sv)), # Monte Carlo Standard error for bias of skewness sampling variance from bootstrap method
+       mcse_bias_boot_sk = sqrt(var(boot_skew_bc) / length(boot_skew_bc)), # Monte Carlo Standard error 
+         bias_sk_boot_sv = ((mean(boot_skew_sv) - sd(sk)^2) / sd(sk)^2)*100, # Relative Bias for skewness sampling variance 
+    mcse_bias_sv_boot_sk = sqrt(var(boot_skew_sv) / length(boot_skew_sv)), # Monte Carlo Standard error 
 
     # Jackknife method for skewness  
          bias_sk_jack_bc = mean(jack_skew_bc) - (params$skewness_g1 - params$skewness_g2), # Bias for skewness from jackknife method
-    mcse_bias_jack_sk = sqrt(var(jack_skew_bc) / length(jack_skew_bc)), # Monte Carlo Standard error for bias of skewness from jackknife method
-      bias_sk_jack_sv = ((mean(jack_skew_sv) - sd(sk)^2) / sd(sk)^2)*100, # Relative Bias for skewness sampling variance from jackknife method
- mcse_bias_sv_jack_sk = sqrt(var(jack_skew_sv) / length(jack_skew_sv)), # Monte Carlo Standard error for bias of skewness sampling variance from jackknife method
+    mcse_bias_jack_sk = sqrt(var(jack_skew_bc) / length(jack_skew_bc)), # Monte Carlo Standard error 
+      bias_sk_jack_sv = ((mean(jack_skew_sv) - sd(sk)^2) / sd(sk)^2)*100, # Relative Bias for skewness from jackknife method
+ mcse_bias_sv_jack_sk = sqrt(var(jack_skew_sv) / length(jack_skew_sv)), # Monte Carlo Standard error 
 					   n_sims = length(sk_sv))) # Number of simulations
     }
 
