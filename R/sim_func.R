@@ -234,6 +234,9 @@ mcse_bias_sv_delta_ku = sqrt(var(kurt_delta_sv) / length(kurt_delta_sv)), # Mont
 ###------------------------------------------------------------------------###
 # # Skewness simulation 
 ###------------------------------------------------------------------------###
+# Set seed for reproducibility 
+  set.seed(860)
+
 # Parameters
                       nsims = 2500  # simulations, stick with 5000 min but maybe increase to 10,000
 	                        n = c(10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 150, 500)  
@@ -292,6 +295,10 @@ saveRDS(result_skewness, file = "./output/result_skewness.rds") # Save the resul
 ###------------------------------------------------------------------------###
 # # Kurtosis simulation
 ###------------------------------------------------------------------------###
+
+# Set seed for reproducibility 
+  set.seed(860)
+
 	# Parameters
                       nsims = 2500  # simulations, stick with 5000 min but maybe increase to 10,000
 								          n = c(10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 150, 500)  
