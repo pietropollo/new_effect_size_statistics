@@ -166,6 +166,58 @@ jack_kurt <- function(x, bias.correct = TRUE,
   out
 }
 
+## ================================================================
+## 7. Jack-knife SE (and bias-correction) for correlation
+## ================================================================
+jack_cor <- function(dat, bias.correct = TRUE,
+                      return.replicates = FALSE) {
+  
+  n   <- nrow(dat)
+  g2  <- function(z) cor(z)[1,2]
+  
+  theta_i <- vapply(seq_len(n),
+                    function(i) g2(dat[-i, ]),
+                    numeric(1))
+  
+  theta     <- g2(dat)
+  theta_bar <- mean(theta_i)
+  
+  se_jack   <- sqrt((n - 1) * mean((theta_i - theta_bar)^2))
+  
+  theta_bc  <- if (bias.correct) n * theta - (n - 1) * theta_bar else theta
+  
+  out <- list(est    = theta,
+              est_bc = theta_bc,
+              var    = se_jack^2,
+              se     = se_jack)
+  
+  if (return.replicates) out$jack <- theta_i
+  out
+}
+
+## ================================================================
+## 8. Non-parametric bootstrap for correlation
+##    – returns a list:  point est, bias-corrected est, se, replicates*
+## ================================================================
+boot_cor <- function(dat, B = 2000, bias.correct = TRUE,
+                     return.replicates = FALSE) {
+  g2 <- function(z) cor(z)[1,2]
+
+  b.reps <- replicate(B, {
+    sample_rows <- dat[sample(nrow(dat), replace = TRUE), ]
+    g2(sample_rows)
+  })
+
+  est    <- g2(dat)
+  est.bc <- if (bias.correct) 2 * est - mean(b.reps) else est
+  out    <- list(est     = est,
+                 est_bc  = est.bc,
+                 var     = sd(b.reps)^2,
+                 se      = sd(b.reps))
+  if (return.replicates) out$boot <- b.reps
+  out
+}
+
 # How to use it
 
 set.seed(1)
