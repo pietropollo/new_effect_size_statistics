@@ -135,7 +135,6 @@ jack_skew <- function(x, bias.correct = TRUE,
   out
 }
 
-
 ## ================================================================
 ## 6. Jack-knife SE (and bias-correction) for *excess* kurtosis
 ## ================================================================
@@ -231,6 +230,17 @@ bs_ku   <- boot_kurt(x, 2000)
 
 jk_sk <- jack_skew(x)
 jk_ku <- jack_kurt(x)
+
+
+g2 <- tryCatch(MASS::mvrnorm(1000, 
+				               mu = c(0, 0), 
+				            Sigma = matrix(c(1, -0.4, -0.4, 1), nrow = 2)),
+                    error = function(e) {
+						         message("Error in mvrnorm for group 2: ", e)
+						         return(NA)
+					  })
+jack_cor(g2, bias.correct = TRUE, return.replicates = FALSE)
+boot_cor(g2, B = 10000, bias.correct = TRUE, return.replicates = FALSE)
 
 sk_res
 bs_sk
