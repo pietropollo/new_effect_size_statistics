@@ -128,8 +128,8 @@ system.time(
 for(i in 1:nrow(params_all)) {
          params <- params_all[i,]
   results_d_cor <- rbind(results_d_cor, sim_cor(params = params, nsims = nsims))
-  
-  print(paste("Simulation for scenario", i, "completed. Bias:", round(results_d_cor$bias_d_cor, 2), "Bias SV:", round(results_d_cor$bias_d_cor_sv, 2), "MCSE Bias SV:", round(results_d_cor$mcse_bias_sv, 2), "MCSE Bias:", round(results_d_cor$mcse_bias, 2)))
+
+  print(paste("Simulation for scenario", i, "completed. Bias:", round(results_d_cor$bias_d_cor[i], 2), "Bias SV:", round(results_d_cor$bias_d_cor_sv[i], 2), "MCSE Bias SV:", round(results_d_cor$mcse_bias_sv[i], 2), "MCSE Bias:", round(results_d_cor$mcse_bias[i], 2)))
 }
 ) # 335.483 elapsed time which is 6 minutes 
 
