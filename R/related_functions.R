@@ -2,6 +2,13 @@
 ## 1. delta-method plug-in variance for sample skewness  (g1)
 ##    – returns a list:  estimate, var, se
 ## ================================================================
+#' @title Delta-method Variance for Sample Skewness
+#' @description Computes the sample skewness and estimates its variance using the delta method.
+#' @param x A numeric vector.
+#' @return A list with the skewness estimate (`est`), its variance (`var`), and standard error (`se`).
+#' @examples
+#' x <- rgamma(25, shape = 5)
+#' skew_delta(x)
 skew_delta <- function(x) {
   n  <- length(x)
   xc <- x - mean(x)
@@ -32,6 +39,13 @@ skew_delta <- function(x) {
 ## 2. delta-method plug-in variance for sample *excess* kurtosis  (g2)
 ##    – returns a list:  estimate, var, se
 ## ================================================================
+#' @title Delta-method Variance for Sample Excess Kurtosis
+#' @description Computes the sample excess kurtosis and estimates its variance using the delta method.
+#' @param x A numeric vector.
+#' @return A list with the excess kurtosis estimate (`est`), its variance (`var`), and standard error (`se`).
+#' @examples
+#' x <- rgamma(25, shape = 5)
+#' kurt_delta(x)
 kurt_delta <- function(x) {
   n  <- length(x)
   xc <- x - mean(x)
@@ -62,6 +76,16 @@ kurt_delta <- function(x) {
 ## 3. Non-parametric bootstrap for skewness
 ##    – returns a list:  point est, bias-corrected est, se, replicates*
 ## ================================================================
+#' @title Bootstrap Estimation of Skewness
+#' @description Computes bootstrap estimate and standard error of skewness.
+#' @param x A numeric vector.
+#' @param B Number of bootstrap replicates. Default is 2000.
+#' @param bias.correct Logical, whether to apply bias correction. Default is TRUE.
+#' @param return.replicates Logical, whether to return replicate values. Default is FALSE.
+#' @return A list with estimate (`est`), bias-corrected estimate (`est_bc`), variance, and standard error.
+#' @examples
+#' x <- rgamma(25, shape = 5)
+#' boot_skew(x)
 boot_skew <- function(x, B = 2000, bias.correct = TRUE,
                       return.replicates = FALSE) {
   g1 <- function(z) mean((z - mean(z))^3) /
@@ -84,6 +108,16 @@ boot_skew <- function(x, B = 2000, bias.correct = TRUE,
 ## 4. Non-parametric bootstrap for excess kurtosis
 ##    – returns a list:  point est, bias-corrected est, se, replicates*
 ## ================================================================
+#' @title Bootstrap Estimation of Excess Kurtosis
+#' @description Computes bootstrap estimate and standard error of excess kurtosis.
+#' @param x A numeric vector.
+#' @param B Number of bootstrap replicates. Default is 2000.
+#' @param bias.correct Logical, whether to apply bias correction. Default is TRUE.
+#' @param return.replicates Logical, whether to return replicate values. Default is FALSE.
+#' @return A list with estimate (`est`), bias-corrected estimate (`est_bc`), variance, and standard error.
+#' @examples
+#' x <- rgamma(25, shape = 5)
+#' boot_kurt(x)
 boot_kurt <- function(x, B = 2000, bias.correct = TRUE,
                       return.replicates = FALSE) {
   g2 <- function(z) mean((z - mean(z))^4) /
@@ -105,6 +139,15 @@ boot_kurt <- function(x, B = 2000, bias.correct = TRUE,
 ## ================================================================
 ## 5. Jack-knife SE (and bias-correction) for skewness
 ## ================================================================
+#' @title Jackknife Estimation of Skewness
+#' @description Computes jackknife estimate and standard error for skewness.
+#' @param x A numeric vector.
+#' @param bias.correct Logical, whether to apply bias correction. Default is TRUE.
+#' @param return.replicates Logical, whether to return jackknife replicates. Default is FALSE.
+#' @return A list with estimate (`est`), bias-corrected estimate (`est_bc`), variance, and standard error.
+#' @examples
+#' x <- rgamma(25, shape = 5)
+#' jack_skew(x)
 jack_skew <- function(x, bias.correct = TRUE,
                       return.replicates = FALSE) {
   
@@ -138,6 +181,15 @@ jack_skew <- function(x, bias.correct = TRUE,
 ## ================================================================
 ## 6. Jack-knife SE (and bias-correction) for *excess* kurtosis
 ## ================================================================
+#' @title Jackknife Estimation of Excess Kurtosis
+#' @description Computes jackknife estimate and standard error for excess kurtosis.
+#' @param x A numeric vector.
+#' @param bias.correct Logical, whether to apply bias correction. Default is TRUE.
+#' @param return.replicates Logical, whether to return jackknife replicates. Default is FALSE.
+#' @return A list with estimate (`est`), bias-corrected estimate (`est_bc`), variance, and standard error.
+#' @examples
+#' x <- rgamma(25, shape = 5)
+#' jack_kurt(x)
 jack_kurt <- function(x, bias.correct = TRUE,
                       return.replicates = FALSE) {
   
@@ -168,6 +220,15 @@ jack_kurt <- function(x, bias.correct = TRUE,
 ## ================================================================
 ## 7. Jack-knife SE (and bias-correction) for correlation
 ## ================================================================
+#' @title Jackknife Estimation of Correlation
+#' @description Computes jackknife estimate and standard error for the Pearson correlation between two variables.
+#' @param dat A two-column data frame or matrix.
+#' @param bias.correct Logical, whether to apply bias correction. Default is TRUE.
+#' @param return.replicates Logical, whether to return jackknife replicates. Default is FALSE.
+#' @return A list with estimate (`est`), bias-corrected estimate (`est_bc`), variance, and standard error.
+#' @examples
+#' g2 <- MASS::mvrnorm(1000, mu = c(0, 0), Sigma = matrix(c(1, -0.4, -0.4, 1), 2))
+#' jack_cor(g2)
 jack_cor <- function(dat, bias.correct = TRUE,
                       return.replicates = FALSE) {
   
@@ -198,6 +259,16 @@ jack_cor <- function(dat, bias.correct = TRUE,
 ## 8. Non-parametric bootstrap for correlation
 ##    – returns a list:  point est, bias-corrected est, se, replicates*
 ## ================================================================
+#' @title Bootstrap Estimation of Correlation
+#' @description Computes bootstrap estimate and standard error for the Pearson correlation between two variables.
+#' @param dat A two-column data frame or matrix.
+#' @param B Number of bootstrap replicates. Default is 2000.
+#' @param bias.correct Logical, whether to apply bias correction. Default is TRUE.
+#' @param return.replicates Logical, whether to return replicate values. Default is FALSE.
+#' @return A list with estimate (`est`), bias-corrected estimate (`est_bc`), variance, and standard error.
+#' @examples
+#' g2 <- MASS::mvrnorm(1000, mu = c(0, 0), Sigma = matrix(c(1, -0.4, -0.4, 1), 2))
+#' boot_cor(g2)
 boot_cor <- function(dat, B = 2000, bias.correct = TRUE,
                      return.replicates = FALSE) {
   g2 <- function(z) cor(z)[1,2]
