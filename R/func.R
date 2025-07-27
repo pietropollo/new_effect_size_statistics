@@ -403,25 +403,56 @@
 ##    – iterates over scenarios and saves a grid of plots
 ##    – returns a ggplot object
 ## ================================================================
-#' @title multi_plot_scenarios
-#' @description Plot Multiple Scenarios in a Grid and Save to File
-#' @details Iterates over a set of parameter rows and plots each using \code{plot_scenario()}, combining
-#' the results into a grid layout and saving as a PNG file.
-#' @param scenarios A data frame where each row contains parameters for one scenario
-#'   (columns as in \code{create_dat()}).
-#' @param folder Path to the output folder for the plot file. Defaults to \code{"figs/"}.
-#' @return Saves a grid of plots as a PNG file and returns \code{NULL} invisibly.
-#' @import ggplot2
-#' @import patchwork
-#' @export
-  multi_plot_scenarios <- function(scenarios, folder = "figs/") {
-    plots <- list() # Initialize an empty list to store plots
-    for(i in 1:nrow(scenarios)) {
-      params <- scenarios[i,]
-      plots[[i]] <- plot_scenario(params, print = TRUE, xpos = 3)
-    }
-  # Combine all plots into a grid layout
-  ggsave(filename = paste0(folder, "scenario_plots_", Sys.time(), ".png"), plot = wrap_plots(plots, ncol = 2), width = 10, height = 10, dpi = 300)
+  #' @title multi_plot_scenarios
+  #' @description Plot Multiple Scenarios in a Grid and Save to File
+  #' @details Iterates over a set of parameter rows and plots each using \code{plot_scenario()}, combining
+  #' the results into a grid layout and saving as a PNG file.
+  #' @param scenarios A data frame where each row contains parameters for one scenario
+  #'   (columns as in \code{create_dat()}).
+  #' @param folder Path to the output folder for the plot file. Defaults to \code{"figs/"}.
+  #' @return Saves a grid of plots as a PNG file and returns \code{NULL} invisibly.
+  #' @import ggplot2
+  #' @import patchwork
+  #' @export
+    multi_plot_scenarios <- function(scenarios, folder = "figs/") {
+      plots <- list() # Initialize an empty list to store plots
+      for(i in 1:nrow(scenarios)) {
+        params <- scenarios[i,]
+        plots[[i]] <- plot_scenario(params, print = TRUE, xpos = 3)
+      }
+    # Combine all plots into a grid layout
+    ggsave(filename = paste0(folder, "scenario_plots_", Sys.time(), ".png"), plot = wrap_plots(plots, ncol = 2), width = 10, height = 10, dpi = 300)
+}
+
+## ================================================================
+## 13. Fisher Z-transformation of Correlation Coefficient
+##    – converts a Pearson correlation coefficient to Fisher's Zr
+##    – returns the Zr-transformed correlation value(s)
+## ================================================================
+  #' @title Fisher Z-transformation of Correlation Coefficient
+  #' @description Converts a Pearson correlation coefficient \eqn{r} to Fisher's Zr using the inverse hyperbolic tangent.
+  #' @param r A numeric vector of Pearson correlation coefficients.
+  #' @return The Zr-transformed correlation value(s).
+  #' @examples
+  #' r.to.zr(0.5)
+  r.to.zr <- # Zr estimate
+    function(r) { 
+      0.5 * log((1 + r) / (1 - r))
   }
 
-
+## ================================================================
+## 14. Variance of Fisher Z-transformed Correlation
+##    – computes the approximate sampling variance of Fisher's Zr given a sample size
+##    – returns the variance of the Zr-transformed correlation
+## ================================================================
+  #' @title Variance of Fisher Z-transformed Correlation
+  #' @description Computes the approximate sampling variance of Fisher's Zr given a sample size.
+  #' @param n Sample size (must be greater than 3).
+  #' @return The variance of the Zr-transformed correlation.
+  #' @examples
+  #' zr.variance(30)
+  zr.variance <- # Zr variance 
+    function(n) {
+      1 / (n - 3)
+  }
+## ================================================================

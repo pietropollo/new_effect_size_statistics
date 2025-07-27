@@ -9,22 +9,9 @@ rm(list = ls()) # Remove all objects from the environment
 # Load required packages
 	pacman::p_load(moments, PearsonDS, MASS)
    source("./R/func.R") # Load the functions from func.R
-   source("./R/related_functions.R")
 
 
-  ## Zr ----
-r.to.zr <- # Zr estimate
-  function(r) { 
-    0.5 * log((1 + r) / (1 - r))
-  }
-
-zr.variance <- # Zr variance 
-  function(n) {
-    1 / (n - 3)
-  }
-
-
-
+# Core function for simulating correlation-based effect sizes differences
 sim_cor <- function(params, nsims = nsims) {
   # Vectors to store results
       d_cor <- numeric(nsims)

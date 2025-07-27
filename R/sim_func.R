@@ -6,7 +6,6 @@
 # Load required packages
 	pacman::p_load(moments, PearsonDS, tidyverse, patchwork)
   source("./R/func.R") # Load the functions from func.R
-  source("./R/related_functions.R")
   
 # functions for calculating effect sizes ----
 calc.skewness <- function(x, output = "est") {
