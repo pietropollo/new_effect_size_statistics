@@ -59,7 +59,7 @@ for(i in 1:nsims) {
 					  })
 
 ##-------------------------------------------------##
-  # Calculate bias 
+  # Calculate effects 
 ##-------------------------------------------------##
 # Calculate the difference between correlations and combined sampling variance
      d_cor[i] = (r.to.zr(cor(g1)[1,2]) - r.to.zr(cor(g2)[1,2])) 
@@ -80,7 +80,8 @@ for(i in 1:nsims) {
 }
   
 ##-------------------------------------------------##
-  # Return data with all the simulation results
+# Return data with all the simulation results
+# Calculate bias, relative bias and MCSE for all methods
 ##-------------------------------------------------##
   return(data.frame(          bias_d_cor = (mean(d_cor, na.rm = TRUE) - (r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2))),
                            bias_d_cor_sv = ((mean(d_cor_sv) - sd(d_cor)^2) / sd(d_cor)^2)*100,

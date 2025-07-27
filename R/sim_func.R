@@ -164,7 +164,8 @@ for(i in 1:nsims) {
 }
 
 ##-------------------------------------------------##
-  # Return data with all the simulation results
+# Return data with all the simulation results
+# Calculate bias, relative bias and MCSE for all methods
 ##-------------------------------------------------##
 
 if(type == "skewness") {
