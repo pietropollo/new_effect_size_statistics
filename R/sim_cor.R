@@ -76,12 +76,12 @@ for(i in 1:nsims) {
                                mcse_bias = sqrt(var(d_cor, na.rm = TRUE) / nsims),
 
                            bias_boot_d_cor = (mean(boot_d_cor_bc, na.rm = TRUE) - (r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2))),
-                        bias_boot_d_cor_sv = ((mean(boot_d_cor_sv) - sd(d_cor)^2) / sd(d_cor)^2)*100,
+                        bias_boot_d_cor_sv = ((mean(boot_d_cor_sv) - sd(boot_d_cor_bc)^2) / sd(boot_d_cor_bc)^2)*100,
                         mcse_boot_d_cor_sv = sqrt(var(boot_d_cor_sv, na.rm = TRUE) / nsims),
                            mcse_boot_d_cor = sqrt(var(boot_d_cor_bc, na.rm = TRUE) / nsims),
 
                            bias_jack_d_cor = (mean(jack_d_cor_bc, na.rm = TRUE) - (r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2))),
-                        bias_jack_d_cor_sv = ((mean(jack_d_cor_sv) - sd(d_cor)^2) / sd(d_cor)^2)*100,
+                        bias_jack_d_cor_sv = ((mean(jack_d_cor_sv) - sd(jack_d_cor_bc)^2) / sd(jack_d_cor_bc)^2)*100,
                         mcse_jack_d_cor_sv = sqrt(var(jack_d_cor_sv, na.rm = TRUE) / nsims),
                            mcse_jack_d_cor = sqrt(var(jack_d_cor_bc, na.rm = TRUE) / nsims),
                                          n = length(d_cor)))
