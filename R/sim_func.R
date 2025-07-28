@@ -287,7 +287,7 @@ for(i in 1:nrow(params_all)) {
   print(paste("Simulation for scenario", i, "completed. Bias_sk:", round(result_skewness$bias_sk[i], 2), "mcse_bias_sv_sk:", round(result_skewness$mcse_bias_sv_sk[i], 2), "mcse_bias_sk:", round(result_skewness$mcse_bias_sk[i], 2)))
 }
 )
-# 1096.327 seconds elapsed or 18 minutes; sims = 10 for testing purposes takes about 13 min, so 5000 will take 8 hours; 4 for 2500 so will drop a bit
+# # 63 hours to run or about 3 days
 # Merge the results with the scenario parameters
 result_skewness <- cbind(params_all, result_skewness)
 saveRDS(result_skewness, file = "./output/result_skewness.rds") # Save the results to a file
