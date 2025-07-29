@@ -119,7 +119,7 @@ for(i in 1:nrow(params_all)) {
 
   print(paste("Simulation for scenario", i, "completed. Bias:", round(results_d_cor$bias_d_cor[i], 2), "Bias SV:", round(results_d_cor$bias_d_cor_sv[i], 2), "MCSE Bias SV:", round(results_d_cor$mcse_bias_sv[i], 2), "MCSE Bias:", round(results_d_cor$mcse_bias[i], 2)))
 }
-) # 37 hours to run all simulations 
+) # 29 hours to run all simulations 
 
 # cbind results with parameters
 result <- cbind(params_all, results_d_cor)
