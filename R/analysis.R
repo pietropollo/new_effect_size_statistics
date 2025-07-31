@@ -18,8 +18,9 @@ rm(list = ls()) # Remove all objects from the environment
 # Rename second n column to n_sim 
      colnames(result_cor)[17] <- "n_sim"
 
-# Create a plot of the bias for all estimates based on sample size
-
+##------------------------------------------------------------------------##
+## Bias in Estimates
+##------------------------------------------------------------------------##
 ## Skewness
 bias_sk_plot <- ggplot(result_skew, aes(x = factor(n), y = bias_sk, fill = factor(n))) + 
   geom_violin() + geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
@@ -94,20 +95,62 @@ est_plot <- (bias_sk_plot | bias_sk_plot_delta | bias_sk_plot_boot | bias_sk_plo
   plot_annotation(tag_levels = 'A', tag_suffix = ")") & 
   theme(plot.tag = element_text(size = 16, face = "bold"))
 
+##------------------------------------------------------------------------##
+## Relative Bias in Sampling Error of Estimates
+##------------------------------------------------------------------------##
 
-# Now for relative bias in the sampling error of the estimates
+# Skewness
+
 bias_sk_sv_plot <- ggplot(result_skew, aes(x = factor(n), y = bias_sk_sv, fill = factor(n))) + 
  geom_violin() + geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
   labs(x = "Sample Size",
        y = TeX("Relative Bias $SV_{\\Delta sk}$ (%)")) +
   theme_classic() + theme(legend.position = "none", axis.title=element_text(size = 14), axis.text=element_text(size = 12), plot.tag = element_text(size = 16, face = "bold")) + scale_fill_viridis_d()
 
+bias_sk_sv_plot_delta <- ggplot(result_skew, aes(x = factor(n), y = bias_sk_delta_sv, fill = factor(n))) + 
+ geom_violin() + geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
+  labs(x = "Sample Size",
+       y = TeX("Relative Bias $SV_{\\Delta sk}$ (%) (Delta method)")) +
+  theme_classic() + theme(legend.position = "none", axis.title=element_text(size = 14), axis.text=element_text(size = 12), plot.tag = element_text(size = 16, face = "bold")) + scale_fill_viridis_d()
+
+bias_sk_sv_plot_boot <- ggplot(result_skew, aes(x = factor(n), y = bias_sk_boot_sv, fill = factor(n))) + 
+ geom_violin() + geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
+  labs(x = "Sample Size",
+       y = TeX("Relative Bias $SV_{\\Delta sk}$ (%) (Bootstrap)")) +
+  theme_classic() + theme(legend.position = "none", axis.title=element_text(size = 14), axis.text=element_text(size = 12), plot.tag = element_text(size = 16, face = "bold")) + scale_fill_viridis_d()
+
+bias_sk_sv_plot_jack <- ggplot(result_skew, aes(x = factor(n), y = bias_sk_jack_sv, fill = factor(n))) + 
+ geom_violin() + geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
+  labs(x = "Sample Size",
+       y = TeX("Relative Bias $SV_{\\Delta sk}$ (%) (Jackknife)")) +
+  theme_classic() + theme(legend.position = "none", axis.title=element_text(size = 14), axis.text=element_text(size = 12), plot.tag = element_text(size = 16, face = "bold")) + scale_fill_viridis_d()
+
+# Kurtosis
 bias_kurt_sv_plot <- ggplot(result_kurt, aes(x = factor(n), y = bias_ku_sv, fill = factor(n))) + 
  geom_violin() + geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
   labs(x = "Sample Size",
        y = TeX("Relative Bias $SV_{\\Delta ku}$ (%)")) +
   theme_classic() + theme(legend.position = "none", axis.title=element_text(size = 14), axis.text=element_text(size = 12), plot.tag = element_text(size = 16, face = "bold")) + scale_fill_viridis_d()
 
+bias_kurt_sv_plot_delta <- ggplot(result_kurt, aes(x = factor(n), y = bias_ku_delta_sv, fill = factor(n))) + 
+ geom_violin() + geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
+  labs(x = "Sample Size",
+       y = TeX("Relative Bias $SV_{\\Delta ku}$ (%) (Delta method)")) +
+  theme_classic() + theme(legend.position = "none", axis.title=element_text(size = 14), axis.text=element_text(size = 12), plot.tag = element_text(size = 16, face = "bold")) + scale_fill_viridis_d()
+
+bias_kurt_sv_plot_boot <- ggplot(result_kurt, aes(x = factor(n), y = bias_ku_boot_sv, fill = factor(n))) + 
+ geom_violin() + geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
+  labs(x = "Sample Size",
+       y = TeX("Relative Bias $SV_{\\Delta ku}$ (%) (Bootstrap)")) +
+  theme_classic() + theme(legend.position = "none", axis.title=element_text(size = 14), axis.text=element_text(size = 12), plot.tag = element_text(size = 16, face = "bold")) + scale_fill_viridis_d()
+
+bias_kurt_sv_plot_jack <- ggplot(result_kurt, aes(x = factor(n), y = bias_ku_jack_sv, fill = factor(n))) + 
+ geom_violin() + geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
+  labs(x = "Sample Size",
+       y = TeX("Relative Bias $SV_{\\Delta ku}$ (%) (Jackknife)")) +
+  theme_classic() + theme(legend.position = "none", axis.title=element_text(size = 14), axis.text=element_text(size = 12), plot.tag = element_text(size = 16, face = "bold")) + scale_fill_viridis_d()
+
+# Correlation
 bias_cor_sv_plot <- ggplot(result_cor, aes(x = factor(n), y = bias_d_cor_sv, fill = factor(n))) + 
  geom_violin() + geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
   labs(x = "Sample Size",
@@ -127,7 +170,7 @@ bias_cor_sv_jacknife_plot <- ggplot(result_cor, aes(x = factor(n), y = bias_jack
   theme_classic() + theme(legend.position = "none", axis.title=element_text(size = 14), axis.text=element_text(size = 12), plot.tag = element_text(size = 16, face = "bold")) + scale_fill_viridis_d() 
 
 # Combine all plots
-final_bias_plot <- ((bias_sk_plot / bias_kurt_plot / bias_cor_plot) | (bias_sk_sv_plot / bias_kurt_sv_plot / bias_cor_sv_plot)) + plot_annotation(tag_levels = 'A', tag_suffix = ")")
+final_rel_bias_plot <- (bias_sk_sv_plot | bias_sk_sv_plot_delta | bias_sk_sv_plot_boot | bias_sk_sv_plot_jack) / (bias_kurt_sv_plot | bias_kurt_sv_plot_delta | bias_kurt_sv_plot_boot | bias_kurt_sv_plot_jack) / (bias_cor_sv_plot | bias_cor_sv_boot_plot | bias_cor_sv_jacknife_plot) + plot_annotation(tag_levels = 'A', tag_suffix = ")")
 
 # Show the final plot
-print(final_bias_plot)
+print(final_rel_bias_plot)
