@@ -237,8 +237,8 @@
                         return.replicates = FALSE) {
     
     n   <- nrow(dat)
-    g2  <- function(z) cor(z)[1,2]
-    
+    g2  <- function(z) r.to.zr(cor(z)[1,2])
+
     theta_i <- vapply(seq_len(n),
                       function(i) g2(dat[-i, ]),
                       numeric(1))
@@ -275,7 +275,7 @@
   #' boot_cor(g2)
   boot_cor <- function(dat, B = 2000, bias.correct = TRUE,
                       return.replicates = FALSE) {
-    g2 <- function(z) cor(z)[1,2]
+    g2 <- function(z) r.to.zr(cor(z)[1,2])
 
     b.reps <- replicate(B, {
       sample_rows <- dat[sample(nrow(dat), replace = TRUE), ]
