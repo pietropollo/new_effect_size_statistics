@@ -61,7 +61,7 @@ bias_cor_sv_plot <- ggplot(result_cor, aes(x = factor(n), y = bias_d_cor_sv, fil
 bias_cor_sv_boot_plot <- ggplot(result_cor, aes(x = factor(n), y = bias_boot_d_cor_sv, fill = factor(n))) + 
  geom_violin() + geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
   labs(x = "Sample Size",
-       y = TeX("Relative Bias $SV_{\\Delta Z_{r}}$ (%)")) +
+       y = TeX("Relative Bias $SV_{\\Bootstrapping}$ (%)")) +
   theme_classic() + theme(legend.position = "none", axis.title=element_text(size = 14), axis.text=element_text(size = 12), plot.tag = element_text(size = 16, face = "bold")) + scale_fill_viridis_d()  
 
 # Combine all plots
