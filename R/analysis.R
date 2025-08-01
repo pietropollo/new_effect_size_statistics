@@ -58,15 +58,11 @@ bias_z_plot_boot    <- plot_bias_violin(result_cor, "bias_boot_d_cor",   "Bias $
 bias_z_plot_jack    <- plot_bias_violin(result_cor, "bias_jack_d_cor",   "Bias $\\Delta Z_{r}$ (Jackknife)")
 
 # Combine all bias plots
-est_plot <- (
-  bias_sk_plot      | bias_sk_plot_delta | bias_sk_plot_boot | bias_sk_plot_jack
-) / (
-  bias_ku_plot      | bias_ku_plot_delta | bias_ku_plot_boot | bias_ku_plot_jack
-) / (
-  bias_z_plot       | bias_z_plot_boot   | bias_z_plot_jack
-) +
-  plot_annotation(tag_levels = 'A', tag_suffix = ")") &
-  theme(plot.tag = element_text(size = 16, face = "bold"))
+est_plot <- (bias_sk_plot| bias_sk_plot_delta | bias_sk_plot_boot | bias_sk_plot_jack) / (bias_ku_plot | bias_ku_plot_delta | bias_ku_plot_boot | bias_ku_plot_jack)  +
+plot_annotation(tag_levels = 'A', tag_suffix = ")") &
+theme(plot.tag = element_text(size = 16, face = "bold"))
+
+
 
 ##------------------------------------------------------------------------##
 ## Relative Bias in Sampling Error of Estimates
@@ -90,15 +86,14 @@ bias_sv_z_boot   <- plot_bias_violin(result_cor,  "bias_boot_d_cor_sv", "Relativ
 bias_sv_z_jack   <- plot_bias_violin(result_cor,  "bias_jack_d_cor_sv", "Relative Bias $SV_{\\Delta Z_{r}}$ (%) (Jackknife)")
 
 # Combine all plots
-final_rel_bias_plot <- (
-  bias_sv_sk      | bias_sv_sk_delta | bias_sv_sk_boot | bias_sv_sk_jack
-) / (
-  bias_sv_ku      | bias_sv_ku_delta | bias_sv_ku_boot | bias_sv_ku_jack
-) / (
-  bias_sv_z       | bias_sv_z_boot   | bias_sv_z_jack
-) +
+final_rel_bias_plot <- (bias_sv_sk | bias_sv_sk_delta | bias_sv_sk_boot | bias_sv_sk_jack) / (bias_sv_ku | bias_sv_ku_delta | bias_sv_ku_boot | bias_sv_ku_jack) +
   plot_annotation(tag_levels = 'A', tag_suffix = ")") &
   theme(plot.tag = element_text(size = 16, face = "bold"))
   
 # Show the final plot
 print(final_rel_bias_plot)
+
+# Make the correlation plots
+cor_plot <- (bias_z_plot | bias_z_plot_boot   | bias_z_plot_jack) / (bias_sv_z| bias_sv_z_boot   | bias_sv_z_jack)+
+  plot_annotation(tag_levels = 'A', tag_suffix = ")") &
+  theme(plot.tag = element_text(size = 16, face = "bold"))
