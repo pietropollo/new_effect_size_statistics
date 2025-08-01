@@ -65,7 +65,8 @@ for(i in 1:nsims) {
        jack_d_cor_bc[i] <- (g1_cor_jack$est_bc - g2_cor_jack$est_bc) 
        jack_d_cor_sv[i] <- (g1_cor_jack$var + g2_cor_jack$var)
 }
-  
+
+
 ##-------------------------------------------------##
 # Return data with all the simulation results
 # Calculate bias, relative bias and MCSE for all methods
@@ -84,7 +85,7 @@ for(i in 1:nsims) {
                         bias_jack_d_cor_sv = ((mean(jack_d_cor_sv) - sd(jack_d_cor_bc)^2) / sd(jack_d_cor_bc)^2)*100,
                         mcse_jack_d_cor_sv = sqrt(var(jack_d_cor_sv, na.rm = TRUE) / nsims),
                            mcse_jack_d_cor = sqrt(var(jack_d_cor_bc, na.rm = TRUE) / nsims),
-                                         n = length(d_cor)))
+                                         n_sim = length(d_cor)))
 }
 
 ###------------------------------------------------------------------------###
