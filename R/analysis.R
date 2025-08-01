@@ -18,81 +18,54 @@ rm(list = ls()) # Remove all objects from the environment
 # Rename second n column to n_sim 
      colnames(result_cor)[17] <- "n_sim"
 
+# Plot function for the results
+plot_bias_violin <- function(data, y_var, y_lab) {
+  ggplot(data, aes(x = factor(n), y = .data[[y_var]], fill = factor(n))) + 
+    geom_violin() + 
+    geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
+    labs(x = "Sample Size", y = TeX(y_lab)) +
+    scale_fill_viridis_d() +
+    theme_classic() + 
+    theme(
+      legend.position = "none",
+      axis.title = element_text(size = 14),
+      axis.text = element_text(size = 12),
+      plot.tag = element_text(size = 16, face = "bold")
+    )
+}
+
 ##------------------------------------------------------------------------##
 ## Bias in Estimates
 ##------------------------------------------------------------------------##
 ## Skewness
-bias_sk_plot <- ggplot(result_skew, aes(x = factor(n), y = bias_sk, fill = factor(n))) + 
-  geom_violin() + geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
-  labs(x = "Sample Size",
-       y = TeX("Bias $\\Delta sk$")) +
-  theme_classic() + theme(legend.position = "none", axis.title=element_text(size = 14), axis.text=element_text(size = 12), plot.tag = element_text(size = 16, face = "bold")) + scale_fill_viridis_d() 
 
-bias_sk_plot_delta <- ggplot(result_skew, aes(x = factor(n), y = bias_sk_delta, fill = factor(n))) + 
-  geom_violin() + geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
-  labs(x = "Sample Size",
-       y = TeX("Bias $\\Delta sk$ (Delta Method)")) +
-  theme_classic() + theme(legend.position = "none", axis.title=element_text(size = 14), axis.text=element_text(size = 12), plot.tag = element_text(size = 16, face = "bold")) + scale_fill_viridis_d() 
-
-bias_sk_plot_boot <- ggplot(result_skew, aes(x = factor(n), y = bias_sk_boot_bc, fill = factor(n))) + 
-  geom_violin() + geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
-  labs(x = "Sample Size",
-       y = TeX("Bias $\\Delta sk$ (Bootstrap)")) +
-  theme_classic() + theme(legend.position = "none", axis.title=element_text(size = 14), axis.text=element_text(size = 12), plot.tag = element_text(size = 16, face = "bold")) + scale_fill_viridis_d() 
-
-bias_sk_plot_jack <- ggplot(result_skew, aes(x = factor(n), y = bias_sk_jack_bc, fill = factor(n))) + 
-  geom_violin() + geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
-  labs(x = "Sample Size",
-       y = TeX("Bias $\\Delta sk$ (Jackknife)")) +
-  theme_classic() + theme(legend.position = "none", axis.title=element_text(size = 14), axis.text=element_text(size = 12), plot.tag = element_text(size = 16, face = "bold")) + scale_fill_viridis_d() 
+# Skewness plots
+bias_sk_plot        <- plot_bias_violin(result_skew, "bias_sk",         "Bias $\\Delta sk$")
+bias_sk_plot_delta  <- plot_bias_violin(result_skew, "bias_sk_delta",   "Bias $\\Delta sk$ (Delta Method)")
+bias_sk_plot_boot   <- plot_bias_violin(result_skew, "bias_sk_boot_bc", "Bias $\\Delta sk$ (Bootstrap)")
+bias_sk_plot_jack   <- plot_bias_violin(result_skew, "bias_sk_jack_bc", "Bias $\\Delta sk$ (Jackknife)")
 
 # Kurtosis
-bias_kurt_plot <- ggplot(result_kurt, aes(x = factor(n), y = bias_ku, fill = factor(n))) + 
-  geom_violin() + geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
-  labs(x = "Sample Size",
-       y = TeX("Bias $\\Delta ku$")) +
-  theme_classic() + theme(legend.position = "none", axis.title=element_text(size = 14), axis.text=element_text(size = 12), plot.tag = element_text(size = 16, face = "bold")) + scale_fill_viridis_d() 
+# Kurtosis plots
+bias_ku_plot        <- plot_bias_violin(result_kurt, "bias_ku",         "Bias $\\Delta ku$")
+bias_ku_plot_delta  <- plot_bias_violin(result_kurt, "bias_ku_delta",   "Bias $\\Delta ku$ (Delta Method)")
+bias_ku_plot_boot   <- plot_bias_violin(result_kurt, "bias_ku_boot_bc", "Bias $\\Delta ku$ (Bootstrap)")
+bias_ku_plot_jack   <- plot_bias_violin(result_kurt, "bias_ku_jack_bc", "Bias $\\Delta ku$ (Jackknife)")
 
-bias_kurt_plot_delta <- ggplot(result_kurt, aes(x = factor(n), y = bias_ku_delta, fill = factor(n))) + 
-  geom_violin() + geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
-  labs(x = "Sample Size",
-       y = TeX("Bias $\\Delta ku$ (Delta Method)")) +
-  theme_classic() + theme(legend.position = "none", axis.title=element_text(size = 14), axis.text=element_text(size = 12), plot.tag = element_text(size = 16, face = "bold")) + scale_fill_viridis_d()
+# Correlation plots
+bias_z_plot         <- plot_bias_violin(result_cor, "bias_d_cor",        "Bias $\\Delta Z_{r}$")
+bias_z_plot_boot    <- plot_bias_violin(result_cor, "bias_boot_d_cor",   "Bias $\\Delta Z_{r}$ (Bootstrapped)")
+bias_z_plot_jack    <- plot_bias_violin(result_cor, "bias_jack_d_cor",   "Bias $\\Delta Z_{r}$ (Jackknife)")
 
-bias_kurt_plot_boot <- ggplot(result_kurt, aes(x = factor(n), y = bias_ku_boot_bc, fill = factor(n))) + 
-  geom_violin() + geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
-  labs(x = "Sample Size",
-       y = TeX("Bias $\\Delta ku$ (Bootstrap)")) +
-  theme_classic() + theme(legend.position = "none", axis.title=element_text(size = 14), axis.text=element_text(size = 12), plot.tag = element_text(size = 16, face = "bold")) + scale_fill_viridis_d()
-
-bias_kurt_plot_jack <- ggplot(result_kurt, aes(x = factor(n), y = bias_ku_jack_bc, fill = factor(n))) + 
-  geom_violin() + geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
-  labs(x = "Sample Size",
-       y = TeX("Bias $\\Delta ku$ (Jackknife)")) +
-  theme_classic() + theme(legend.position = "none", axis.title=element_text(size = 14), axis.text=element_text(size = 12), plot.tag = element_text(size = 16, face = "bold")) + scale_fill_viridis_d()                           
-
-
-# Correlation
-bias_cor_plot <- ggplot(result_cor, aes(x = factor(n), y = bias_d_cor, fill = factor(n))) + 
- geom_violin() + geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
-  labs(x = "Sample Size",
-       y = TeX("Bias $\\Delta Z_{r}$")) +
-  theme_classic() + theme(legend.position = "none", axis.title=element_text(size = 14), axis.text=element_text(size = 12), plot.tag = element_text(size = 16, face = "bold")) + scale_fill_viridis_d() 
-
-bias_cor_plot_boot <- ggplot(result_cor, aes(x = factor(n), y = bias_boot_d_cor, fill = factor(n))) + 
- geom_violin() + geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
-  labs(x = "Sample Size",
-       y = TeX("Bias $\\Delta Z_{r}$ (Bootstrapped)")) +
-  theme_classic() + theme(legend.position = "none", axis.title=element_text(size = 14), axis.text=element_text(size = 12), plot.tag = element_text(size = 16, face = "bold")) + scale_fill_viridis_d()
-
-bias_cor_plot_jack <- ggplot(result_cor, aes(x = factor(n), y = bias_jack_d_cor, fill = factor(n))) + 
- geom_violin() + geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
-  labs(x = "Sample Size",
-       y = TeX("Bias $\\Delta Z_{r}$ (Jackknife)")) +
-  theme_classic() + theme(legend.position = "none", axis.title=element_text(size = 14), axis.text=element_text(size = 12), plot.tag = element_text(size = 16, face = "bold")) + scale_fill_viridis_d()  
-
-est_plot <- (bias_sk_plot | bias_sk_plot_delta | bias_sk_plot_boot | bias_sk_plot_jack) / (bias_kurt_plot | bias_kurt_plot_delta | bias_kurt_plot_boot | bias_kurt_plot_jack) / (bias_cor_plot |  bias_cor_plot_boot | bias_cor_plot_jack) + 
-  plot_annotation(tag_levels = 'A', tag_suffix = ")") & 
+# Combine all bias plots
+est_plot <- (
+  bias_sk_plot      | bias_sk_plot_delta | bias_sk_plot_boot | bias_sk_plot_jack
+) / (
+  bias_ku_plot      | bias_ku_plot_delta | bias_ku_plot_boot | bias_ku_plot_jack
+) / (
+  bias_z_plot       | bias_z_plot_boot   | bias_z_plot_jack
+) +
+  plot_annotation(tag_levels = 'A', tag_suffix = ")") &
   theme(plot.tag = element_text(size = 16, face = "bold"))
 
 ##------------------------------------------------------------------------##
@@ -100,77 +73,32 @@ est_plot <- (bias_sk_plot | bias_sk_plot_delta | bias_sk_plot_boot | bias_sk_plo
 ##------------------------------------------------------------------------##
 
 # Skewness
-
-bias_sk_sv_plot <- ggplot(result_skew, aes(x = factor(n), y = bias_sk_sv, fill = factor(n))) + 
- geom_violin() + geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
-  labs(x = "Sample Size",
-       y = TeX("Relative Bias $SV_{\\Delta sk}$ (%)")) +
-  theme_classic() + theme(legend.position = "none", axis.title=element_text(size = 14), axis.text=element_text(size = 12), plot.tag = element_text(size = 16, face = "bold")) + scale_fill_viridis_d()
-
-bias_sk_sv_plot_delta <- ggplot(result_skew, aes(x = factor(n), y = bias_sk_delta_sv, fill = factor(n))) + 
- geom_violin() + geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
-  labs(x = "Sample Size",
-       y = TeX("Relative Bias $SV_{\\Delta sk}$ (%) (Delta method)")) +
-  theme_classic() + theme(legend.position = "none", axis.title=element_text(size = 14), axis.text=element_text(size = 12), plot.tag = element_text(size = 16, face = "bold")) + scale_fill_viridis_d()
-
-bias_sk_sv_plot_boot <- ggplot(result_skew, aes(x = factor(n), y = bias_sk_boot_sv, fill = factor(n))) + 
- geom_violin() + geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
-  labs(x = "Sample Size",
-       y = TeX("Relative Bias $SV_{\\Delta sk}$ (%) (Bootstrap)")) +
-  theme_classic() + theme(legend.position = "none", axis.title=element_text(size = 14), axis.text=element_text(size = 12), plot.tag = element_text(size = 16, face = "bold")) + scale_fill_viridis_d()
-
-bias_sk_sv_plot_jack <- ggplot(result_skew, aes(x = factor(n), y = bias_sk_jack_sv, fill = factor(n))) + 
- geom_violin() + geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
-  labs(x = "Sample Size",
-       y = TeX("Relative Bias $SV_{\\Delta sk}$ (%) (Jackknife)")) +
-  theme_classic() + theme(legend.position = "none", axis.title=element_text(size = 14), axis.text=element_text(size = 12), plot.tag = element_text(size = 16, face = "bold")) + scale_fill_viridis_d()
+bias_sv_sk       <- plot_bias_violin(result_skew, "bias_sk_sv",         "Relative Bias $SV_{\\Delta sk}$ (%)")
+bias_sv_sk_delta <- plot_bias_violin(result_skew, "bias_sk_delta_sv",   "Relative Bias $SV_{\\Delta sk}$ (%) (Delta method)")
+bias_sv_sk_boot  <- plot_bias_violin(result_skew, "bias_sk_boot_sv",    "Relative Bias $SV_{\\Delta sk}$ (%) (Bootstrap)")
+bias_sv_sk_jack  <- plot_bias_violin(result_skew, "bias_sk_jack_sv",    "Relative Bias $SV_{\\Delta sk}$ (%) (Jackknife)")
 
 # Kurtosis
-bias_kurt_sv_plot <- ggplot(result_kurt, aes(x = factor(n), y = bias_ku_sv, fill = factor(n))) + 
- geom_violin() + geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
-  labs(x = "Sample Size",
-       y = TeX("Relative Bias $SV_{\\Delta ku}$ (%)")) +
-  theme_classic() + theme(legend.position = "none", axis.title=element_text(size = 14), axis.text=element_text(size = 12), plot.tag = element_text(size = 16, face = "bold")) + scale_fill_viridis_d()
-
-bias_kurt_sv_plot_delta <- ggplot(result_kurt, aes(x = factor(n), y = bias_ku_delta_sv, fill = factor(n))) + 
- geom_violin() + geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
-  labs(x = "Sample Size",
-       y = TeX("Relative Bias $SV_{\\Delta ku}$ (%) (Delta method)")) +
-  theme_classic() + theme(legend.position = "none", axis.title=element_text(size = 14), axis.text=element_text(size = 12), plot.tag = element_text(size = 16, face = "bold")) + scale_fill_viridis_d()
-
-bias_kurt_sv_plot_boot <- ggplot(result_kurt, aes(x = factor(n), y = bias_ku_boot_sv, fill = factor(n))) + 
- geom_violin() + geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
-  labs(x = "Sample Size",
-       y = TeX("Relative Bias $SV_{\\Delta ku}$ (%) (Bootstrap)")) +
-  theme_classic() + theme(legend.position = "none", axis.title=element_text(size = 14), axis.text=element_text(size = 12), plot.tag = element_text(size = 16, face = "bold")) + scale_fill_viridis_d()
-
-bias_kurt_sv_plot_jack <- ggplot(result_kurt, aes(x = factor(n), y = bias_ku_jack_sv, fill = factor(n))) + 
- geom_violin() + geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
-  labs(x = "Sample Size",
-       y = TeX("Relative Bias $SV_{\\Delta ku}$ (%) (Jackknife)")) +
-  theme_classic() + theme(legend.position = "none", axis.title=element_text(size = 14), axis.text=element_text(size = 12), plot.tag = element_text(size = 16, face = "bold")) + scale_fill_viridis_d()
+bias_sv_ku       <- plot_bias_violin(result_kurt, "bias_ku_sv",         "Relative Bias $SV_{\\Delta ku}$ (%)")
+bias_sv_ku_delta <- plot_bias_violin(result_kurt, "bias_ku_delta_sv",   "Relative Bias $SV_{\\Delta ku}$ (%) (Delta method)")
+bias_sv_ku_boot  <- plot_bias_violin(result_kurt, "bias_ku_boot_sv",    "Relative Bias $SV_{\\Delta ku}$ (%) (Bootstrap)")
+bias_sv_ku_jack  <- plot_bias_violin(result_kurt, "bias_ku_jack_sv",    "Relative Bias $SV_{\\Delta ku}$ (%) (Jackknife)")
 
 # Correlation
-bias_cor_sv_plot <- ggplot(result_cor, aes(x = factor(n), y = bias_d_cor_sv, fill = factor(n))) + 
- geom_violin() + geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
-  labs(x = "Sample Size",
-       y = TeX("Relative Bias $SV_{\\Delta Z_{r}}$ (%)")) +
-  theme_classic() + theme(legend.position = "none", axis.title=element_text(size = 14), axis.text=element_text(size = 12), plot.tag = element_text(size = 16, face = "bold")) + scale_fill_viridis_d()
-
-bias_cor_sv_boot_plot <- ggplot(result_cor, aes(x = factor(n), y = bias_boot_d_cor_sv, fill = factor(n))) + 
- geom_violin() + geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
-  labs(x = "Sample Size",
-       y = TeX("Relative Bias $SV_{\\Delta Z_{r}}$ (%) (Bootstrapped)")) +
-  theme_classic() + theme(legend.position = "none", axis.title=element_text(size = 14), axis.text=element_text(size = 12), plot.tag = element_text(size = 16, face = "bold")) + scale_fill_viridis_d()  
-
-bias_cor_sv_jacknife_plot <- ggplot(result_cor, aes(x = factor(n), y = bias_jack_d_cor_sv, fill = factor(n))) + 
- geom_violin() + geom_hline(aes(yintercept = 0), linetype = "dashed", color = "black") +
-  labs(x = "Sample Size",
-       y = TeX("Relative Bias $SV_{\\Delta Z_{r}}$ (%) (Jackknife)")) +
-  theme_classic() + theme(legend.position = "none", axis.title=element_text(size = 14), axis.text=element_text(size = 12), plot.tag = element_text(size = 16, face = "bold")) + scale_fill_viridis_d() 
+bias_sv_z        <- plot_bias_violin(result_cor,  "bias_d_cor_sv",      "Relative Bias $SV_{\\Delta Z_{r}}$ (%)")
+bias_sv_z_boot   <- plot_bias_violin(result_cor,  "bias_boot_d_cor_sv", "Relative Bias $SV_{\\Delta Z_{r}}$ (%) (Bootstrapped)")
+bias_sv_z_jack   <- plot_bias_violin(result_cor,  "bias_jack_d_cor_sv", "Relative Bias $SV_{\\Delta Z_{r}}$ (%) (Jackknife)")
 
 # Combine all plots
-final_rel_bias_plot <- (bias_sk_sv_plot | bias_sk_sv_plot_delta | bias_sk_sv_plot_boot | bias_sk_sv_plot_jack) / (bias_kurt_sv_plot | bias_kurt_sv_plot_delta | bias_kurt_sv_plot_boot | bias_kurt_sv_plot_jack) / (bias_cor_sv_plot | bias_cor_sv_boot_plot | bias_cor_sv_jacknife_plot) + plot_annotation(tag_levels = 'A', tag_suffix = ")")
-
+final_rel_bias_plot <- (
+  bias_sv_sk      | bias_sv_sk_delta | bias_sv_sk_boot | bias_sv_sk_jack
+) / (
+  bias_sv_ku      | bias_sv_ku_delta | bias_sv_ku_boot | bias_sv_ku_jack
+) / (
+  bias_sv_z       | bias_sv_z_boot   | bias_sv_z_jack
+) +
+  plot_annotation(tag_levels = 'A', tag_suffix = ")") &
+  theme(plot.tag = element_text(size = 16, face = "bold"))
+  
 # Show the final plot
 print(final_rel_bias_plot)
