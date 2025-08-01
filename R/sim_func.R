@@ -179,19 +179,19 @@ if(type == "skewness") {
     # Delta method for skewness
          bias_sk_delta = mean(skew_delta) - (params$skewness_g1 - params$skewness_g2), # Bias for skewness from delta method
     mcse_bias_delta_sk = sqrt(var(skew_delta) / length(skew_delta)), # Monte Carlo Standard error 
-      bias_sk_delta_sv = ((mean(skew_delta_sv) - sd(sk)^2) / sd(sk)^2)*100, # Relative Bias for skewness sampling variance from delta method
+      bias_sk_delta_sv = ((mean(skew_delta_sv) - sd(skew_delta)^2) / sd(skew_delta)^2)*100, # Relative Bias for skewness sampling variance from delta method
  mcse_bias_sv_delta_sk = sqrt(var(skew_delta_sv) / length(skew_delta_sv)), # Monte Carlo Standard error  
 
     # Bootstrap method for skewness
          bias_sk_boot_bc = mean(boot_skew_bc) - (params$skewness_g1 - params$skewness_g2), # Bias for skewness from bootstrap method
        mcse_bias_boot_sk = sqrt(var(boot_skew_bc) / length(boot_skew_bc)), # Monte Carlo Standard error 
-         bias_sk_boot_sv = ((mean(boot_skew_sv) - sd(sk)^2) / sd(sk)^2)*100, # Relative Bias for skewness sampling variance 
+         bias_sk_boot_sv = ((mean(boot_skew_sv) - sd(boot_skew_bc)^2) / sd(boot_skew_bc)^2)*100, # Relative Bias for skewness sampling variance 
     mcse_bias_sv_boot_sk = sqrt(var(boot_skew_sv) / length(boot_skew_sv)), # Monte Carlo Standard error 
 
     # Jackknife method for skewness  
          bias_sk_jack_bc = mean(jack_skew_bc) - (params$skewness_g1 - params$skewness_g2), # Bias for skewness from jackknife method
        mcse_bias_jack_sk = sqrt(var(jack_skew_bc) / length(jack_skew_bc)), # Monte Carlo Standard error 
-         bias_sk_jack_sv = ((mean(jack_skew_sv) - sd(sk)^2) / sd(sk)^2)*100, # Relative Bias for skewness from jackknife method
+         bias_sk_jack_sv = ((mean(jack_skew_sv) - sd(jack_skew_bc)^2) / sd(jack_skew_bc)^2)*100, # Relative Bias for skewness from jackknife method
     mcse_bias_sv_jack_sk = sqrt(var(jack_skew_sv) / length(jack_skew_sv)), # Monte Carlo Standard error 
 					        n_sims = length(sk_sv))) # Number of simulations
     }
@@ -207,19 +207,19 @@ if(type == "kurtosis") {
       # Delta method for skewness
         bias_ku_delta = mean(kurt_delta) - (params$kurtosis_g1 - params$kurtosis_g2), 
    mcse_bias_delta_ku = sqrt(var(kurt_delta) / length(kurt_delta)), 
-     bias_ku_delta_sv = ((mean(kurt_delta_sv) - sd(ku)^2) / sd(ku)^2)*100, 
+     bias_ku_delta_sv = ((mean(kurt_delta_sv) - sd(kurt_delta)^2) / sd(kurt_delta)^2)*100, 
 mcse_bias_sv_delta_ku = sqrt(var(kurt_delta_sv) / length(kurt_delta_sv)), 
 
     # Bootstrap method for kurtosis
          bias_ku_boot_bc = mean(boot_kurt_bc) - (params$kurtosis_g1 - params$kurtosis_g2), 
     mcse_bias_boot_ku_bc = sqrt(var(boot_kurt_bc) / length(boot_kurt_bc)), 
-         bias_ku_boot_sv = ((mean(boot_kurt_sv) - sd(ku)^2) / sd(ku)^2)*100, 
+         bias_ku_boot_sv = ((mean(boot_kurt_sv) - sd(boot_kurt_bc)^2) / sd(boot_kurt_bc)^2)*100, 
     mcse_bias_sv_boot_ku = sqrt(var(boot_kurt_sv) / length(boot_kurt_sv)), 
          
     # Jackknife method for kurtosis
          bias_ku_jack_bc = mean(jack_kurt_bc) - (params$kurtosis_g1 - params$kurtosis_g2), 
     mcse_bias_jack_ku_bc = sqrt(var(jack_kurt_bc) / length(jack_kurt_bc)), 
-         bias_ku_jack_sv = ((mean(jack_kurt_sv) - sd(ku)^2) / sd(ku)^2)*100, 
+         bias_ku_jack_sv = ((mean(jack_kurt_sv) - sd(jack_kurt_bc)^2) / sd(jack_kurt_bc)^2)*100, 
     mcse_bias_sv_jack_ku = sqrt(var(jack_kurt_sv) / length(jack_kurt_sv)), 
                   n_sims = length(ku_sv)))
  
