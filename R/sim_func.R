@@ -3,6 +3,9 @@
 # Description: Equal sample size between groups. 
 ###------------------------------------------------------------------------###
 
+# Clear the environment
+rm(list = ls())
+
 # Load required packages
 	pacman::p_load(moments, PearsonDS, tidyverse, patchwork)
   source("./R/func.R") # Load the functions from func.R
