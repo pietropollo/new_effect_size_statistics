@@ -15,9 +15,6 @@ rm(list = ls()) # Remove all objects from the environment
 	 result_cor <- readRDS("./output/result_cor.rds") # Load the correlation results	
 	result_skew <- readRDS("./output/result_skewness.rds") # Load the skewness results
 
-# Rename second n column to n_sim 
-     colnames(result_cor)[17] <- "n_sim"
-
 # Plot function for the results
 plot_bias_violin <- function(data, y_var, y_lab) {
   ggplot(data, aes(x = factor(n), y = .data[[y_var]], fill = factor(n))) + 
@@ -37,7 +34,6 @@ plot_bias_violin <- function(data, y_var, y_lab) {
 ##------------------------------------------------------------------------##
 ## Bias in Estimates
 ##------------------------------------------------------------------------##
-## Skewness
 
 # Skewness plots
 bias_sk_plot        <- plot_bias_violin(result_skew, "bias_sk",         "Bias $\\Delta sk$")
@@ -45,7 +41,6 @@ bias_sk_plot_delta  <- plot_bias_violin(result_skew, "bias_sk_delta",   "Bias $\
 bias_sk_plot_boot   <- plot_bias_violin(result_skew, "bias_sk_boot_bc", "Bias $\\Delta sk$ (Bootstrap)")
 bias_sk_plot_jack   <- plot_bias_violin(result_skew, "bias_sk_jack_bc", "Bias $\\Delta sk$ (Jackknife)")
 
-# Kurtosis
 # Kurtosis plots
 bias_ku_plot        <- plot_bias_violin(result_kurt, "bias_ku",         "Bias $\\Delta ku$")
 bias_ku_plot_delta  <- plot_bias_violin(result_kurt, "bias_ku_delta",   "Bias $\\Delta ku$ (Delta Method)")
@@ -61,8 +56,6 @@ bias_z_plot_jack    <- plot_bias_violin(result_cor, "bias_jack_d_cor",   "Bias $
 est_plot <- (bias_sk_plot| bias_sk_plot_delta | bias_sk_plot_boot | bias_sk_plot_jack) / (bias_ku_plot | bias_ku_plot_delta | bias_ku_plot_boot | bias_ku_plot_jack)  +
 plot_annotation(tag_levels = 'A', tag_suffix = ")") &
 theme(plot.tag = element_text(size = 16, face = "bold"))
-
-
 
 ##------------------------------------------------------------------------##
 ## Relative Bias in Sampling Error of Estimates
@@ -91,7 +84,7 @@ final_rel_bias_plot <- (bias_sv_sk | bias_sv_sk_delta | bias_sv_sk_boot | bias_s
   theme(plot.tag = element_text(size = 16, face = "bold"))
   
 # Show the final plot
-print(final_rel_bias_plot)
+final_rel_bias_plot
 
 # Make the correlation plots
 cor_plot <- (bias_z_plot | bias_z_plot_boot   | bias_z_plot_jack) / (bias_sv_z| bias_sv_z_boot   | bias_sv_z_jack)+
