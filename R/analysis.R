@@ -37,16 +37,16 @@ plot_bias_violin <- function(data, y_var, y_lab, ylim = c(-1, 1)) {
 ##------------------------------------------------------------------------##
 
 # Skewness plots
-bias_sk_plot        <- plot_bias_violin(result_skew, "bias_sk",         "Bias $\\Delta sk$", ylim = c(-0.5, 0.5))
-bias_sk_plot_delta  <- plot_bias_violin(result_skew, "bias_sk_delta",   "Bias $\\Delta sk$ (Delta Method)", ylim = c(-0.5, 0.5))
-bias_sk_plot_boot   <- plot_bias_violin(result_skew, "bias_sk_boot_bc", "Bias $\\Delta sk$ (Bootstrap)", ylim = c(-0.5, 0.5))
-bias_sk_plot_jack   <- plot_bias_violin(result_skew, "bias_sk_jack_bc", "Bias $\\Delta sk$ (Jackknife)", ylim = c(-0.5, 0.5))
+bias_sk_plot        <- plot_bias_violin(result_skew, "bias_sk",         "Bias $\\Delta sk$", ylim = c(-0.8, 0.8))
+bias_sk_plot_delta  <- plot_bias_violin(result_skew, "bias_sk_delta",   "Bias $\\Delta sk$ (Delta Method)", ylim = c(-0.8, 0.8))
+bias_sk_plot_boot   <- plot_bias_violin(result_skew, "bias_sk_boot_bc", "Bias $\\Delta sk$ (Bootstrap)", ylim = c(-0.8, 0.8))
+bias_sk_plot_jack   <- plot_bias_violin(result_skew, "bias_sk_jack_bc", "Bias $\\Delta sk$ (Jackknife)", ylim = c(-0.8, 0.8))
 
 # Kurtosis plots
-bias_ku_plot        <- plot_bias_violin(result_kurt, "bias_ku",         "Bias $\\Delta ku$", ylim = c(-0.5, 0.5))
-bias_ku_plot_delta  <- plot_bias_violin(result_kurt, "bias_ku_delta",   "Bias $\\Delta ku$ (Delta Method)", ylim = c(-0.5, 0.5))
-bias_ku_plot_boot   <- plot_bias_violin(result_kurt, "bias_ku_boot_bc", "Bias $\\Delta ku$ (Bootstrap)", ylim = c(-0.5, 0.5))
-bias_ku_plot_jack   <- plot_bias_violin(result_kurt, "bias_ku_jack_bc", "Bias $\\Delta ku$ (Jackknife)", ylim = c(-0.5, 0.5))
+bias_ku_plot        <- plot_bias_violin(result_kurt, "bias_ku",         "Bias $\\Delta ku$", ylim = c(-5, 5))
+bias_ku_plot_delta  <- plot_bias_violin(result_kurt, "bias_ku_delta",   "Bias $\\Delta ku$ (Delta Method)", ylim = c(-5, 5))
+bias_ku_plot_boot   <- plot_bias_violin(result_kurt, "bias_ku_boot_bc", "Bias $\\Delta ku$ (Bootstrap)", ylim = c(-5, 5))
+bias_ku_plot_jack   <- plot_bias_violin(result_kurt, "bias_ku_jack_bc", "Bias $\\Delta ku$ (Jackknife)", ylim = c(-5, 5))
 
 # Correlation plots
 bias_z_plot         <- plot_bias_violin(result_cor, "bias_d_cor",        "Bias $\\Delta Z_{r}$", ylim = c(-0.5, 0.5))
