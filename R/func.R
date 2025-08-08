@@ -272,7 +272,7 @@
   #' @return A list with estimate (`est`), bias-corrected estimate (`est_bc`), variance, and standard error.
   #' @examples
   #' g2 <- MASS::mvrnorm(1000, mu = c(0, 0), Sigma = matrix(c(1, -0.4, -0.4, 1), 2))
-  #' boot_cor(g2)
+  #' x = boot_cor(g2, return.replicates = FALSE)
   boot_cor <- function(dat, B = 2000, bias.correct = TRUE,
                       return.replicates = FALSE) {
     g2 <- function(z) r.to.zr(cor(z)[1,2])
