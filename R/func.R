@@ -279,16 +279,20 @@
 
     b.reps <- replicate(B, {
       sample_rows <- dat[sample(nrow(dat), replace = TRUE), ]
-      g2(sample_rows)
+      res <- g2(sample_rows)
+      
+      # Replace Inf/-Inf or NA with NA
+      if (is.infinite(res) || is.na(res)) {res <- NA}
+      res
     })
 
     est    <- g2(dat)
-    est.bc <- if (bias.correct) 2 * est - mean(b.reps) else est
+    est.bc <- if (bias.correct) 2 * est - mean(b.reps, na.rm = TRUE) else est
     out    <- list(est     = est,
                   est_bc  = est.bc,
-                  var     = sd(b.reps)^2,
-                  se      = sd(b.reps))
-    if (return.replicates) out$boot <- b.reps
+                  var     = sd(b.reps, na.rm = TRUE)^2,
+                  se      = sd(b.reps, na.rm = TRUE))
+    if (return.replicates) {out$boot <- b.reps}
     out
   }
 
