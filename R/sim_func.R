@@ -309,7 +309,7 @@ for(i in 1:nrow(params_all_kur)) {
   print(paste("Simulation for scenario", i, "completed.", "Bias_ku:", round(result_kurt$bias_ku[i], 2), "mcse_bias_sv_ku:", round(result_kurt$mcse_bias_sv_ku[i], 2), "mcse_bias_ku:", round(result_kurt$mcse_bias_ku[i], 2)))
 }
 )
-# 54 hours to run
+# 2.6 hours to run
 
 # Merge the results with the scenario parameters
 result_kurt <- cbind(params_all_kur, result_kurt)
