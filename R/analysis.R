@@ -15,6 +15,12 @@ rm(list = ls()) # Remove all objects from the environment
 	 result_cor <- readRDS("./output/result_cor.rds") # Load the correlation results	
 	result_skew <- readRDS("./output/result_skewness.rds") # Load the skewness results
 
+
+  # Lets find out what is the best estimator
+      result_kurt_least_bias <- result_kurt  %>% summarise(across(starts_with("bias_"), ~ sum(.x^2, na.rm = TRUE)), .names = "least_bias_{col}")  %>% arrange()
+
+      result_skew_least_bias <- result_skew  %>% summarise(across(starts_with("bias_"), ~ sum(.x^2, na.rm = TRUE)), .names = "least_bias_{col}")  %>% t() %>% data.frame() %>% arrange()
+
 # Plot function for the results
 plot_bias_violin <- function(data, y_var, y_lab, ylim = c(-1, 1)) {
   ggplot(data, aes(x = factor(n), y = .data[[y_var]], fill = factor(n))) + 
