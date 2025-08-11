@@ -56,7 +56,11 @@ This online material is a supplement to our paper "Beyond sex differences in mea
 
 # Content
 
-In this online material, we will show how to (1) calculate our newly proposed effect sizes ($\Delta sk$, $\Delta ku$, $\Delta Zr$) and (2) exemplify their use with data from the International Mouse Phenotyping Consortium.
+In this online material, we provide details on the simulations we ran to evaluate the effectiveness of our proposed effect size statistics (and their associated sampling error). We also show how to (1) calculate our newly proposed effect sizes ($\Delta sk$, $\Delta ku$, $\Delta Zr$) and (2) exemplify their use with data from the International Mouse Phenotyping Consortium.
+
+# Simulations
+To understand the effectiveness of our proposed effect size statistics at capturing differences in skewness, kurtosis, and correlation between two groups we ran a series of simulations. We simulated two distinct groups that varied in distributional moments (i.e., $\Delta sk$ and $\Delta ku$) or in the correlation within each group (i.e., $\Delta Zr$). We used the *Pearson* function from the moments [@moments] package to control aspects of skewness and kurtosis in each group. For simulating differences in correlations between groups we used the *mvnorm* function in the MASS package [].  
+
 
 # Prerequisites
 
