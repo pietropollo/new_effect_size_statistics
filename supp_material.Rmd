@@ -1,6 +1,7 @@
 ---
 title: "ONLINE SUPPLEMENT - Beyond sex differences in mean: meta-analysis of differences in skewness, kurtosis, and correlation"
 author: "**Pietro Pollo, Szymon M. Drobniak, Hamed Haselimashhadi, Malgorzata Lagisz, Ayumi Mizuno, Daniel W. A. Noble, Laura A. B. Wilson, Shinichi Nakagawa**"
+date: "`r Sys.Date()`"
 format:
   html:
     toc: true
@@ -13,10 +14,11 @@ format:
     code-fold: show
     code-tools: true
     number-sections: true
-    #bibliography: ./bib/ref.bib
+    bibliography: ref.bib
     fontsize: "12"
     max-width: "10"
     code-overflow: wrap
+bibliography: ref.bib
 crossref: 
   fig-title: Figure     # (default is "Figure")
   tbl-title: Table     # (default is "Table")
@@ -43,8 +45,6 @@ knitr::opts_chunk$set(
 ```
 
 # Update
-
-Last update March 2025.
 
 We will update this tutorial when necessary. Readers can access the latest version in our [GitHub repository](https://github.com/pietropollo/new_effect_size_statistics).
 
@@ -795,3 +795,5 @@ list_figure_4[7:10] <- map2(.x = rep("total_cholesterol", 4),
 sessionInfo() %>% 
   pander()
 ```
+
+# References
