@@ -59,8 +59,23 @@ This online material is a supplement to our paper "Beyond sex differences in mea
 In this online material, we provide details on the simulations we ran to evaluate the effectiveness of our proposed effect size statistics (and their associated sampling error). We also show how to (1) calculate our newly proposed effect sizes ($\Delta sk$, $\Delta ku$, $\Delta Zr$) and (2) exemplify their use with data from the International Mouse Phenotyping Consortium.
 
 # Simulations
-To understand the effectiveness of our proposed effect size statistics at capturing differences in skewness, kurtosis, and correlation between two groups we ran a series of simulations. We simulated two distinct groups that varied in distributional moments (i.e., $\Delta sk$ and $\Delta ku$) or in the correlation within each group (i.e., $\Delta Zr$). We used the *Pearson* function from the moments [@moments] package to control aspects of skewness and kurtosis in each group. For simulating differences in correlations between groups we used the *mvnorm* function in the MASS package [].  
+We conducted Monte-Carlo simulations to evaluate bias and variance estimation for our new effect sizes Δsk, Δku and ΔZr. For Δsk and Δku we simulated independent samples for two groups from Pearson distributions with known moments using the *rpearson* function from the PearsonDS R package [vers. 1.3.2, @PearsonDS]. We conducted two simulations: 1) first by changing skewness between groups that involved moderate departures from normality (group-specific skewness, *sk* ∈ {−1, −0.5, 0, 0.5, 1} with kurtosis fixed at 3) and 2) by holding skewness constant (*sk* = 0) while manipulating kurtosis, *ku* ∈ {2.5, 3, 4, 5, 6}. In all cases, we simulated scenarios where: (i) the variance between each group was the same (σ²₂ = σ²₁  = 1) or different (2σ²₂ = σ²₁); (ii) the mean between the two groups was the same (u₂ = u₁ = 0) or different (5u₂ = u₁); and (iii) under equal and unequal  sample sizes between groups with sample size varying from n ∈ {10, 20, …, 100, 150, 500}. We created all unique combinations of the above scenarios resulting in s = 1200 independent scenarios (when considering each of the 100 scenarios at each sample size). We estimated Δsk and Δku for each scenario using formulas for within-group sample skewness with small-sample correction (Eq. 1 in main manuscript) and excess kurtosis with small-sample correction (Eq. 3) to estimate point estimates. To estimate associated sampling variance for Δsk and Δku we used the analytical variance estimators derived here and an associated re-sampling (jackknife) approach to compute group sampling variances separately followed by pooling.  Importantly, our simulations assume no correlation between groups. 
 
+For ΔZr simulations, we simulated two groups each containing two variables with known correlations within each group.  For ΔZr we drew bivariate normal data with target within-group correlations r ∈ {−0.8, −0.4, −0.2, 0, 0.2, 0.4, 0.6, 0.8} using the *mvnorm* function in the MASS package of R (vers. 7.3.61, @MASS). Marginals were standard normal and group sizes varied from n ∈ {10, 20, …, 100, 150, 500}. Again, we created all unique combinations of scenarios resulting in s = 768 unique scenarios. We estimated ΔZr using Fisher’s Z transformation Zr and calculating ΔZr as the difference of Zr across groups (Eqs. 9–11). Sampling variance for ΔZr was approximated used the standard analytic variance 1/(n−3) per group (summed; Eq. 10) and a jackknife approach. Again, we assumed no correlation between our groups. 
+
+Across all simulations we conducted 2,500 replicates of each scenario. Performance metrics were (a) bias of the point estimator (mean estimate minus truth) (\ref{eq-bias}), (b) relative bias of the sampling-variance estimator (\ref{eq-relbias}), and (c) Monte-Carlo standard errors (MCSEs) (\ref{eq-mcse}). 
+
+$$
+\text{Bias}(\hat{\theta}) = \mathbb{E}[\hat{\theta}] - \theta
+$$ {#eq-bias}
+
+$$
+\text{Relative Bias}(\hat{\theta}) = \frac{\mathbb{E}[\hat{\theta}] - \theta}{\theta} \dot 100%
+$$ {#eq-relbias}
+
+$$
+\text{MCSE} = \frac{\hat{\sigma}}{\sqrt{M}}
+$$ {#eq-mcse}
 
 # Prerequisites
 
