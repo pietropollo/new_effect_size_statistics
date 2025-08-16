@@ -18,6 +18,7 @@ format:
     fontsize: "12"
     max-width: "10"
     code-overflow: wrap
+    page-layout: full
 crossref: 
   fig-title: Figure
   tbl-title: Table
@@ -55,23 +56,48 @@ This online material is a supplement to our paper "Beyond sex differences in mea
 In this online material, we provide details on the simulations we ran to evaluate the effectiveness of our proposed effect size statistics (and their associated sampling error). We also show how to (1) calculate our newly proposed effect sizes ($\Delta sk$, $\Delta ku$, $\Delta Zr$) and (2) exemplify their use with data from the International Mouse Phenotyping Consortium.
 
 # Simulations
-We conducted Monte-Carlo simulations to evaluate bias and variance estimation for our new effect sizes $\Delta sk$, $\Delta ku$, and $\Delta Zr$. For $\Delta sk$ and $\Delta ku$ we simulated independent samples for two groups from Pearson distributions with known moments using the *rpearson* function from the PearsonDS R package [vers. 1.3.2, @PearsonDS]. We conducted two simulations: 1) first by changing skewness between groups that involved moderate departures from normality (group-specific skewness, $sk \in \{-1, -0.5, 0, 0.5, 1\}$ with kurtosis fixed at 3) and 2) by holding skewness constant ($sk$ = 0) while manipulating kurtosis, $ku \in \{2.5, 3, 4, 5, 6\}$. In all cases, we simulated scenarios where: (i) the variance between each group was the same ($\sigma^2_{2}$ = $\sigma^2_{1}$ = 1) or different ($2\sigma^2_{2}$ versus $\sigma^2_{1}$); (ii) the mean between the two groups was the same ($\mu_{2}$ = $\mu_{1}$ = 0) or different ($\mu_{2}$ = 5, $\mu_{1}$ = 0); and (iii) under equal and unequal  sample sizes between groups with sample size varying from $n \in \{10, 20, \dots, 100, 150, 500\}$. We created all unique combinations of the above scenarios resulting in $s$ = 1200 independent scenarios (when considering each of the 100 scenarios at each sample size, see examples in @sec-skewness and @sec-kurtosis). We estimated $\Delta sk$ and $\Delta ku$ for each scenario using formulas for within-group sample skewness with small-sample correction (Eq. 1 in main manuscript) and excess kurtosis with small-sample correction (Eq. 3) to estimate point estimates. To estimate associated sampling variance for $\Delta sk$ and $\Delta ku$ we used the analytical variance estimators derived here and an associated re-sampling (jackknife) approach to compute group sampling variances separately followed by pooling.  Importantly, our simulations assume no correlation between groups. 
+## Extended Simulation Details
+We conducted Monte-Carlo simulations to evaluate bias and variance estimation for our new effect sizes $\Delta sk$, $\Delta ku$, and $\Delta Zr$. For $\Delta sk$ and $\Delta ku$ we simulated independent samples for two groups from Pearson distributions with known moments using the *rpearson* function from the PearsonDS R package [vers. 1.3.2, @PearsonDS]. We conducted two simulations: 1) first by changing skewness between groups that involved moderate departures from normality (group-specific skewness, $sk \in \{-1, -0.5, 0, 0.5, 1\}$ with kurtosis fixed at 3) and 2) by holding skewness constant ($sk$ = 0) while manipulating kurtosis, $ku \in \{2.5, 3, 4, 5, 6\}$. In all cases, we simulated scenarios where: (i) the variance between each group was the same ($\sigma^2_{2}$ = $\sigma^2_{1}$ = 1) or different ($2\sigma^2_{2}$ versus $\sigma^2_{1}$); (ii) the mean between the two groups was the same ($\mu_{2}$ = $\mu_{1}$ = 0) or different ($\mu_{2}$ = 5, $\mu_{1}$ = 0); and (iii) under equal and unequal  sample sizes between groups with sample size varying from $n \in \{10, 20, \dots, 100, 150, 500\}$. We created all unique combinations of the above scenarios resulting in $s$ = 1200 independent scenarios (when considering each of the 100 scenarios at each sample size, see examples in @sec-skewness and @sec-kurtosis). We estimated $\Delta sk$ and $\Delta ku$ for each scenario using formulas for within-group sample skewness with small-sample correction (Eq. 1 in main manuscript) and excess kurtosis with small-sample correction (Eq. 3 in main manuscript) to estimate point estimates. To estimate associated sampling variance for $\Delta sk$ and $\Delta ku$ we used the analytical variance estimators derived here and an associated re-sampling (jackknife) approach to compute group sampling variances separately followed by pooling.  Importantly, our simulations assume no correlation between groups. 
 
-For $\Delta Zr$ simulations, we simulated two groups each containing two variables with known correlations within each group.  For $\Delta Zr$ we drew bivariate normal data with target within-group correlations $r \in \{-0.8, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8\}$ using the *mvnorm* function in the MASS package of R (vers. 7.3.61, @MASS). Marginals were standard normal and group sizes varied from $n \in \{10, 20, \dots, 100, 150, 500\}$. Again, we created all unique combinations of scenarios resulting in $s$ = 768 unique scenarios. We estimated $\Delta Zr$ using Fisher’s Z transformation $Zr$ and calculating $\Delta Zr$ as the difference of $Zr$ across groups (Eqs. 9–11). Sampling variance for $\Delta Zr$ was approximated used the standard analytic variance 1/(n−3) per group (summed; Eq. 10) and a jackknife approach. Again, we assumed no correlation between our groups. 
+For $\Delta Zr$ simulations, we simulated two groups each containing two variables with known correlations within each group.  For $\Delta Zr$ we drew bivariate normal data with target within-group correlations $r \in \{-0.8, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8\}$ using the *mvnorm* function in the MASS package of R [vers. 7.3.61, @MASS]. Marginals were standard normal and group sizes varied from $n \in \{10, 20, \dots, 100, 150, 500\}$. Again, we created all unique combinations of scenarios resulting in $s$ = 768 unique scenarios. We estimated $\Delta Zr$ using Fisher’s Z transformation $Zr$ and calculating $\Delta Zr$ as the difference of $Zr$ across groups (Eqs. 9–11 in main manuscript). Sampling variance for $\Delta Zr$ was approximated used the standard analytic variance $\frac{1}{n-3}$ per group (summed; Eq. 10 in main manuscript) and a jackknife approach. Again, we assumed no correlation between our groups. 
 
 Across all simulations we conducted 2,500 replicates of each scenario. Performance metrics were (a) bias of the point estimator (mean estimate minus truth) (@eq-bias), (b) relative bias of the sampling-variance estimator (@eq-relbias), and (c) Monte-Carlo standard errors (MCSEs) (@eq-mcse). 
 
 $$
-\text{Bias}(\hat{\theta}) = \mathbb{E}[\hat{\theta}] - \theta
+\text{Bias}(\hat{\theta}) = \frac{\sum_{i=1}^{n_{\text{sim}}} \hat{\theta}_i}{n_{\text{sim}}} - \theta
 $$ {#eq-bias}
 
-$$
-\text{Relative Bias}(\hat{\theta}) = \frac{\mathbb{E}[\hat{\theta}] - \theta}{\theta} \dot 100%
-$$ {#eq-relbias}
+
+where $\theta$ is the true overall mean effect (i.e., the true $\Delta sk$, $\Delta ku$, and $\Delta Zr$ between groups), and $\hat{\theta}_i$ is the effect estimate from simulation $i$. 
+
+To understand bias in the sampling variance, we computed the relative bias for the effect measure as:
 
 $$
-\text{MCSE} = \frac{\hat{\sigma}}{\sqrt{M}}
+\text{Relative Bias}(\hat{\theta}) = \left( \frac{\mathbb{E}[\hat{SV}] - \hat{\theta}^2}{\hat{\theta}^2}\right) \cdot 100\% 
+$$ {#eq-relbias}
+
+where $\hat{\theta}^2$ is the estimated sampling variance for the effect measure and $\mathbb{E}[\hat{SV}]$ is the expected value of the sampling variance. Relative bias can be calculated using different combinations of estimates. For example, we can use $\hat{\theta}^2$ as the demoninator from a point estimate taken from the small sample correction for $\Delta sk$, $\Delta ku$, or $\Delta Zr$ or from the jackknife estimate. Alternatively, we can use the jackknife estimate for $\mathbb{E}[\hat{SV}]$ across each simulation. We created each of the four combinations for our performance measures. For each of our performance measures we also computed the Monte Carlo Standard Errors (MCSE) of the estimated bias with
+
+$$
+\text{MCSE} = \sqrt{\frac{S^2_{\hat{\theta}}}{n_{\text{sim}}}}
 $$ {#eq-mcse}
+
+where $S^2_{\hat{\theta}}$ is the sample variance of the estimated effects across simulations and $n_{\text{sim}}$ is the number of simulations.
+
+## Extended Simulation Results
+
+```{r, sim_results}
+#| label: sim_results
+#| echo: false
+#| message: false
+
+# Load in the simulation results
+sk  <- readRDS("./output/result_skewness.rds")
+ku  <- readRDS("./output/result_kurt.rds")
+ku  <- readRDS("./output/result_cor.rds")
+
+```
+
 
 ## *Scenarios Explored for Differences in Skewness* {#sec-skewness}
 
@@ -168,7 +194,7 @@ images[[10]]
 :::
 
 
-## Scenarios Explored for Differences in Kurtosis {#sec-kurtosis}
+## *Scenarios Explored for Differences in Kurtosis* {#sec-kurtosis}
 
 
 ::: {.panel-tabset .tabset-pills .tabset-fade}
