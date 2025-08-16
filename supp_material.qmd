@@ -55,9 +55,9 @@ This online material is a supplement to our paper "Beyond sex differences in mea
 In this online material, we provide details on the simulations we ran to evaluate the effectiveness of our proposed effect size statistics (and their associated sampling error). We also show how to (1) calculate our newly proposed effect sizes ($\Delta sk$, $\Delta ku$, $\Delta Zr$) and (2) exemplify their use with data from the International Mouse Phenotyping Consortium.
 
 # Simulations
-We conducted Monte-Carlo simulations to evaluate bias and variance estimation for our new effect sizes $\Delta sk$, $\Delta ku$, and $\Delta Zr$. For $\Delta sk$ and $\Delta ku$ we simulated independent samples for two groups from Pearson distributions with known moments using the *rpearson* function from the PearsonDS R package [vers. 1.3.2, @PearsonDS]. We conducted two simulations: 1) first by changing skewness between groups that involved moderate departures from normality (group-specific skewness, *sk* ∈ {−1, −0.5, 0, 0.5, 1} with kurtosis fixed at 3) and 2) by holding skewness constant (*sk* = 0) while manipulating kurtosis, *ku* ∈ {2.5, 3, 4, 5, 6}. In all cases, we simulated scenarios where: (i) the variance between each group was the same (σ²₂ = σ²₁  = 1) or different (2σ²₂ = σ²₁); (ii) the mean between the two groups was the same (u₂ = u₁ = 0) or different (5u₂ = u₁); and (iii) under equal and unequal  sample sizes between groups with sample size varying from n ∈ {10, 20, …, 100, 150, 500}. We created all unique combinations of the above scenarios resulting in s = 1200 independent scenarios (when considering each of the 100 scenarios at each sample size). We estimated $\Delta sk$ and $\Delta ku$ for each scenario using formulas for within-group sample skewness with small-sample correction (Eq. 1 in main manuscript) and excess kurtosis with small-sample correction (Eq. 3) to estimate point estimates. To estimate associated sampling variance for $\Delta sk$ and $\Delta ku$ we used the analytical variance estimators derived here and an associated re-sampling (jackknife) approach to compute group sampling variances separately followed by pooling.  Importantly, our simulations assume no correlation between groups. 
+We conducted Monte-Carlo simulations to evaluate bias and variance estimation for our new effect sizes $\Delta sk$, $\Delta ku$, and $\Delta Zr$. For $\Delta sk$ and $\Delta ku$ we simulated independent samples for two groups from Pearson distributions with known moments using the *rpearson* function from the PearsonDS R package [vers. 1.3.2, @PearsonDS]. We conducted two simulations: 1) first by changing skewness between groups that involved moderate departures from normality (group-specific skewness, $sk \in \{-1, -0.5, 0, 0.5, 1\}$ with kurtosis fixed at 3) and 2) by holding skewness constant ($sk$ = 0) while manipulating kurtosis, $ku \in \{2.5, 3, 4, 5, 6\}$. In all cases, we simulated scenarios where: (i) the variance between each group was the same ($\sigma^2_{2}$ = $\sigma^2_{1}$ = 1) or different ($2\sigma^2_{2}$ versus $\sigma^2_{1}$); (ii) the mean between the two groups was the same ($\mu_{2}$ = $\mu_{1}$ = 0) or different ($\mu_{2}$ = 5, $\mu_{1}$ = 0); and (iii) under equal and unequal  sample sizes between groups with sample size varying from $n \in \{10, 20, \dots, 100, 150, 500\}$. We created all unique combinations of the above scenarios resulting in $s$ = 1200 independent scenarios (when considering each of the 100 scenarios at each sample size, see examples in @sec-skewness and @sec-kurtosis). We estimated $\Delta sk$ and $\Delta ku$ for each scenario using formulas for within-group sample skewness with small-sample correction (Eq. 1 in main manuscript) and excess kurtosis with small-sample correction (Eq. 3) to estimate point estimates. To estimate associated sampling variance for $\Delta sk$ and $\Delta ku$ we used the analytical variance estimators derived here and an associated re-sampling (jackknife) approach to compute group sampling variances separately followed by pooling.  Importantly, our simulations assume no correlation between groups. 
 
-For $\Delta Zr$ simulations, we simulated two groups each containing two variables with known correlations within each group.  For $\Delta Zr$ we drew bivariate normal data with target within-group correlations r ∈ {−0.8, −0.4, −0.2, 0, 0.2, 0.4, 0.6, 0.8} using the *mvnorm* function in the MASS package of R (vers. 7.3.61, @MASS). Marginals were standard normal and group sizes varied from n ∈ {10, 20, …, 100, 150, 500}. Again, we created all unique combinations of scenarios resulting in s = 768 unique scenarios. We estimated $\Delta Zr$ using Fisher’s Z transformation Zr and calculating $\Delta Zr$ as the difference of Zr across groups (Eqs. 9–11). Sampling variance for $\Delta Zr$ was approximated used the standard analytic variance 1/(n−3) per group (summed; Eq. 10) and a jackknife approach. Again, we assumed no correlation between our groups. 
+For $\Delta Zr$ simulations, we simulated two groups each containing two variables with known correlations within each group.  For $\Delta Zr$ we drew bivariate normal data with target within-group correlations $r \in \{-0.8, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8\}$ using the *mvnorm* function in the MASS package of R (vers. 7.3.61, @MASS). Marginals were standard normal and group sizes varied from $n \in \{10, 20, \dots, 100, 150, 500\}$. Again, we created all unique combinations of scenarios resulting in $s$ = 768 unique scenarios. We estimated $\Delta Zr$ using Fisher’s Z transformation $Zr$ and calculating $\Delta Zr$ as the difference of $Zr$ across groups (Eqs. 9–11). Sampling variance for $\Delta Zr$ was approximated used the standard analytic variance 1/(n−3) per group (summed; Eq. 10) and a jackknife approach. Again, we assumed no correlation between our groups. 
 
 Across all simulations we conducted 2,500 replicates of each scenario. Performance metrics were (a) bias of the point estimator (mean estimate minus truth) (@eq-bias), (b) relative bias of the sampling-variance estimator (@eq-relbias), and (c) Monte-Carlo standard errors (MCSEs) (@eq-mcse). 
 
@@ -72,6 +72,196 @@ $$ {#eq-relbias}
 $$
 \text{MCSE} = \frac{\hat{\sigma}}{\sqrt{M}}
 $$ {#eq-mcse}
+
+## *Scenarios Explored for Differences in Skewness* {#sec-skewness}
+
+::: {.panel-tabset .tabset-pills .tabset-fade}
+
+### Fig. 1
+
+```{r}
+#| label: fig-skewness-1
+#| echo: false
+#| 
+# Plot 1 code goes here
+files <- list.files("./output/figs/skewness/")
+images  <- lapply(files, function(x) {
+  magick::image_read(paste0("./output/figs/skewness/", x))
+})
+
+images[[1]]
+```
+
+### Fig. 2
+```{r}
+#| label: fig-skewness-2
+#| echo: false
+# Plot 2 code goes here
+images[[2]]
+
+```
+
+### Fig. 3
+```{r}
+#| label: fig-skewness-3
+#| echo: false
+# Plot 3 code goes here
+images[[3]]
+```
+
+### Fig. 4
+```{r}
+#| label: fig-skewness-4
+#| echo: false
+# Plot 4 code goes here
+images[[4]]
+```
+
+### Fig. 5
+```{r}
+#| label: fig-skewness-5
+#| echo: false
+# Plot 5 code goes here
+images[[5]]
+```
+
+
+### Fig. 6
+```{r}
+#| label: fig-skewness-6
+#| echo: false
+# Plot 6 code goes here
+images[[6]]
+```
+
+### Fig. 7
+```{r}
+#| label: fig-skewness-7
+#| echo: false
+# Plot 7 code goes here
+images[[7]]
+```
+
+### Fig. 8
+```{r}
+#| label: fig-skewness-8
+#| echo: false
+# Plot 8 code goes here
+images[[8]]
+``` 
+
+### Fig. 9
+```{r}
+#| label: fig-skewness-9
+#| echo: false
+# Plot 9 code goes here
+images[[9]]
+```
+
+### Fig. 10
+```{r}
+#| label: fig-skewness-10
+#| echo: false
+# Plot 10 code goes here
+images[[10]]
+```
+:::
+
+
+## Scenarios Explored for Differences in Kurtosis {#sec-kurtosis}
+
+
+::: {.panel-tabset .tabset-pills .tabset-fade}
+
+### Fig. 1
+
+```{r}
+#| label: fig-kurtosis-1
+#| echo: false
+#| 
+# Plot 1 code goes here
+files <- list.files("./output/figs/kurtosis/")
+images  <- lapply(files, function(x) {
+  magick::image_read(paste0("./output/figs/kurtosis/", x))
+})
+
+images[[1]]
+```
+
+### Fig. 2
+```{r}
+#| label: fig-kurtosis-2
+#| echo: false
+# Plot 2 code goes here
+images[[2]]
+
+```
+
+### Fig. 3
+```{r}
+#| label: fig-kurtosis-3
+#| echo: false
+# Plot 3 code goes here
+images[[3]]
+```
+
+### Fig. 4
+```{r}
+#| label: fig-kurtosis-4
+#| echo: false
+# Plot 4 code goes here
+images[[4]]
+```
+
+### Fig. 5
+```{r}
+#| label: fig-kurtosis-5
+#| echo: false
+# Plot 5 code goes here
+images[[5]]
+```
+
+### Fig. 6
+```{r}
+#| label: fig-kurtosis-6
+#| echo: false
+# Plot 6 code goes here
+images[[6]]
+```
+
+### Fig. 7
+```{r}
+#| label: fig-kurtosis-7
+#| echo: false
+# Plot 7 code goes here
+images[[7]]
+```
+
+### Fig. 8
+```{r}
+#| label: fig-kurtosis-8
+#| echo: false
+# Plot 8 code goes here
+images[[8]]
+``` 
+
+### Fig. 9
+```{r}
+#| label: fig-kurtosis-9
+#| echo: false
+# Plot 9 code goes here
+images[[9]]
+```
+
+### Fig. 10
+```{r}
+#| label: fig-kurtosis-10
+#| echo: false
+# Plot 10 code goes here
+images[[10]]
+```
+:::
+
 
 # Prerequisites
 
