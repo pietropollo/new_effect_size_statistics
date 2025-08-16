@@ -1,0 +1,810 @@
+---
+title: "ONLINE SUPPLEMENT - Beyond sex differences in mean: meta-analysis of differences in skewness, kurtosis, and correlation"
+author: "**Pietro Pollo, Szymon M. Drobniak, Hamed Haselimashhadi, Malgorzata Lagisz, Ayumi Mizuno, Daniel W. A. Noble, Laura A. B. Wilson, Shinichi Nakagawa**"
+date: "`r Sys.Date()`"
+format:
+  html:
+    toc: true
+    toc-location: left
+    toc-depth: 3
+    toc-title: "**Table of Contents**"
+    output-file: "index.html"
+    theme: simplex
+    embed-resources: true
+    code-fold: show
+    code-tools: true
+    number-sections: true
+    bibliography: ref.bib
+    fontsize: "12"
+    max-width: "10"
+    code-overflow: wrap
+crossref: 
+  fig-title: Figure
+  tbl-title: Table
+  title-delim: "—"
+  fig-prefix: "Fig."
+  tbl-prefix: "Tab."
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup}
+#| include: false
+
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  message = FALSE,
+  warnings = FALSE,
+  echo = TRUE#,
+  #comment = "#>"
+)
+```
+
+# Update
+
+We will update this tutorial when necessary. Readers can access the latest version in our [GitHub repository](https://github.com/pietropollo/new_effect_size_statistics).
+
+If you have any questions, errors or bug reports, please contact Pietro Pollo (pietro_pollo\@hotmail.com) or Shinichi Nakagawa (snakagaw\@ualberta.ca).
+
+# Introduction
+
+This online material is a supplement to our paper "Beyond sex differences in mean: meta-analysis of differences in skewness, kurtosis, and correlation". You will see how to calculate the new effect size statistics we have proposed and how to use them in a meta-analytical model using the `metafor` package in `R`.
+
+# Content
+
+In this online material, we provide details on the simulations we ran to evaluate the effectiveness of our proposed effect size statistics (and their associated sampling error). We also show how to (1) calculate our newly proposed effect sizes ($\Delta sk$, $\Delta ku$, $\Delta Zr$) and (2) exemplify their use with data from the International Mouse Phenotyping Consortium.
+
+# Simulations
+We conducted Monte-Carlo simulations to evaluate bias and variance estimation for our new effect sizes $\Delta sk$, $\Delta ku$, and $\Delta Zr$. For $\Delta sk$ and $\Delta ku$ we simulated independent samples for two groups from Pearson distributions with known moments using the *rpearson* function from the PearsonDS R package [vers. 1.3.2, @PearsonDS]. We conducted two simulations: 1) first by changing skewness between groups that involved moderate departures from normality (group-specific skewness, *sk* ∈ {−1, −0.5, 0, 0.5, 1} with kurtosis fixed at 3) and 2) by holding skewness constant (*sk* = 0) while manipulating kurtosis, *ku* ∈ {2.5, 3, 4, 5, 6}. In all cases, we simulated scenarios where: (i) the variance between each group was the same (σ²₂ = σ²₁  = 1) or different (2σ²₂ = σ²₁); (ii) the mean between the two groups was the same (u₂ = u₁ = 0) or different (5u₂ = u₁); and (iii) under equal and unequal  sample sizes between groups with sample size varying from n ∈ {10, 20, …, 100, 150, 500}. We created all unique combinations of the above scenarios resulting in s = 1200 independent scenarios (when considering each of the 100 scenarios at each sample size). We estimated $\Delta sk$ and $\Delta ku$ for each scenario using formulas for within-group sample skewness with small-sample correction (Eq. 1 in main manuscript) and excess kurtosis with small-sample correction (Eq. 3) to estimate point estimates. To estimate associated sampling variance for $\Delta sk$ and $\Delta ku$ we used the analytical variance estimators derived here and an associated re-sampling (jackknife) approach to compute group sampling variances separately followed by pooling.  Importantly, our simulations assume no correlation between groups. 
+
+For $\Delta Zr$ simulations, we simulated two groups each containing two variables with known correlations within each group.  For $\Delta Zr$ we drew bivariate normal data with target within-group correlations r ∈ {−0.8, −0.4, −0.2, 0, 0.2, 0.4, 0.6, 0.8} using the *mvnorm* function in the MASS package of R (vers. 7.3.61, @MASS). Marginals were standard normal and group sizes varied from n ∈ {10, 20, …, 100, 150, 500}. Again, we created all unique combinations of scenarios resulting in s = 768 unique scenarios. We estimated $\Delta Zr$ using Fisher’s Z transformation Zr and calculating $\Delta Zr$ as the difference of Zr across groups (Eqs. 9–11). Sampling variance for $\Delta Zr$ was approximated used the standard analytic variance 1/(n−3) per group (summed; Eq. 10) and a jackknife approach. Again, we assumed no correlation between our groups. 
+
+Across all simulations we conducted 2,500 replicates of each scenario. Performance metrics were (a) bias of the point estimator (mean estimate minus truth) (@eq-bias), (b) relative bias of the sampling-variance estimator (@eq-relbias), and (c) Monte-Carlo standard errors (MCSEs) (@eq-mcse). 
+
+$$
+\text{Bias}(\hat{\theta}) = \mathbb{E}[\hat{\theta}] - \theta
+$$ {#eq-bias}
+
+$$
+\text{Relative Bias}(\hat{\theta}) = \frac{\mathbb{E}[\hat{\theta}] - \theta}{\theta} \dot 100%
+$$ {#eq-relbias}
+
+$$
+\text{MCSE} = \frac{\hat{\sigma}}{\sqrt{M}}
+$$ {#eq-mcse}
+
+# Prerequisites
+
+## Loading packages
+
+Our tutorial uses `R` statistical software and existing `R` packages, which you will first need to download and install.
+
+If the packages are archived in CRAN, use `install.packages()` to install them.
+For example, to install the `metafor` , you can execute `install.packages("metafor")` in the console (bottom left pane of `R Studio`).
+
+Version information of each package is listed at the end of this tutorial.
+
+```{r packages}
+if (!require("pacman")) {install.packages("pacman")}
+pacman::p_load(corrr,
+               DT,
+               ggdist,
+               ggtext,
+               here,
+               janitor,
+               metafor,
+               pander,
+               patchwork,
+               tidyverse)
+
+options(DT.options = list(rownames = FALSE,
+                          dom = "Blfrtip",
+                          scrollX = TRUE,
+                          pageLength = 5,
+                          columnDefs = list(list(targets = '_all', 
+                                                 className = 'dt-center')),
+                          buttons = c('copy', 'csv', 'excel', 'pdf')))
+
+source("layout.R")
+```
+
+## Custom functions
+
+We also provide some additional helper functions to calculate effect sizes, process data, and visualise our results.
+The most straightforward way to use these custom functions is to run the code chunk below.
+Alternatively, paste the code into the console and hit `Enter` to have `R` ‘learn’ these custom functions.
+
+If you want to use these custom functions in your own data, you will need to change the variable names according to your own data (check out the `R` code and you will see what we mean).
+
+```{r}
+#| code-fold: true
+
+# calculate effect sizes ----
+## skewness ----
+calc.skewness <- function(x, output = "est") {
+  n <- length(x)
+  
+  if (output == "est") { # skewness estimate
+    (sqrt(n * (n - 1)) / (n - 2)) *
+      (((1 / n) * sum((x - mean(x)) ^ 3)) /
+         (((1 / n) * sum((x - mean(x)) ^ 2)) ^ (3/2)))
+    
+  } else if (output == "var") { # skewness sampling variance
+    (6 * n * (n - 1)) /
+      ((n - 2) * (n + 1) * (n + 3))
+  }
+}
+
+## kurtosis ----
+calc.kurtosis <- function(x, output = "est") {
+  n <- length(x)
+  
+  if (output == "est") { # kurtosis estimate
+    ((((n + 1) * n * (n - 1)) / ((n - 2) * (n - 3))) *
+       (sum((x - mean(x)) ^ 4) / (sum((x - mean(x)) ^ 2) ^ 2))) -
+      (3 * ((n - 1) ^ 2) / ((n - 2) * (n - 3)))
+  } else if (output == "var") { # kurtosis sampling variance
+    (24 * n * ((n - 1) ^ 2)) /
+      ((n - 3) * (n - 2) * (n + 3) * (n + 5))
+  }
+}
+
+## Zr ----
+r.to.zr <- # Zr estimate
+  function(r) { 
+    0.5 * log((1 + r) / (1 - r))
+  }
+
+zr.variance <- # Zr variance 
+  function(n) {
+    1 / (n - 3)
+  }
+
+## other effect sizes (lnRR and lnVR) ----
+calc.effect <- function(data = raw_data, 
+                        m) { # calculates other already established effect size statistics 
+  escalc(measure = m,
+         m1i = data$mean_male,
+         m2i = data$mean_female,
+         sd1i = data$sd_male,
+         sd2i = data$sd_female,
+         n1i = data$n_male,
+         n2i = data$n_female,
+         var.names = c(paste0(m,
+                              "_est"),
+                       paste0(m,
+                              "_var")))
+}
+
+# processing functions ----
+process.ind_effects <- function(chosen_trait = "fat_mass",
+                                measure = "KU_delta") {
+  ind_effects <-
+    df_meta_analysed %>% 
+    filter(trait_name == chosen_trait,
+           phenotyping_center %in% c("CCP-IMG",
+                                     "HMGU",
+                                     "JAX",
+                                     "MRC H",
+                                     "TCP")) %>% 
+    mutate(type = "individual") %>% 
+    select(phenotyping_center,
+           strain_fig,
+           n = n_total,
+           est = paste0(measure, "_", "est"),
+           var = paste0(measure, "_", "var"),
+           lower = paste0(measure, "_", "lower"),
+           upper = paste0(measure, "_", "upper"))
+  
+  model <- rma.mv(data = ind_effects,
+                  yi = est,
+                  V = var,
+                  test = "t",
+                  random = list(~ 1|phenotyping_center, 
+                                ~ 1|strain_fig))
+  
+  df_model <- data.frame(trait_name = chosen_trait,
+                         est = model$beta[1],
+                         var = model$se ^ 2,
+                         lower = model$ci.lb,
+                         upper = model$ci.ub,
+                         phenotyping_center = "Mean",
+                         strain_fig = "ES")
+  
+  
+  ind_effects %>% 
+    bind_rows(df_model) %>% 
+    mutate(est_type = measure,
+           centre_and_strain = factor(paste0(phenotyping_center,
+                                             "\n",
+                                             strain_fig))) %>% 
+    mutate(centre_and_strain = factor(centre_and_strain,
+                                      levels = c("Mean\nES",
+                                                 rev(levels(centre_and_strain)[-6]))))
+}
+
+process.cor_effects <- function(chosen_trait_1 = "fat_mass",
+                                chosen_trait_2 = "heart_weight") {
+  df_effects_cor <-
+    df_raw %>% 
+    filter(trait_name %in% c(chosen_trait_1,
+                             chosen_trait_2), 
+           phenotyping_center %in% c("CCP-IMG",
+                                     "HMGU",
+                                     "JAX",
+                                     "MRC H",
+                                     "TCP")) %>% 
+    pivot_wider(id_cols = c(specimen_id,
+                            strain_fig,
+                            phenotyping_center,
+                            sex),
+                names_from = trait_name) %>%
+    clean_names() %>% 
+    drop_na() %>% 
+    group_by(strain_fig,
+             phenotyping_center,
+             sex) %>% 
+    group_modify(~ correlate(.x)) %>% 
+    drop_na(all_of(chosen_trait_2)) %>% 
+    ungroup() %>%
+    left_join(df_raw %>% 
+                filter(trait_name %in% c(chosen_trait_1,
+                                         chosen_trait_2), 
+                       phenotyping_center %in% c("CCP-IMG",
+                                                 "HMGU",
+                                                 "JAX",
+                                                 "MRC H",
+                                                 "TCP")) %>% 
+                pivot_wider(id_cols = c(specimen_id,
+                                        strain_fig,
+                                        phenotyping_center,
+                                        sex),
+                            names_from = trait_name) %>%
+                clean_names() %>% 
+                drop_na() %>% 
+                group_by(strain_fig,
+                         phenotyping_center,
+                         sex) %>% 
+                summarise(n = n())) %>% 
+    rename(r_est = chosen_trait_2) %>% 
+    mutate(zr_est = r.to.zr(r_est),
+           zr_var = zr.variance(n)) %>% 
+    select(- c(4:6)) %>% 
+    pivot_wider(names_from = sex,
+                values_from = c(n,
+                                zr_est,
+                                zr_var)) %>% 
+    mutate(delta_zr_est = zr_est_male - zr_est_female,
+           delta_zr_var = zr_var_male + zr_var_female,
+           delta_zr_upper = delta_zr_est + 
+             qt(0.975, n_male + n_female - 2) * 
+             sqrt(delta_zr_var),
+           delta_zr_lower = delta_zr_est - 
+             qt(0.975, n_male + n_female - 2) *
+             sqrt(delta_zr_var))
+  
+  mlma_zr <-
+    rma.mv(data = df_effects_cor,
+           yi = delta_zr_est,
+           V = delta_zr_var,
+           test = "t",
+           random = list(~ 1|phenotyping_center, 
+                         ~ 1|strain_fig))
+  
+  df_model <- data.frame(delta_zr_est = mlma_zr$beta[1],
+                         delta_zr_lower = mlma_zr$ci.lb,
+                         delta_zr_upper = mlma_zr$ci.ub,
+                         phenotyping_center = "Mean",
+                         strain_fig = "ES")
+  
+  df_effects_cor %>% 
+    bind_rows(df_model) %>% 
+    mutate(centre_and_strain = factor(paste0(phenotyping_center,
+                                             "\n",
+                                             strain_fig))) %>% 
+    mutate(centre_and_strain = factor(centre_and_strain,
+                                      levels = c("Mean\nES",
+                                                 rev(levels(centre_and_strain)[-5]))))
+}
+
+# visualisation functions ----
+caterpillar.custom <- 
+  function(chosen_trait = "fat_mass",
+           measure = "KU_delta") {
+    plot <-
+      process.ind_effects(chosen_trait = chosen_trait,
+                          measure = measure) %>% 
+      ggplot(aes(y = centre_and_strain,
+                 x = est,
+                 xmax = upper,
+                 xmin = lower,
+                 shape = strain_fig,
+                 col = phenotyping_center)) +
+      geom_pointrange() +
+      geom_vline(xintercept = 0,
+                 linetype = "dotted") +
+      theme_classic() +
+      theme(legend.position = "none",
+            axis.text.y = element_blank(),
+            axis.title.y = element_blank(),
+            plot.tag.position = c(0.15, 0.98))
+    
+    if (measure == "ROM") {
+      plot +
+        labs(x = "lnRR") +
+        scale_x_continuous(limits = c(-0.51, 0.51),
+                           breaks = c(-0.5, 0, 0.5)) +
+        theme(axis.title.x = ggtext::element_markdown(face = "italic"))
+    } else if (measure == "VR") {
+      plot +
+        labs(x = "lnVR") +
+        scale_x_continuous(limits = c(-1, 1),
+                           breaks = c(-1, 0, 1)) +
+        theme(axis.title.x = ggtext::element_markdown(face = "italic"))
+    } else if (measure == "SK_delta") {
+      plot +
+        labs(x = "&Delta;*sk*") +
+        scale_x_continuous(limits = c(-2.1, 2.1),
+                           breaks = c(-2, 0, 2)) +
+        theme(axis.title.x = ggtext::element_markdown())
+    } else if (measure == "KU_delta") {
+      plot +
+        labs(x = "&Delta;*ku*") +
+        scale_x_continuous(limits = c(-15, 15),
+                           breaks = c(-15, 0, 15)) +
+        theme(axis.title.x = ggtext::element_markdown())
+    }
+  }
+
+ridgeline.custom <- function(chosen_trait = "fat_mass") {
+  df_raw %>% 
+    filter(trait_name == chosen_trait,
+           phenotyping_center %in% c("CCP-IMG",
+                                     "HMGU",
+                                     "JAX",
+                                     "MRC H",
+                                     "TCP")) %>% 
+    add_row(phenotyping_center = "Mean",
+            strain_fig = "ES") %>% 
+    mutate(centre_and_strain = factor(paste0(phenotyping_center,
+                                             "\n",
+                                             strain_fig))) %>% 
+    mutate(centre_and_strain = factor(centre_and_strain,
+                                      levels = c("Mean\nES",
+                                                 rev(levels(centre_and_strain)[-5]))),
+           value_s = scale(value)) %>%
+    ggplot(aes(x = value_s,
+               y = centre_and_strain,
+               fill = sex,
+               linetype = sex)) +
+    stat_slab(scale = 0.7, 
+              alpha = 0.4,
+              linewidth = 0.6,
+              col = "black") +
+    scale_fill_manual(values = c("white",
+                                 "black")) +
+    scale_linetype_manual(values = c("solid",
+                                     "dashed")) +
+    labs(x = paste0(str_to_sentence(str_replace_all(chosen_trait,
+                                                    "_",
+                                                    " ")),
+                    "\n(scaled)"),
+         y = "Phenotyping centre and mice strain") +
+    theme_classic() +
+    theme(legend.position = "none",
+          axis.title.x = element_text(size = 12, 
+                                      margin = margin(t = 0.2,
+                                                      unit = "cm")),
+          axis.title.y = element_text(size = 12, 
+                                      margin = margin(r = 0.2,
+                                                      unit = "cm")),
+          axis.text.x = element_text(size = 10),
+          axis.text.y = element_text(size = 10),
+          plot.tag.position = c(0.53, 0.98))
+}
+
+cor.caterpillar.custom <- 
+  function(chosen_trait_1 = "fat_mass",
+           chosen_trait_2 = "heart_weight") {
+    
+    process.cor_effects(chosen_trait_1 = chosen_trait_1,
+                        chosen_trait_2 = chosen_trait_2) %>% 
+      ggplot(aes(y = centre_and_strain,
+                 x = delta_zr_est,
+                 xmax = delta_zr_upper,
+                 xmin = delta_zr_lower,
+                 shape = strain_fig,
+                 col = phenotyping_center)) +
+      geom_pointrange() +
+      geom_vline(xintercept = 0,
+                 linetype = "dotted") +
+      labs(y = "Phenotyping centre and mice strain",
+           x = "&Delta;*Zr*", 
+           shape = "Strain") +
+      scale_x_continuous(limits = c(-1, 1),
+                         breaks = c(-1, 0, 1)) +
+      theme_classic() +
+      theme(legend.position = "none",
+            axis.title.x = ggtext::element_markdown(size = 12, 
+                                                    margin = margin(t = 0.2,
+                                                                    unit = "cm")),
+            axis.title.y = element_text(size = 12,
+                                        margin = margin(r = - 0.1,
+                                                        unit = "cm")),
+            axis.text.x = element_text(size = 10),
+            axis.text.y = element_text(size = 10),
+            plot.tag.position = c(0.3, 0.99))
+  }
+
+cor.plot.custom <- 
+  function(chosen_trait_1 = "fat_mass",
+           chosen_trait_2 = "heart_weight",
+           chosen_lims = c(-3, 5)) {
+    df_cor <-
+      df_raw %>% 
+      filter(trait_name %in% c(chosen_trait_1,
+                               chosen_trait_2), 
+             phenotyping_center %in% c("CCP-IMG",
+                                       "HMGU",
+                                       "JAX",
+                                       "MRC H",
+                                       "TCP")) %>% 
+      pivot_wider(id_cols = c(specimen_id,
+                              strain_fig,
+                              phenotyping_center,
+                              sex),
+                  names_from = trait_name) %>%
+      clean_names() %>% 
+      drop_na() %>% 
+      mutate(centre_and_strain = factor(paste0(phenotyping_center,
+                                               strain_fig))) %>% 
+      mutate(centre_and_strain = factor(centre_and_strain,
+                                        levels = rev(levels(centre_and_strain))),
+             trait_1_s = scale(get(chosen_trait_1))[,1],
+             trait_2_s = scale(get(chosen_trait_2))[,1])
+    
+    plot_list <- list()
+    
+    for (i in 1:length(levels(df_cor$centre_and_strain))) {
+      level_i <- sort(levels(df_cor$centre_and_strain))[i]
+      
+      plot <-
+        df_cor %>% 
+        filter(centre_and_strain == level_i) %>% 
+        ggplot(aes(x = trait_1_s,
+                   y = trait_2_s,
+                   shape = sex,
+                   linetype = sex)) +
+        geom_point(
+          alpha = 0.008,
+        ) +
+        geom_abline(intercept = 0,
+                    slope = 1,
+                    linewidth = 0.5,
+                    linetype = "dotted") +
+        geom_smooth(method = "lm",
+                    se = F,
+                    col = "black") +
+        scale_shape_manual(values = c(3, 4)) +
+        scale_linetype_manual(values = c("solid",
+                                         "dashed")) +
+        scale_x_continuous(limits = chosen_lims) +
+        scale_y_continuous(limits = chosen_lims) +
+        labs(x = paste0(str_to_sentence(str_replace_all(chosen_trait_1, 
+                                                        "_", 
+                                                        " ")),
+                        "\n(scaled)"),
+             y = paste0(str_to_sentence(str_replace_all(chosen_trait_2, 
+                                                        "_", 
+                                                        " ")),
+                        " (scaled)")) +
+        theme_classic() +
+        theme(legend.position = "none",
+              plot.tag.position = c(0.05, 0.91),
+              axis.title.x = element_text(size = 12, 
+                                          margin = margin(t = 0.2,
+                                                          unit = "cm")),
+              axis.title.y = element_text(size = 12, 
+                                          margin = margin(r = 0.2,
+                                                          unit = "cm")),
+              axis.text.x = element_text(size = 10),
+              axis.text.y = element_text(size = 10))
+      
+      
+      if (i != 6) {
+        plot <-
+          plot +
+          theme(axis.title.x = element_blank(),
+                axis.text.x = element_blank(),
+                axis.line.x = element_blank(),
+                axis.ticks.x = element_blank())
+      }
+      
+      plot_list[[i]] <- plot
+    }
+    
+    return(plot_list)
+  }
+```
+
+
+# Equations and custom functions to calculate effect sizes
+
+## Skewness
+
+Following Pick et al. (2022).  
+
+
+$$
+sk = \frac{\frac{1}{n} \sum_{i = 1}^{n}(x_{i} - \bar{x}) ^ 3}{[\frac{1}{n} \sum_{i = 1}^{n}(x - \bar{x}) ^ 2] ^ \frac{3}{2}}
+\frac{\sqrt{n (n - 1)}}{n - 2}
+$$
+$$
+s^2_{sk} = \frac{6n(n - 1)}{(n - 2)(n + 1)(n + 3)}
+$$
+
+$$
+\Delta sk = sk_{1} - sk_{2}
+$$
+
+$$
+s^2_{\Delta sk} = s^2_{sk_1} + s^2_{sk_2} - 2 \rho_{sk} s_{sk_1} s_{sk_2}
+$$
+
+## Kurtosis 
+
+$$
+ku = \frac{n (n + 1) (n - 1)}{(n - 2)(n - 3)} 
+\frac{\sum_{i = 1}^{n}(x_{i} - \bar{x}) ^ 4}
+{[\sum_{i = 1}^{n}(x_{i} - \bar{x}) ^ 2]^ 2} -
+\frac{3(n - 1) ^ 2}{(n - 2)(n - 3)}
+$$
+$$
+s^2_{ku} = \frac{24 n (n - 1) ^ 2}{(n - 3)(n - 2)(n + 3)(n + 5)} 
+$$
+
+$$
+\Delta ku = ku_{1} - ku_{2}
+$$
+
+$$
+s^2_{\Delta ku} = s^2_{ku_1} + s^2_{ku_2} - 2 \rho_{ku} s_{ku_1} s_{ku_2}
+$$
+
+## Zr
+
+$$
+Zr =  \frac{ln(\frac{1 + r}{1 - r})}{2}
+$$
+
+$$
+s^2_{Zr} = \frac{1}{n - 3}
+$$
+$$
+\Delta Zr = Zr_{1} - Zr_{2}
+$$
+
+$$
+s^2_{\Delta Zr} = s^2_{Zr_1} + s^2_{Zr_2} -2 \rho_{Zr} s_{Zr_1} s_{Zr_2}
+$$
+
+# Data loading and preparation
+
+We use data from the International Mouse Phenotyping Consortium (IMPC, version 18.0; Dickinson et al., 2016; http://www.mousephenotype.org/).
+
+```{r data}
+# raw data ----
+df_raw <- 
+  read_csv("mice_data_sample.csv") %>% 
+  # small adjustments to make plots more readable:
+  mutate(phenotyping_center = 
+           ifelse(phenotyping_center == "MRC Harwell",
+                  "MRC H",
+                  phenotyping_center),
+         strain_fig = case_when(strain_accession_id == "MGI:2159965" ~ 
+                                  "N",
+                                strain_accession_id == "MGI:2683688" ~ 
+                                  "NCrl",
+                                strain_accession_id == "MGI:2164831" ~ 
+                                  "NTac",
+                                strain_accession_id == "MGI:3056279" ~ 
+                                  "NJ",
+                                strain_accession_id == "MGI:2160139" ~ 
+                                  "NJcl"))
+
+df_meta_analysed <-
+  df_raw %>% 
+  group_by(sex,
+           trait_name,
+           phenotyping_center,
+           strain_fig) %>% 
+  summarize(mean = mean(value,
+                        na.rm = T),
+            sd = sd(value,
+                    na.rm = T),
+            n = n(),
+            SK_est = calc.skewness(value),
+            SK_var = calc.skewness(value, output = "var"),
+            KU_est = calc.kurtosis(value),
+            KU_var = calc.kurtosis(value, output = "var")) %>% 
+  pivot_wider(id_cols = c(trait_name,
+                          phenotyping_center,
+                          strain_fig),
+              names_from = sex,
+              values_from = c(mean:KU_var)) %>% 
+  mutate(SK_delta_est = SK_est_male - SK_est_female,
+         SK_delta_var = SK_var_male + SK_var_female,
+         KU_delta_est = KU_est_male - KU_est_female,
+         KU_delta_var = KU_var_male + KU_var_female) %>% 
+  bind_cols(calc.effect(., m = "ROM")) %>% # lnRR
+  bind_cols(calc.effect(., m = "CVR")) %>% # lnCVR
+  bind_cols(calc.effect(., m = "VR")) %>% # lnVR
+  filter(!is.na(CVR_est)) %>% 
+  mutate(n_total = n_female + n_male,
+         prop_females = n_female / (n_female + n_male)) %>% 
+  select(trait_name,
+         phenotyping_center,
+         strain_fig,
+         n_total,
+         prop_females,
+         ROM_est,
+         ROM_var,
+         CVR_est,
+         CVR_var,
+         VR_est,
+         VR_var,
+         SK_delta_est,
+         SK_delta_var,
+         KU_delta_est,
+         KU_delta_var) %>% 
+  mutate(ROM_upper = ROM_est + qt(0.975, 
+                                  n_total - 1) * sqrt(ROM_var),
+         ROM_lower = ROM_est - qt(0.975, 
+                                  n_total - 1) * sqrt(ROM_var),
+         CVR_upper = CVR_est + qt(0.975, 
+                                  n_total - 1) * sqrt(CVR_var),
+         CVR_lower = CVR_est - qt(0.975, 
+                                  n_total - 1) * sqrt(CVR_var),
+         VR_upper = VR_est + qt(0.975, 
+                                n_total - 1) * sqrt(VR_var),
+         VR_lower = VR_est - qt(0.975, 
+                                n_total - 1) * sqrt(VR_var),
+         SK_delta_upper = SK_delta_est + qt(0.975, 
+                                            n_total - 1) * sqrt(SK_delta_var),
+         SK_delta_lower = SK_delta_est - qt(0.975, 
+                                            n_total - 1) * sqrt(SK_delta_var),
+         KU_delta_upper = KU_delta_est + qt(0.975, 
+                                            n_total - 1) * sqrt(KU_delta_var),
+         KU_delta_lower = KU_delta_est - qt(0.975, 
+                                            n_total - 1) * sqrt(KU_delta_var))
+```
+
+# Meta-analytical models
+
+We then use the data from multiple phenotyping centres and mice strains to calculate average effect sizes ($\Delta sk$, $\Delta ku$, and $\Delta Zr$).
+
+## Single variable effect sizes
+
+```{r}
+map2_dfr(.x = rep(c("fat_mass",
+                    "heart_weight",
+                    "glucose",
+                    "total_cholesterol"),
+                  each = 4),
+         .y = rep(c("ROM",
+                    "VR",
+                    "SK_delta",
+                    "KU_delta"), 
+                  4),
+         .f = process.ind_effects) %>% 
+  mutate(est_type = case_when(est_type == "ROM" ~ "lnRR",
+                              est_type == "VR" ~ "lnVR",
+                              est_type == "SK_delta" ~ "delta_sk",
+                              est_type == "KU_delta" ~ "delta_ku")) %>% 
+  datatable(.,
+            extensions = "Buttons",
+            rownames = FALSE)
+```
+
+## Correlational effect sizes
+
+```{r}
+map2_dfr(.x = c("fat_mass",
+                "glucose"),
+         .y = c("heart_weight",
+                "total_cholesterol"),
+         .f = process.cor_effects) %>% 
+  mutate(relationship = rep(c("fat mass and heart weight",
+                              "glucose and total cholesterol"),
+                            each = 7)) %>% 
+  relocate(relationship) %>%  
+  datatable(.,
+            extensions = "Buttons",
+            rownames = FALSE)
+```
+
+# Visualisations
+
+```{r}
+## figure_2 ----
+list_figure_2 <- list()
+list_figure_2[[1]] <- ridgeline.custom("fat_mass")
+list_figure_2[2:5] <- map2(.x = rep("fat_mass", 4),
+                           .y = c("ROM",
+                                  "VR",
+                                  "SK_delta",
+                                  "KU_delta"),
+                           .f = caterpillar.custom)
+list_figure_2[[6]] <- ridgeline.custom("heart_weight")
+list_figure_2[7:10] <- map2(.x = rep("heart_weight", 4),
+                            .y = c("ROM",
+                                   "VR",
+                                   "SK_delta",
+                                   "KU_delta"),
+                            .f = caterpillar.custom)
+
+(figure_2 <-
+    list_figure_2 %>% 
+    wrap_plots(ncol = 5) +
+    plot_annotation(tag_levels = "A"))
+
+## figure_3 ----
+list_figure_3 <- list()
+list_figure_3[1:6] <- cor.plot.custom(chosen_trait_1 = "fat_mass",
+                                      chosen_trait_2 = "heart_weight")
+list_figure_3[[7]] <- cor.caterpillar.custom(chosen_trait_1 = "fat_mass",
+                                             chosen_trait_2 = "heart_weight")
+
+list_figure_3[8:13] <- cor.plot.custom(chosen_trait_1 = "glucose",
+                                       chosen_trait_2 = "total_cholesterol")
+
+list_figure_3[[14]] <- cor.caterpillar.custom(chosen_trait_1 = "glucose",
+                                              chosen_trait_2 = "total_cholesterol")
+(figure_3 <-
+    list_figure_3 %>% 
+    wrap_plots() +
+    plot_layout(design = layout_2,
+                heights = c(rep(1, 6), 0.6),
+                widths = c(rep(0.23, 2), 0.02, rep(0.23, 2)),
+                axes = "collect",
+                guides = "collect") +
+    plot_annotation(tag_levels = list(c("A", 
+                                        rep("", 
+                                            5), 
+                                        "B",
+                                        "C",
+                                        rep("", 
+                                            5),
+                                        "D"))))
+
+## figure_4 ----
+list_figure_4 <- list()
+list_figure_4[[1]] <- ridgeline.custom("glucose")
+list_figure_4[2:5] <- map2(.x = rep("glucose", 4),
+                           .y = c("ROM",
+                                  "VR",
+                                  "SK_delta",
+                                  "KU_delta"),
+                           .f = caterpillar.custom)
+list_figure_4[[6]] <- ridgeline.custom("total_cholesterol")
+list_figure_4[7:10] <- map2(.x = rep("total_cholesterol", 4),
+                            .y = c("ROM",
+                                   "VR",
+                                   "SK_delta",
+                                   "KU_delta"),
+                            .f = caterpillar.custom)
+
+(figure_4 <-
+    list_figure_4 %>% 
+    wrap_plots(ncol = 5) +
+    plot_annotation(tag_levels = "A"))
+```
+
+# Software and package versions  
+
+```{r versions}
+sessionInfo() %>% 
+  pander()
+```
+
+# References
