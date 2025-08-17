@@ -583,7 +583,7 @@ fig_bias
 
 #### Evaluating Sampling Variance Estimators for $\Delta sk$, $\Delta ku$, and $\Delta Zr$
 
-In contrast to point estimators, the effectiveness of sampling variance estimators for $\Delta sk$, $\Delta ku$, and $\Delta Zr$ varied. Analytical sampling variance formulas for $\Delta sk$ and $\Delta ku$ were consistently biased (@fig-relbias), except when using Jackknife resampling when combined with analytical point estimates ([@fig-relbias]D & [@fig-relbias]E). Under these conditions, estimators performed well when n > 50. In contrast, the performance of sampling variance estimators for $\Delta Zr$ was best when using the analytical formulas for both the point estimator and it's associated sampling variance ([@eq-relbias]I).
+In contrast to point estimators, the effectiveness of sampling variance estimators for $\Delta sk$, $\Delta ku$, and $\Delta Zr$ varied. Analytical sampling variance formulas for $\Delta sk$ and $\Delta ku$ were consistently biased (@fig-relbias), except when using Jackknife resampling when combined with analytical point estimates ([@fig-relbias]D & [@fig-relbias]E). Under these conditions, estimators performed well when n > 50. In contrast, the performance of sampling variance estimators for $\Delta Zr$ was best when using the analytical formulas for both the point estimator and it's associated sampling variance ([@fig-relbias]I).
 
 ```{r, fig-relbias}
 #| label: fig-relbias
