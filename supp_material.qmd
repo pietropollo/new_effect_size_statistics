@@ -78,6 +78,7 @@ pacman::p_load(corrr,
                pander,
                patchwork,
                magick,
+               latex2exp,
                tidyverse)
 
 options(DT.options = list(rownames = FALSE,
@@ -564,12 +565,44 @@ cor  <- readRDS("./output/result_cor.rds")
       colnames(result_skew_least_bias) <- "MSBE"
       result_cor_least_bias <- cor  %>% summarise(across(starts_with("bias_"), ~ sum(.x^2, na.rm = TRUE), .names = "ms_bias_{col}"))  %>% t()  %>%  data.frame() %>% arrange() 
       colnames(result_cor_least_bias) <- "MSBE"
+
+# What is the bias for skewness where it's 0, or normally distributed
+sk_normal <- sk %>% filter(skewness_g1 == 0 & skewness_g2 == 0) %>% 
+                    summarise(mean_bias_sk = mean(bias_sk),
+                                sd_bias_sk = sd(bias_sk),
+                            mean_bias_jack = mean(bias_sk_jack_bc),
+                              sd_bias_jack = sd(bias_sk_jack_bc),
+                                         n = n())
+
+# What is the bias for kurtosis where it's 3, or normally distributed
+ku_normal <- ku %>% filter(kurtosis_g1 == 3 & kurtosis_g2 == 3) %>% 
+                    summarise(mean_bias_ku = mean(bias_ku),
+                                sd_bias_ku = sd(bias_ku),
+                            mean_bias_jack = mean(bias_ku_jack_bc),
+                              sd_bias_jack = sd(bias_ku_jack_bc),
+                                         n = n())
+
+# Lets create a new columns describing the average deviation of both distributions from nomrality. 
+sk <- sk  %>% mutate(dev_skew = abs((skewness_g1 - 0) + (skewness_g2 - 0)))
+ku <- ku  %>% mutate(dev_kurt = abs((kurtosis_g1 - 3) + (kurtosis_g2 - 3)),
+                     var_diff = as.factor(abs((variance_g1 - variance_g2))),
+                     mean_diff = as.factor(abs((mean_g1 - mean_g2))))
+
+# Plots
+sk_why <- ggplot(sk, aes(y = bias_sk, x = dev_skew, fill = n, colour = n)) + geom_point(size = 2) + labs(y = TeX("$Bias_{\\Delta sk}$ (small-sample estimator)"), x = TeX("Absolute Deviation from Normality $ \\left( \\left| ( sk_{g1} - 0 ) + ( sk_{g2} - 0 ) \\right| \\right)$"), fill = "Sample Size", colour = "Sample Size") + theme_classic() + scale_fill_viridis_c() + scale_colour_viridis_c()
+
+ku_why <- ggplot(ku, aes(y = bias_ku, x = dev_kurt, fill = n, colour = n)) + geom_point(size = 2) + labs(y = TeX("$Bias_{\\Delta ku}$ (small-sample estimator)"), x = TeX("Absolute Deviation from Normality $ \\left( \\left| ( ku_{g1} - 3 ) + ( ku_{g2} - 3 ) \\right| \\right)$"), fill = "Sample Size", colour = "Sample Size") + theme_classic() + scale_fill_viridis_c() + scale_colour_viridis_c()
+
+plot_why <- (sk_why | ku_why) + plot_annotation(tag_levels = "A") & 
+  theme(plot.tag = element_text(size = 12, face = "bold"))
+
 ```
 
 In all cases, we found the Monte Carlo Sampling Error (MCSEs) to be low for all our performance metrics ($\Delta sk$: range of MCSEs, `r round(min(sk_mcse), digits = 3)` to `r round(max(sk_mcse), digits = 3)`; $\Delta ku$: range of MCSEs, `r round(min(ku_mcse), digits = 3)` to `r round(max(ku_mcse), digits = 3)`; $\Delta Zr$: range of MCSEs, `r round(min(cor_mcse), digits = 3)` to `r round(max(cor_mcse), digits = 3)`). 
 
 #### Evaluating $\Delta sk$, $\Delta ku$, and $\Delta Zr$ Point Estimators
-Across all simulations, $\Delta sk$, $\Delta ku$, and $\Delta Zr$ point estimators exhibited small sample bias with less than 20-30 samples, except for $\Delta ku$, which showed this bias below n < 50-60, indicating effect sizes involving kurtosis are more challenging to estimate (@fig-bias). Regardless, small sample biases were moderate, and there was never a consistent over or under-estimation in point estimates across the scenarios evaluated (@fig-bias). Bias-corrected jackknife estimates reduced the small-sample bias relative to analytical bias corrected-moment estimators ($\Delta sk$ Mean Square Bias (MSB): Jackknife: `r round(result_skew_least_bias$MSBE[rownames(result_skew_least_bias)=="ms_bias_bias_sk_jack_bc"], digits = 3)`, Analytical: `r round(result_skew_least_bias$MSBE[rownames(result_skew_least_bias) =="ms_bias_bias_sk"], digits = 3)`; $\Delta ku$ Mean Square Bias (MSB): Jackknife: `r round(result_kurt_least_bias$MSBE[rownames(result_kurt_least_bias) =="ms_bias_bias_ku_jack_bc"], digits = 3)`, Analytical: `r round(result_kurt_least_bias$MSBE[rownames(result_kurt_least_bias) =="ms_bias_bias_ku"], digits = 3)`; $\Delta cor$ Mean Square Bias (MSB): Jackknife: `r round(result_cor_least_bias$MSBE[rownames(result_cor_least_bias)=="ms_bias_bias_jack_d_cor"], digits = 3)`, Analytical: `r round(result_cor_least_bias$MSBE[rownames(result_cor_least_bias)=="ms_bias_bias_d_cor"], digits = 3)`).
+
+Across all simulations, $\Delta sk$, $\Delta ku$, and $\Delta Zr$ point estimators exhibited small sample bias with less than 20-30 samples, except for $\Delta ku$, which showed this bias below n < 50-60, indicating effect sizes involving kurtosis are more challenging to estimate (@fig-bias). Regardless, small sample biases were moderate, and there was never a consistent over or under-estimation in point estimates across the scenarios evaluated (@fig-bias). As expected, both the analytical and jackknife estimates for $\Delta sk$ and $\Delta ku$ had minimal bias when distributions were normally distributed (Skewness of both groups = 0; Analytical bias= `r round(sk_normal$mean_bias_sk, digits = 3)` with SD = `r round(sk_normal$sd_bias_sk, digits = 3)` & Jackknife = `r round(sk_normal$mean_bias_jack, digits = 3)` with SD = `r round(sk_normal$sd_bias_jack, digits = 3)`; Kurtosis of both groups = 3; Analytical bias=`r round(ku_normal$mean_bias_ku, digits = 3)` with SD = `r round(ku_normal$sd_bias_ku, digits = 3)` & Jackknife = `r round(ku_normal$mean_bias_jack, digits = 3)` with SD = `r round(ku_normal$sd_bias_jack, digits = 3)`). Bias-corrected jackknife estimates reduced the small-sample bias relative to analytical bias corrected-moment estimators ($\Delta sk$ Mean Square Bias (MSB): Jackknife: `r round(result_skew_least_bias$MSBE[rownames(result_skew_least_bias)=="ms_bias_bias_sk_jack_bc"], digits = 3)`, Analytical: `r round(result_skew_least_bias$MSBE[rownames(result_skew_least_bias) =="ms_bias_bias_sk"], digits = 3)`; $\Delta ku$ Mean Square Bias (MSB): Jackknife: `r round(result_kurt_least_bias$MSBE[rownames(result_kurt_least_bias) =="ms_bias_bias_ku_jack_bc"], digits = 3)`, Analytical: `r round(result_kurt_least_bias$MSBE[rownames(result_kurt_least_bias) =="ms_bias_bias_ku"], digits = 3)`; $\Delta cor$ Mean Square Bias (MSB): Jackknife: `r round(result_cor_least_bias$MSBE[rownames(result_cor_least_bias)=="ms_bias_bias_jack_d_cor"], digits = 3)`, Analytical: `r round(result_cor_least_bias$MSBE[rownames(result_cor_least_bias)=="ms_bias_bias_d_cor"], digits = 3)`). 
 
 ```{r, fig-bias}
 #| label: fig-bias
@@ -593,6 +626,7 @@ In contrast to point estimators, the effectiveness of sampling variance estimato
 fig_relbias  <- image_read("./output/figs/relativebias.png")
 fig_relbias
 ```
+
 
 
 In light of these simulation results, we suggest pairing the formula-based point estimators for skewness (Eq. 1 in main manuscript) and kurtosis (Eq. 3 in main manuscript) with jackknife standard errors for $\Delta sk$ and $\Delta ku$. For $\Delta Zr$, the standard analytic variance is recommended (Eqns. 9-12 in main manuscript). This choice balances efficiency under normality with robustness to realistic deviations from it, and aligns with our broader guidance to avoid very small group sizes for these statistics.
