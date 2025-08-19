@@ -607,7 +607,7 @@ Across all simulations, $\Delta sk$, $\Delta ku$, and $\Delta Zr$ point estimato
 ```{r, fig-bias}
 #| label: fig-bias
 #| echo: false  
-#| fig.cap: Bias in $\Delta sk$, $\Delta ku$ and $\Delta Zr$ effect estimates across simulations where samples ranged in group sample sizes between $n \in \{10, 20, \dots, 100, 150, 500\}$. A total of $s$ = 100 simulated scenarios were assessed for $\Delta sk$ and $\Delta ku$ whereas $s$ = 64 for $\Delta Zr$.
+#| fig.cap: Bias in $\Delta sk$, $\Delta ku$ and $\Delta Zr$ effect estimates across simulations where samples ranged in group sample sizes between $n \in \{10, 20, \dots, 100, 150, 500\}$. A total of $s$ = 100 simulated scenarios were assessed for $\Delta sk$ and $\Delta ku$ whereas $s$ = 64 for $\Delta Zr$.For each scenario we ran 2,500 simulations.
 
 fig_bias  <- image_read("./output/figs/bias.png")
 fig_bias
@@ -621,7 +621,7 @@ In contrast to point estimators, the effectiveness of sampling variance estimato
 ```{r, fig-relbias}
 #| label: fig-relbias
 #| echo: false  
-#| fig.cap: Relative Bias in $\Delta sk$, $\Delta ku$ and $\Delta Zr$ effect estimates across simulations where samples ranged in group sample sizes between $n \in \{10, 20, \dots, 100, 150, 500\}$. A total of $s$ = 100 simulated scenarios were assessed for $\Delta sk$ and $\Delta ku$ whereas $s$ = 64 for $\Delta Zr$. Note that for relative bias different combinations of point estimates and sampling variance estimates were used in their calculation as indicated in their titles which show the calculation. Notation is as follows ku and sk are the skewness and kurtosis calculated using original formulas.  sk_sv and ku_sv are the sampling variance estimates using the original formulas.  jack_skew_sv and jack_ku_sv are the sampling variance estimates for skewness and kurtosis using jackknife. jack_skew_bc and jack_ku_bc are the bias corrected point estimates from the jackknife. 
+#| fig.cap: Relative Bias in $\Delta sk$, $\Delta ku$ and $\Delta Zr$ effect estimates across simulations where samples ranged in group sample sizes between $n \in \{10, 20, \dots, 100, 150, 500\}$. A total of $s$ = 100 simulated scenarios were assessed for $\Delta sk$ and $\Delta ku$ whereas $s$ = 64 for $\Delta Zr$. Note that for relative bias different combinations of point estimates and sampling variance estimates were used in their calculation as indicated in their titles which show the calculation. Notation is as follows ku and sk are the skewness and kurtosis calculated using original formulas.  sk_sv and ku_sv are the sampling variance estimates using the original formulas.  jack_skew_sv and jack_ku_sv are the sampling variance estimates for skewness and kurtosis using jackknife. jack_skew_bc and jack_ku_bc are the bias corrected point estimates from the jackknife. For each scenario we ran 2,500 simulations.
 
 fig_relbias  <- image_read("./output/figs/relativebias.png")
 fig_relbias
