@@ -93,3 +93,12 @@ final_rel_bias_plot <- (bias_sv_sk | bias_sv_sk_jack | bias_sk_sk_jack_sv | bias
 # Show the final plot
 final_rel_bias_plot
 ggsave("./output/figs/relativebias.png", plot = final_rel_bias_plot, width = 23, height = 12)
+
+
+# Main MS plot
+
+bias_ku_jack_ku_sv2  <- plot_bias_violin(result_kurt, "bias_ku_jack_ku_sv",    "Relative Bias $SV_{\\Delta ku}$ (%)", title = "", ylim = c(-50, 50))
+bias_sk_jack_sk_sv2  <- plot_bias_violin(result_skew, "bias_sk_jack_sk_sv",    "Relative Bias $SV_{\\Delta sk}$ (%)", title = "", ylim = c(-50, 50))
+bias_sv_z2        <- plot_bias_violin(result_cor,  "bias_d_cor_sv",      "Relative Bias $SV_{\\Delta Z_{r}}$ (%)", title = "", ylim = c(-30, 30))
+
+ms_plot <- (bias_sk_plot| bias_sk_jack_sk_sv2) / (bias_ku_plot | bias_ku_jack_ku_sv2) / (bias_z_plot | bias_sv_z2) + plot_annotation(tag_levels = 'A', tag_suffix = ")") & theme(plot.tag = element_text(size = 16, face = "bold"))
