@@ -418,14 +418,14 @@
   #' @import ggplot2
   #' @import patchwork
   #' @export
-    multi_plot_scenarios <- function(scenarios, folder = "figs/") {
+    multi_plot_scenarios <- function(scenarios, folder = "figs/", name) {
       plots <- list() # Initialize an empty list to store plots
       for(i in 1:nrow(scenarios)) {
         params <- scenarios[i,]
         plots[[i]] <- plot_scenario(params, print = TRUE, xpos = 3)
       }
     # Combine all plots into a grid layout
-    ggsave(filename = paste0(folder, "scenario_plots_", Sys.time(), ".png"), plot = wrap_plots(plots, ncol = 2), width = 10, height = 10, dpi = 300)
+    ggsave(filename = paste0(folder, "scenario_plots_", name, ".png"), plot = wrap_plots(plots, ncol = 2), width = 10, height = 10, dpi = 300)
 }
 
 ## ================================================================

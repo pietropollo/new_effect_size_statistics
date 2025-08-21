@@ -228,9 +228,10 @@ n_per_group <- 10
 
 # Split the scenarios into chunks
 df_chunks <- split(scenarios, cut(seq_len(nrow(scenarios)), breaks = n_chunks, labels = FALSE))
+name = 1:length(df_chunks)
 
 # Plot each chunk of scenarios. This will create a grid of plots for each scenario
-#lapply(df_chunks, function(x) multi_plot_scenarios(x, folder = "output/figs/skewness/")) 
+mapply(function(x,y) multi_plot_scenarios(x, folder = "output/figs/skewness/", name = y), x = df_chunks, y = name) 
 
 # Create combinations of parameters expanded by sample size vector. Each row is a scenario with a sample size which is used to set up the simulation
 	params_all <- data.frame(tidyr::crossing(scenarios, n = n))               
@@ -292,7 +293,7 @@ n_per_group <- 10
 df_chunks <- split(scenarios, cut(seq_len(nrow(scenarios)), breaks = n_chunks, labels = FALSE))
 
 # Plot each chunk of scenarios. This will create a grid of plots for each scenario
-lapply(df_chunks, function(x) multi_plot_scenarios(x, folder = "output/figs/kurtosis/")) 
+mapply(function(x,y) multi_plot_scenarios(x, folder = "output/figs/kurtosis/", name = y), x = df_chunks, y = name) 
 
 # Create combinations of parameters expanded by sample size vector. Each row is a scenario with a sample size which is used to set up the simulation
 	params_all_kur <- data.frame(tidyr::crossing(scenarios, n = n))
