@@ -635,199 +635,7 @@ fig_relbias  <- image_read("./output/figs/relativebias.png")
 fig_relbias
 ```
 
-
-
 In light of these simulation results, we suggest pairing the formula-based point estimators for skewness (Eq. 1 in main manuscript) and kurtosis (Eq. 3 in main manuscript) with jackknife standard errors for $\Delta sk$ and $\Delta ku$. For $\Delta Zr$, the standard analytic variance is recommended (Eqns. 9-12 in main manuscript). This choice balances efficiency under normality with robustness to realistic deviations from it, and aligns with our broader guidance to avoid very small group sizes for these statistics.
-
-## *Scenarios Explored for Differences in Skewness* {#sec-skewness}
-
-::: {.panel-tabset .tabset-pills .tabset-fade}
-
-### Fig. 1
-
-```{r}
-#| label: fig-skewness-1
-#| echo: false
-#| 
-# Plot 1 code goes here
-files <- list.files("./output/figs/skewness/")
-images  <- lapply(files, function(x) {
-  magick::image_read(paste0("./output/figs/skewness/", x))
-})
-
-images[[1]]
-```
-
-### Fig. 2
-```{r}
-#| label: fig-skewness-2
-#| echo: false
-# Plot 2 code goes here
-images[[2]]
-
-```
-
-### Fig. 3
-```{r}
-#| label: fig-skewness-3
-#| echo: false
-# Plot 3 code goes here
-images[[3]]
-```
-
-### Fig. 4
-```{r}
-#| label: fig-skewness-4
-#| echo: false
-# Plot 4 code goes here
-images[[4]]
-```
-
-### Fig. 5
-```{r}
-#| label: fig-skewness-5
-#| echo: false
-# Plot 5 code goes here
-images[[5]]
-```
-
-
-### Fig. 6
-```{r}
-#| label: fig-skewness-6
-#| echo: false
-# Plot 6 code goes here
-images[[6]]
-```
-
-### Fig. 7
-```{r}
-#| label: fig-skewness-7
-#| echo: false
-# Plot 7 code goes here
-images[[7]]
-```
-
-### Fig. 8
-```{r}
-#| label: fig-skewness-8
-#| echo: false
-# Plot 8 code goes here
-images[[8]]
-``` 
-
-### Fig. 9
-```{r}
-#| label: fig-skewness-9
-#| echo: false
-# Plot 9 code goes here
-images[[9]]
-```
-
-### Fig. 10
-```{r}
-#| label: fig-skewness-10
-#| echo: false
-# Plot 10 code goes here
-images[[10]]
-```
-:::
-
-
-## *Scenarios Explored for Differences in Kurtosis* {#sec-kurtosis}
-
-
-::: {.panel-tabset .tabset-pills .tabset-fade}
-
-### Fig. 1
-
-```{r}
-#| label: fig-kurtosis-1
-#| echo: false
-#| 
-# Plot 1 code goes here
-files <- list.files("./output/figs/kurtosis/")
-images  <- lapply(files, function(x) {
-  magick::image_read(paste0("./output/figs/kurtosis/", x))
-})
-
-images[[1]]
-```
-
-### Fig. 2
-```{r}
-#| label: fig-kurtosis-2
-#| echo: false
-# Plot 2 code goes here
-images[[2]]
-
-```
-
-### Fig. 3
-```{r}
-#| label: fig-kurtosis-3
-#| echo: false
-# Plot 3 code goes here
-images[[3]]
-```
-
-### Fig. 4
-```{r}
-#| label: fig-kurtosis-4
-#| echo: false
-# Plot 4 code goes here
-images[[4]]
-```
-
-### Fig. 5
-```{r}
-#| label: fig-kurtosis-5
-#| echo: false
-# Plot 5 code goes here
-images[[5]]
-```
-
-### Fig. 6
-```{r}
-#| label: fig-kurtosis-6
-#| echo: false
-# Plot 6 code goes here
-images[[6]]
-```
-
-### Fig. 7
-```{r}
-#| label: fig-kurtosis-7
-#| echo: false
-# Plot 7 code goes here
-images[[7]]
-```
-
-### Fig. 8
-```{r}
-#| label: fig-kurtosis-8
-#| echo: false
-# Plot 8 code goes here
-images[[8]]
-``` 
-
-### Fig. 9
-```{r}
-#| label: fig-kurtosis-9
-#| echo: false
-# Plot 9 code goes here
-images[[9]]
-```
-
-### Fig. 10
-```{r}
-#| label: fig-kurtosis-10
-#| echo: false
-# Plot 10 code goes here
-images[[10]]
-```
-:::
-
 
 
 # Equations and custom functions to calculate effect sizes
@@ -1027,6 +835,7 @@ map2_dfr(.x = c("fat_mass",
 
 # Visualisations
 
+## *Meta-analytic Visualisations*
 ```{r}
 ## figure_2 ----
 list_figure_2 <- list()
@@ -1101,6 +910,198 @@ list_figure_4[7:10] <- map2(.x = rep("total_cholesterol", 4),
     wrap_plots(ncol = 5) +
     plot_annotation(tag_levels = "A"))
 ```
+
+## *Scenarios Explored for Differences in Skewness* {#sec-skewness}
+
+::: {.panel-tabset .tabset-pills .tabset-fade}
+
+### Fig. 1
+
+```{r}
+#| label: fig-skewness-1
+#| echo: false
+#| 
+# Plot 1 code goes here
+files <- list.files("./output/figs/skewness/")
+images  <- lapply(files, function(x) {
+  magick::image_read(paste0("./output/figs/skewness/", x))
+})
+
+images[[1]]
+```
+
+### Fig. 2
+```{r}
+#| label: fig-skewness-2
+#| echo: false
+# Plot 2 code goes here
+images[[2]]
+
+```
+
+### Fig. 3
+```{r}
+#| label: fig-skewness-3
+#| echo: false
+# Plot 3 code goes here
+images[[3]]
+```
+
+### Fig. 4
+```{r}
+#| label: fig-skewness-4
+#| echo: false
+# Plot 4 code goes here
+images[[4]]
+```
+
+### Fig. 5
+```{r}
+#| label: fig-skewness-5
+#| echo: false
+# Plot 5 code goes here
+images[[5]]
+```
+
+
+### Fig. 6
+```{r}
+#| label: fig-skewness-6
+#| echo: false
+# Plot 6 code goes here
+images[[6]]
+```
+
+### Fig. 7
+```{r}
+#| label: fig-skewness-7
+#| echo: false
+# Plot 7 code goes here
+images[[7]]
+```
+
+### Fig. 8
+```{r}
+#| label: fig-skewness-8
+#| echo: false
+# Plot 8 code goes here
+images[[8]]
+``` 
+
+### Fig. 9
+```{r}
+#| label: fig-skewness-9
+#| echo: false
+# Plot 9 code goes here
+images[[9]]
+```
+
+### Fig. 10
+```{r}
+#| label: fig-skewness-10
+#| echo: false
+# Plot 10 code goes here
+images[[10]]
+```
+:::
+
+
+## *Scenarios Explored for Differences in Kurtosis* {#sec-kurtosis}
+
+
+::: {.panel-tabset .tabset-pills .tabset-fade}
+
+### Fig. 1
+
+```{r}
+#| label: fig-kurtosis-1
+#| echo: false
+#| 
+# Plot 1 code goes here
+files <- list.files("./output/figs/kurtosis/")
+images  <- lapply(files, function(x) {
+  magick::image_read(paste0("./output/figs/kurtosis/", x))
+})
+
+images[[1]]
+```
+
+### Fig. 2
+```{r}
+#| label: fig-kurtosis-2
+#| echo: false
+# Plot 2 code goes here
+images[[2]]
+
+```
+
+### Fig. 3
+```{r}
+#| label: fig-kurtosis-3
+#| echo: false
+# Plot 3 code goes here
+images[[3]]
+```
+
+### Fig. 4
+```{r}
+#| label: fig-kurtosis-4
+#| echo: false
+# Plot 4 code goes here
+images[[4]]
+```
+
+### Fig. 5
+```{r}
+#| label: fig-kurtosis-5
+#| echo: false
+# Plot 5 code goes here
+images[[5]]
+```
+
+### Fig. 6
+```{r}
+#| label: fig-kurtosis-6
+#| echo: false
+# Plot 6 code goes here
+images[[6]]
+```
+
+### Fig. 7
+```{r}
+#| label: fig-kurtosis-7
+#| echo: false
+# Plot 7 code goes here
+images[[7]]
+```
+
+### Fig. 8
+```{r}
+#| label: fig-kurtosis-8
+#| echo: false
+# Plot 8 code goes here
+images[[8]]
+``` 
+
+### Fig. 9
+```{r}
+#| label: fig-kurtosis-9
+#| echo: false
+# Plot 9 code goes here
+images[[9]]
+```
+
+### Fig. 10
+```{r}
+#| label: fig-kurtosis-10
+#| echo: false
+# Plot 10 code goes here
+images[[10]]
+```
+:::
+
+
+
 
 # Software and package versions  
 
