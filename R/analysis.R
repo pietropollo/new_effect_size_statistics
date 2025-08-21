@@ -102,3 +102,5 @@ bias_sk_jack_sk_sv2  <- plot_bias_violin(result_skew, "bias_sk_jack_sk_sv",    "
 bias_sv_z2        <- plot_bias_violin(result_cor,  "bias_d_cor_sv",      "Relative Bias $SV_{\\Delta Z_{r}}$ (%)", title = "", ylim = c(-30, 30))
 
 ms_plot <- (bias_sk_plot| bias_sk_jack_sk_sv2) / (bias_ku_plot | bias_ku_jack_ku_sv2) / (bias_z_plot | bias_sv_z2) + plot_annotation(tag_levels = 'A', tag_suffix = ")") & theme(plot.tag = element_text(size = 16, face = "bold"))
+
+ggsave("./output/figs/ms_plot.png", plot = ms_plot, width = 8.333333, height = 9.567901)
