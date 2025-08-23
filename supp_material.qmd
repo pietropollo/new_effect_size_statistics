@@ -1,6 +1,6 @@
 ---
-title: "ONLINE SUPPLEMENT - Beyond sex differences in mean: meta-analysis of differences in skewness, kurtosis, and correlation"
-author: "**Pietro Pollo, Szymon M. Drobniak, Hamed Haselimashhadi, Malgorzata Lagisz, Ayumi Mizuno, Daniel W. A. Noble, Laura A. B. Wilson, Shinichi Nakagawa**"
+title: "ONLINE SUPPLEMENT - Beyond sex differences in the mean: new approaches to meta-analyse differences in skewness, kurtosis, and correlation"
+author: "**Pietro Pollo, Szymon M. Drobniak, Hamed Haselimashhadi, Malgorzata Lagisz, Ayumi Mizuno, Laura A. B. Wilson, Daniel W. A. Noble, Shinichi Nakagawa**"
 date: "`r Sys.Date()`"
 format:
   html:
@@ -19,6 +19,7 @@ format:
     max-width: "10"
     code-overflow: wrap
     page-layout: full
+    fig-numbering: false
 crossref: 
   fig-title: Figure
   tbl-title: Table
@@ -74,11 +75,12 @@ pacman::p_load(corrr,
                ggtext,
                here,
                janitor,
+               latex2exp,
+               magick,
                metafor,
+               orchaRd,
                pander,
                patchwork,
-               magick,
-               latex2exp,
                tidyverse)
 
 options(DT.options = list(rownames = FALSE,
@@ -103,48 +105,7 @@ If you want to use these custom functions in your own data, you will need to cha
 ```{r}
 #| code-fold: true
 
-# calculate effect sizes ----
-## skewness ----
-calc.skewness <- function(x, output = "est") {
-  n <- length(x)
-  
-  if (output == "est") { # skewness estimate
-    (sqrt(n * (n - 1)) / (n - 2)) *
-      (((1 / n) * sum((x - mean(x)) ^ 3)) /
-         (((1 / n) * sum((x - mean(x)) ^ 2)) ^ (3/2)))
-    
-  } else if (output == "var") { # skewness sampling variance
-    (6 * n * (n - 1)) /
-      ((n - 2) * (n + 1) * (n + 3))
-  }
-}
-
-## kurtosis ----
-calc.kurtosis <- function(x, output = "est") {
-  n <- length(x)
-  
-  if (output == "est") { # kurtosis estimate
-    ((((n + 1) * n * (n - 1)) / ((n - 2) * (n - 3))) *
-       (sum((x - mean(x)) ^ 4) / (sum((x - mean(x)) ^ 2) ^ 2))) -
-      (3 * ((n - 1) ^ 2) / ((n - 2) * (n - 3)))
-  } else if (output == "var") { # kurtosis sampling variance
-    (24 * n * ((n - 1) ^ 2)) /
-      ((n - 3) * (n - 2) * (n + 3) * (n + 5))
-  }
-}
-
-## Zr ----
-r.to.zr <- # Zr estimate
-  function(r) { 
-    0.5 * log((1 + r) / (1 - r))
-  }
-
-zr.variance <- # Zr variance 
-  function(n) {
-    1 / (n - 3)
-  }
-
-## other effect sizes (lnRR and lnVR) ----
+# calculate established effect sizes ----
 calc.effect <- function(data = raw_data, 
                         m) { # calculates other already established effect size statistics 
   escalc(measure = m,
@@ -175,10 +136,18 @@ process.ind_effects <- function(chosen_trait = "fat_mass",
     select(phenotyping_center,
            strain_fig,
            n = n_total,
-           est = paste0(measure, "_", "est"),
-           var = paste0(measure, "_", "var"),
-           lower = paste0(measure, "_", "lower"),
-           upper = paste0(measure, "_", "upper"))
+           est = paste0(measure, 
+                        "_",
+                        "est"),
+           var = paste0(measure, 
+                        "_",
+                        "var"),
+           lower = paste0(measure, 
+                          "_",
+                          "lower"),
+           upper = paste0(measure, 
+                          "_",
+                          "upper"))
   
   model <- rma.mv(data = ind_effects,
                   yi = est,
@@ -207,89 +176,98 @@ process.ind_effects <- function(chosen_trait = "fat_mass",
                                                  rev(levels(centre_and_strain)[-6]))))
 }
 
-process.cor_effects <- function(chosen_trait_1 = "fat_mass",
-                                chosen_trait_2 = "heart_weight") {
-  df_effects_cor <-
-    df_raw %>% 
-    filter(trait_name %in% c(chosen_trait_1,
-                             chosen_trait_2), 
-           phenotyping_center %in% c("CCP-IMG",
-                                     "HMGU",
-                                     "JAX",
-                                     "MRC H",
-                                     "TCP")) %>% 
-    pivot_wider(id_cols = c(specimen_id,
-                            strain_fig,
-                            phenotyping_center,
-                            sex),
-                names_from = trait_name) %>%
-    clean_names() %>% 
-    drop_na() %>% 
-    group_by(strain_fig,
-             phenotyping_center,
-             sex) %>% 
-    group_modify(~ correlate(.x)) %>% 
-    drop_na(all_of(chosen_trait_2)) %>% 
-    ungroup() %>%
-    left_join(df_raw %>% 
-                filter(trait_name %in% c(chosen_trait_1,
-                                         chosen_trait_2), 
-                       phenotyping_center %in% c("CCP-IMG",
-                                                 "HMGU",
-                                                 "JAX",
-                                                 "MRC H",
-                                                 "TCP")) %>% 
-                pivot_wider(id_cols = c(specimen_id,
-                                        strain_fig,
-                                        phenotyping_center,
-                                        sex),
-                            names_from = trait_name) %>%
-                clean_names() %>% 
-                drop_na() %>% 
-                group_by(strain_fig,
-                         phenotyping_center,
-                         sex) %>% 
-                summarise(n = n())) %>% 
-    rename(r_est = chosen_trait_2) %>% 
-    mutate(zr_est = r.to.zr(r_est),
-           zr_var = zr.variance(n)) %>% 
-    select(- c(4:6)) %>% 
-    pivot_wider(names_from = sex,
-                values_from = c(n,
-                                zr_est,
-                                zr_var)) %>% 
-    mutate(delta_zr_est = zr_est_male - zr_est_female,
-           delta_zr_var = zr_var_male + zr_var_female,
-           delta_zr_upper = delta_zr_est + 
-             qt(0.975, n_male + n_female - 2) * 
-             sqrt(delta_zr_var),
-           delta_zr_lower = delta_zr_est - 
-             qt(0.975, n_male + n_female - 2) *
-             sqrt(delta_zr_var))
-  
-  mlma_zr <-
-    rma.mv(data = df_effects_cor,
-           yi = delta_zr_est,
-           V = delta_zr_var,
-           test = "t",
-           random = list(~ 1|phenotyping_center, 
-                         ~ 1|strain_fig))
-  
-  df_model <- data.frame(delta_zr_est = mlma_zr$beta[1],
-                         delta_zr_lower = mlma_zr$ci.lb,
-                         delta_zr_upper = mlma_zr$ci.ub,
-                         phenotyping_center = "Mean",
-                         strain_fig = "ES")
-  
-  df_effects_cor %>% 
-    bind_rows(df_model) %>% 
-    mutate(centre_and_strain = factor(paste0(phenotyping_center,
-                                             "\n",
-                                             strain_fig))) %>% 
-    mutate(centre_and_strain = factor(centre_and_strain,
-                                      levels = c("Mean\nES",
-                                                 rev(levels(centre_and_strain)[-5]))))
-}
+process.cor_effects <- 
+  function(chosen_trait_1 = "fat_mass",
+           chosen_trait_2 = "heart_weight") {
+    
+    df_raw_cor <-
+      df_raw %>% 
+      filter(trait_name %in% c(chosen_trait_1,
+                               chosen_trait_2), 
+             phenotyping_center %in% c("CCP-IMG",
+                                       "HMGU",
+                                       "JAX",
+                                       "MRC H",
+                                       "TCP")) %>% 
+      pivot_wider(id_cols = c(specimen_id,
+                              strain_fig,
+                              phenotyping_center,
+                              sex),
+                  names_from = trait_name) %>%
+      clean_names() %>% 
+      drop_na() %>% 
+      group_by(strain_fig,
+               phenotyping_center,
+               sex) %>% 
+      group_modify(~ correlate(.x)) %>% 
+      drop_na(all_of(chosen_trait_2)) %>% 
+      ungroup() %>%
+      left_join(df_raw %>% 
+                  filter(trait_name %in% c(chosen_trait_1,
+                                           chosen_trait_2), 
+                         phenotyping_center %in% c("CCP-IMG",
+                                                   "HMGU",
+                                                   "JAX",
+                                                   "MRC H",
+                                                   "TCP")) %>% 
+                  pivot_wider(id_cols = c(specimen_id,
+                                          strain_fig,
+                                          phenotyping_center,
+                                          sex),
+                              names_from = trait_name) %>%
+                  clean_names() %>% 
+                  drop_na() %>% 
+                  group_by(strain_fig,
+                           phenotyping_center,
+                           sex) %>% 
+                  summarise(n = n())) %>% 
+      select(- all_of(chosen_trait_1)) %>% 
+      rename(r_est = chosen_trait_2) %>% 
+      pivot_wider(id_cols = c(strain_fig,
+                              phenotyping_center),
+                  names_from = sex,
+                  values_from = c(r_est,
+                                  n))
+    
+    df_effects_cor <-
+      df_raw_cor %>% 
+      left_join(df_raw_cor %>% 
+                  group_by(phenotyping_center,
+                           strain_fig) %>% 
+                  reframe(orchaRd::cor_diff(cor1 = na.omit(r_est_male),
+                                            cor2 = na.omit(r_est_female),
+                                            n1 = na.omit(n_male),
+                                            n2 = na.omit(n_female)))) %>% 
+      rename(delta_zr_est = zr_diff,
+             delta_zr_var = var_zr_diff) %>% 
+      mutate(delta_zr_upper = delta_zr_est + qt(0.975, 
+                                                n_male + n_female - 2) * sqrt(delta_zr_var),
+             delta_zr_lower = delta_zr_est - qt(0.975, 
+                                                n_male + n_female - 2) * sqrt(delta_zr_var))
+    
+    mlma_zr <-
+      rma.mv(data = df_effects_cor,
+             yi = delta_zr_est,
+             V = delta_zr_var,
+             test = "t",
+             random = list(~ 1|phenotyping_center, 
+                           ~ 1|strain_fig))
+    
+    df_model <- data.frame(delta_zr_est = mlma_zr$beta[1],
+                           delta_zr_lower = mlma_zr$ci.lb,
+                           delta_zr_upper = mlma_zr$ci.ub,
+                           phenotyping_center = "Mean",
+                           strain_fig = "ES")
+    
+    df_effects_cor %>% 
+      bind_rows(df_model) %>% 
+      mutate(centre_and_strain = factor(paste0(phenotyping_center,
+                                               "\n",
+                                               strain_fig))) %>% 
+      mutate(centre_and_strain = factor(centre_and_strain,
+                                        levels = c("Mean\nES",
+                                                   rev(levels(centre_and_strain)[-5]))))
+  }
 
 # visualisation functions ----
 caterpillar.custom <- 
@@ -311,31 +289,44 @@ caterpillar.custom <-
       theme(legend.position = "none",
             axis.text.y = element_blank(),
             axis.title.y = element_blank(),
-            plot.tag.position = c(0.15, 0.98))
+            plot.tag.position = c(0.15, 
+                                  0.98))
     
     if (measure == "ROM") {
       plot +
         labs(x = "lnRR") +
-        scale_x_continuous(limits = c(-0.51, 0.51),
-                           breaks = c(-0.5, 0, 0.5)) +
+        scale_x_continuous(limits = c(-0.51, 
+                                      0.51),
+                           breaks = c(-0.5, 
+                                      0, 
+                                      0.5)) +
         theme(axis.title.x = ggtext::element_markdown(face = "italic"))
     } else if (measure == "VR") {
       plot +
         labs(x = "lnVR") +
-        scale_x_continuous(limits = c(-1, 1),
-                           breaks = c(-1, 0, 1)) +
+        scale_x_continuous(limits = c(-1, 
+                                      1),
+                           breaks = c(-1, 
+                                      0, 
+                                      1)) +
         theme(axis.title.x = ggtext::element_markdown(face = "italic"))
     } else if (measure == "SK_delta") {
       plot +
         labs(x = "&Delta;*sk*") +
-        scale_x_continuous(limits = c(-2.1, 2.1),
-                           breaks = c(-2, 0, 2)) +
+        scale_x_continuous(limits = c(-2.1, 
+                                      2.1),
+                           breaks = c(-2,
+                                      0, 
+                                      2)) +
         theme(axis.title.x = ggtext::element_markdown())
     } else if (measure == "KU_delta") {
       plot +
         labs(x = "&Delta;*ku*") +
-        scale_x_continuous(limits = c(-15, 15),
-                           breaks = c(-15, 0, 15)) +
+        scale_x_continuous(limits = c(-15, 
+                                      15),
+                           breaks = c(-15, 
+                                      0, 
+                                      15)) +
         theme(axis.title.x = ggtext::element_markdown())
     }
   }
@@ -384,7 +375,8 @@ ridgeline.custom <- function(chosen_trait = "fat_mass") {
                                                       unit = "cm")),
           axis.text.x = element_text(size = 10),
           axis.text.y = element_text(size = 10),
-          plot.tag.position = c(0.53, 0.98))
+          plot.tag.position = c(0.53, 
+                                0.98))
 }
 
 cor.caterpillar.custom <- 
@@ -405,8 +397,11 @@ cor.caterpillar.custom <-
       labs(y = "Phenotyping centre and mice strain",
            x = "&Delta;*Zr*", 
            shape = "Strain") +
-      scale_x_continuous(limits = c(-1, 1),
-                         breaks = c(-1, 0, 1)) +
+      scale_x_continuous(limits = c(-1, 
+                                    1),
+                         breaks = c(-1, 
+                                    0, 
+                                    1)) +
       theme_classic() +
       theme(legend.position = "none",
             axis.title.x = ggtext::element_markdown(size = 12, 
@@ -417,7 +412,8 @@ cor.caterpillar.custom <-
                                                         unit = "cm")),
             axis.text.x = element_text(size = 10),
             axis.text.y = element_text(size = 10),
-            plot.tag.position = c(0.3, 0.99))
+            plot.tag.position = c(0.3, 
+                                  0.99))
   }
 
 cor.plot.custom <- 
@@ -459,9 +455,7 @@ cor.plot.custom <-
                    y = trait_2_s,
                    shape = sex,
                    linetype = sex)) +
-        geom_point(
-          alpha = 0.008,
-        ) +
+        geom_point(alpha = 0.008) +
         geom_abline(intercept = 0,
                     slope = 1,
                     linewidth = 0.5,
@@ -469,7 +463,8 @@ cor.plot.custom <-
         geom_smooth(method = "lm",
                     se = F,
                     col = "black") +
-        scale_shape_manual(values = c(3, 4)) +
+        scale_shape_manual(values = c(3, 
+                                      4)) +
         scale_linetype_manual(values = c("solid",
                                          "dashed")) +
         scale_x_continuous(limits = chosen_lims) +
@@ -484,7 +479,8 @@ cor.plot.custom <-
                         " (scaled)")) +
         theme_classic() +
         theme(legend.position = "none",
-              plot.tag.position = c(0.05, 0.91),
+              plot.tag.position = c(0.05, 
+                                    0.91),
               axis.title.x = element_text(size = 12, 
                                           margin = margin(t = 0.2,
                                                           unit = "cm")),
@@ -513,7 +509,7 @@ cor.plot.custom <-
 
 
 # Simulations
-## Extended Simulation Details
+## Extended simulation details
 We conducted Monte-Carlo simulations to evaluate bias and variance estimation for our new effect sizes $\Delta sk$, $\Delta ku$, and $\Delta Zr$. For $\Delta sk$ and $\Delta ku$ we simulated independent samples for two groups from Pearson distributions with known moments using the *rpearson* function from the PearsonDS R package [vers. 1.3.2, @PearsonDS]. We conducted two simulations: 1) first by changing skewness between groups that involved moderate departures from normality (group-specific skewness, $sk \in \{-1, -0.5, 0, 0.5, 1\}$ with kurtosis fixed at 3) and 2) by holding skewness constant ($sk$ = 0) while manipulating kurtosis, $ku \in \{2.5, 3, 4, 5, 6\}$. In all cases, we simulated scenarios where: (i) the variance between each group was the same ($\sigma^2_{2}$ = $\sigma^2_{1}$ = 1) or different ($2\sigma^2_{2}$ versus $\sigma^2_{1}$); (ii) the mean between the two groups was the same ($\mu_{2}$ = $\mu_{1}$ = 0) or different ($\mu_{2}$ = 5, $\mu_{1}$ = 0). For simplicity we assumed equal sample sizes between groups with sample size varying from $n \in \{10, 20, \dots, 100, 150, 500\}$. We created all unique combinations of the above scenarios resulting in $s$ = 1200 independent scenarios (when considering each of the 100 scenarios at each sample size, see examples in @sec-skewness and @sec-kurtosis). We estimated $\Delta sk$ and $\Delta ku$ for each scenario using formulas for within-group sample skewness with small-sample correction (Eq. 1 in main manuscript) and excess kurtosis with small-sample correction (Eq. 3 in main manuscript) to estimate point estimates. To estimate associated sampling variance for $\Delta sk$ and $\Delta ku$ we used the analytical variance estimators derived here and an associated re-sampling (jackknife) approach to compute group sampling variances separately followed by pooling.  Importantly, our simulations assume no correlation between groups. 
 
 For $\Delta Zr$ simulations, we simulated two groups each containing two variables with known correlations within each group.  For $\Delta Zr$ we drew bivariate normal data with target within-group correlations $r \in \{-0.8, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8\}$ using the *mvnorm* function in the MASS package of R [vers. 7.3.61, @MASS]. Marginals were standard normal and group sizes varied from $n \in \{10, 20, \dots, 100, 150, 500\}$. Again, we created all unique combinations of scenarios resulting in $s$ = 768 unique scenarios. We estimated $\Delta Zr$ using Fisher’s Z transformation $Zr$ and calculating $\Delta Zr$ as the difference of $Zr$ across groups (Eqs. 9–11 in main manuscript). Sampling variance for $\Delta Zr$ was approximated used the standard analytic variance $\frac{1}{n-3}$ per group (summed; Eq. 10 in main manuscript) and a jackknife approach. Again, we assumed no correlation between our groups. 
@@ -541,7 +537,7 @@ $$ {#eq-mcse}
 
 where $S^2_{\hat{\theta}}$ is the sample variance of the estimated effects across simulations and $n_{\text{sim}}$ is the number of simulations.
 
-## Extended Simulation Results
+## Extended simulation results
 
 ```{r, sim_results}
 #| label: sim_results
@@ -549,89 +545,184 @@ where $S^2_{\hat{\theta}}$ is the sample variance of the estimated effects acros
 #| message: false
 
 # Load in the simulation results
-sk  <- readRDS("./output/result_skewness.rds")
-ku  <- readRDS("./output/result_kurt.rds")
-cor  <- readRDS("./output/result_cor.rds")
+sk <- readRDS("./output/result_skewness.rds")
+ku <- readRDS("./output/result_kurt.rds")
+cor <- readRDS("./output/result_cor.rds")
 
 # Summarise the means for all mcse columns
-  sk_mcse <- sk %>% summarise(across(starts_with("mcse"),function(x) mean(x, na.rm = TRUE)))
-  ku_mcse <- ku %>% summarise(across(starts_with("mcse"),function(x) mean(x, na.rm = TRUE)))
-  cor_mcse <- cor %>% summarise(across(starts_with("mcse"),function(x) mean(x, na.rm = TRUE)))  
+sk_mcse <- 
+  sk %>% 
+  summarise(across(starts_with("mcse"),
+                   function(x) mean(x, 
+                                    na.rm = TRUE)))
+ku_mcse <- 
+  ku %>% 
+  summarise(across(starts_with("mcse"),
+                   function(x) mean(x,
+                                    na.rm = TRUE)))
+cor_mcse <- 
+  cor %>% 
+  summarise(across(starts_with("mcse"),
+                   function(x) mean(x, 
+                                    na.rm = TRUE)))  
 
 # Lets find out what is the best estimator. Mean Squared Bias (MSB)
-      result_kurt_least_bias <- ku  %>% summarise(across(starts_with("bias_"), ~ sum(.x^2, na.rm = TRUE), .names = "ms_bias_{col}"))  %>% t()  %>%  data.frame() %>% arrange() 
-      colnames(result_kurt_least_bias) <- "MSBE"
-      result_skew_least_bias <- sk  %>% summarise(across(starts_with("bias_"), ~ sum(.x^2, na.rm = TRUE), .names = "ms_bias_{col}"))  %>% t()  %>%  data.frame() %>% arrange() 
-      colnames(result_skew_least_bias) <- "MSBE"
-      result_cor_least_bias <- cor  %>% summarise(across(starts_with("bias_"), ~ sum(.x^2, na.rm = TRUE), .names = "ms_bias_{col}"))  %>% t()  %>%  data.frame() %>% arrange() 
-      colnames(result_cor_least_bias) <- "MSBE"
+result_kurt_least_bias <-
+  ku %>%
+  summarise(across(starts_with("bias_"),
+                   ~ sum(.x^2,
+                         na.rm = TRUE),
+                   .names = "ms_bias_{col}")) %>%
+  t() %>%
+  data.frame() %>%
+  arrange() 
+
+colnames(result_kurt_least_bias) <- "MSBE"
+
+result_skew_least_bias <-
+  sk %>%
+  summarise(across(starts_with("bias_"),
+                   ~ sum(.x^2,
+                         na.rm = TRUE),
+                   .names = "ms_bias_{col}")) %>%
+  t() %>%
+  data.frame() %>%
+  arrange() 
+
+colnames(result_skew_least_bias) <- "MSBE"
+
+result_cor_least_bias <-
+  cor %>%
+  summarise(across(starts_with("bias_"),
+                   ~ sum(.x^2,
+                         na.rm = TRUE),
+                   .names = "ms_bias_{col}")) %>%
+  t() %>%
+  data.frame() %>%
+  arrange() 
+
+colnames(result_cor_least_bias) <- "MSBE"
 
 # What is the bias for skewness where it's 0, or normally distributed
-sk_normal <- sk %>% filter(skewness_g1 == 0 & skewness_g2 == 0) %>% 
-                    summarise(mean_bias_sk = mean(bias_sk),
-                                sd_bias_sk = sd(bias_sk),
-                            mean_bias_jack = mean(bias_sk_jack_bc),
-                              sd_bias_jack = sd(bias_sk_jack_bc),
-                                         n = n())
+sk_normal <- 
+  sk %>% 
+  filter(skewness_g1 == 0 & skewness_g2 == 0) %>% 
+  summarise(mean_bias_sk = mean(bias_sk),
+            sd_bias_sk = sd(bias_sk),
+            mean_bias_jack = mean(bias_sk_jack_bc),
+            sd_bias_jack = sd(bias_sk_jack_bc),
+            n = n())
 
 # What is the bias for kurtosis where it's 3, or normally distributed
-ku_normal <- ku %>% filter(kurtosis_g1 == 3 & kurtosis_g2 == 3) %>% 
-                    summarise(mean_bias_ku = mean(bias_ku),
-                                sd_bias_ku = sd(bias_ku),
-                            mean_bias_jack = mean(bias_ku_jack_bc),
-                              sd_bias_jack = sd(bias_ku_jack_bc),
-                                         n = n())
+ku_normal <- 
+  ku %>% 
+  filter(kurtosis_g1 == 3 & kurtosis_g2 == 3) %>% 
+  summarise(mean_bias_ku = mean(bias_ku),
+            sd_bias_ku = sd(bias_ku),
+            mean_bias_jack = mean(bias_ku_jack_bc),
+            sd_bias_jack = sd(bias_ku_jack_bc),
+            n = n())
 
 # Lets create a new columns describing the average deviation of both distributions from nomrality. 
-sk <- sk  %>% mutate(dev_skew = abs((skewness_g1 - 0) + (skewness_g2 - 0)))
-ku <- ku  %>% mutate(dev_kurt = abs((kurtosis_g1 - 3) + (kurtosis_g2 - 3)),
-                     var_diff = as.factor(abs((variance_g1 - variance_g2))),
-                     mean_diff = as.factor(abs((mean_g1 - mean_g2))))
+sk <- 
+  sk %>%
+  mutate(dev_skew = abs((skewness_g1 - 0) + (skewness_g2 - 0)))
+
+ku <- 
+  ku %>%
+  mutate(dev_kurt = abs((kurtosis_g1 - 3) + (kurtosis_g2 - 3)),
+         var_diff = as.factor(abs((variance_g1 - variance_g2))),
+         mean_diff = as.factor(abs((mean_g1 - mean_g2))))
 
 # Plots
-sk_why <- ggplot(sk, aes(y = bias_sk, x = dev_skew, fill = n, colour = n)) + geom_point(size = 2) + geom_hline(yintercept = 0, linetype = "dashed", color = "black") + labs(y = TeX("$Bias_{\\Delta sk}$ (small-sample estimator)"), x = TeX("Absolute Deviation from Normality $ \\left( \\left| ( sk_{g1} - 0 ) + ( sk_{g2} - 0 ) \\right| \\right)$"), fill = "Sample Size", colour = "Sample Size") + theme_classic() + scale_fill_viridis_c() + scale_colour_viridis_c()
+sk_why <-
+  ggplot(sk,
+         aes(y = bias_sk,
+             x = dev_skew,
+             fill = n,
+             colour = n)) + 
+  geom_point(size = 2) + 
+  geom_hline(yintercept = 0, 
+             linetype = "dashed",
+             color = "black") +
+  labs(y = TeX("$Bias_{\\Delta \\textit{sk}}$ (small-sample estimator)"), 
+       x = TeX("Absolute deviation from normality $ \\left( \\left| ( \\textit{sk}_{g1} - 0 ) + (\\textit{sk}_{g2} - 0 ) \\right| \\right)$"), 
+       fill = "Sample size",
+       colour = "Sample size") +
+  scale_fill_viridis_c() +
+  scale_colour_viridis_c() +
+  theme_classic()
 
-ku_why <- ggplot(ku, aes(y = bias_ku, x = dev_kurt, fill = n, colour = n)) + geom_point(size = 2) + geom_hline(yintercept = 0, linetype = "dashed", color = "black") + labs(y = TeX("$Bias_{\\Delta ku}$ (small-sample estimator)"), x = TeX("Absolute Deviation from Normality $ \\left( \\left| ( ku_{g1} - 3 ) + ( ku_{g2} - 3 ) \\right| \\right)$"), fill = "Sample Size", colour = "Sample Size") + theme_classic() + scale_fill_viridis_c() + scale_colour_viridis_c()
+ku_why <- 
+  ggplot(ku,
+         aes(y = bias_ku,
+             x = dev_kurt,
+             fill = n,
+             colour = n)) +
+  geom_point(size = 2) +
+  geom_hline(yintercept = 0,
+             linetype = "dashed",
+             color = "black") +
+  labs(y = TeX("$Bias_{\\Delta \\textit{ku}}$ (small-sample estimator)"), 
+       x = TeX("Absolute deviation from normality $ \\left( \\left| (\\textit{ku}_{g1} - 3 ) + (\\textit{ku}_{g2} - 3 ) \\right| \\right)$"), 
+       fill = "Sample Size",
+       colour = "Sample Size") +
+  theme_classic() +
+  scale_fill_viridis_c() +
+  scale_colour_viridis_c()
 
-plot_why <- (sk_why | ku_why) + plot_annotation(tag_levels = "A") & 
-  theme(plot.tag = element_text(size = 12, face = "bold"))
-ggsave("./output/figs/plot_why.png", plot = plot_why, width = 13.123457, height = 6.358025)
+plot_why <-
+  sk_why +
+  ku_why + 
+  plot_layout(nrow = 2) +
+  plot_annotation(tag_levels = "A")
+
+# ggsave("./output/figs/plot_why.png",
+#        plot = plot_why,
+#        bg = "white",
+#        dpi = 600,
+#        width = 7,
+#        height = 7,
+#        units = "in")
 ```
 
 In all cases, we found the Monte Carlo Sampling Error (MCSEs) to be low for all our performance metrics ($\Delta sk$: range of MCSEs, `r round(min(sk_mcse), digits = 3)` to `r round(max(sk_mcse), digits = 3)`; $\Delta ku$: range of MCSEs, `r round(min(ku_mcse), digits = 3)` to `r round(max(ku_mcse), digits = 3)`; $\Delta Zr$: range of MCSEs, `r round(min(cor_mcse), digits = 3)` to `r round(max(cor_mcse), digits = 3)`). 
 
-#### Evaluating $\Delta sk$, $\Delta ku$, and $\Delta Zr$ Point Estimators
+#### Evaluating $\Delta sk$, $\Delta ku$, and $\Delta Zr$ point estimators
 
 Across all simulations, $\Delta sk$, $\Delta ku$, and $\Delta Zr$ point estimators exhibited small sample bias with less than 20-30 samples, except for $\Delta ku$, which continued to show this bias through to n ~ 50-60, indicating effect sizes involving kurtosis are more challenging to estimate (@fig-bias). Regardless, small sample biases were moderate, and there was rarely a consistent over or under-estimation in point estimates across the scenarios evaluated (@fig-bias). As expected, both the analytical and jackknife estimates for $\Delta sk$ and $\Delta ku$ had minimal bias when distributions were normally distributed (Skewness of both groups = 0; Analytical bias= `r round(sk_normal$mean_bias_sk, digits = 3)` with SD = `r round(sk_normal$sd_bias_sk, digits = 3)` & Jackknife = `r round(sk_normal$mean_bias_jack, digits = 3)` with SD = `r round(sk_normal$sd_bias_jack, digits = 3)`; Kurtosis of both groups = 3; Analytical bias=`r round(ku_normal$mean_bias_ku, digits = 3)` with SD = `r round(ku_normal$sd_bias_ku, digits = 3)` & Jackknife = `r round(ku_normal$mean_bias_jack, digits = 3)` with SD = `r round(ku_normal$sd_bias_jack, digits = 3)`), but bias in both seemed to change in complex ways that suggest challenges in estimating moments when groups are similar (@fig-plot_why). Bias-corrected jackknife estimates reduced the small-sample bias relative to analytical bias corrected-moment estimators ($\Delta sk$ Mean Square Bias (MSB): Jackknife: `r round(result_skew_least_bias$MSBE[rownames(result_skew_least_bias)=="ms_bias_bias_sk_jack_bc"], digits = 3)`, Analytical: `r round(result_skew_least_bias$MSBE[rownames(result_skew_least_bias) =="ms_bias_bias_sk"], digits = 3)`; $\Delta ku$ Mean Square Bias (MSB): Jackknife: `r round(result_kurt_least_bias$MSBE[rownames(result_kurt_least_bias) =="ms_bias_bias_ku_jack_bc"], digits = 3)`, Analytical: `r round(result_kurt_least_bias$MSBE[rownames(result_kurt_least_bias) =="ms_bias_bias_ku"], digits = 3)`; $\Delta cor$ Mean Square Bias (MSB): Jackknife: `r round(result_cor_least_bias$MSBE[rownames(result_cor_least_bias)=="ms_bias_bias_jack_d_cor"], digits = 3)`, Analytical: `r round(result_cor_least_bias$MSBE[rownames(result_cor_least_bias)=="ms_bias_bias_d_cor"], digits = 3)`). 
 
+##### Fig. S1
 ```{r, fig-bias}
 #| label: fig-bias
 #| echo: false  
 #| fig.cap: Bias in $\Delta sk$, $\Delta ku$ and $\Delta Zr$ effect estimates across simulations where samples ranged in group sample sizes between $n \in \{10, 20, \dots, 100, 150, 500\}$. A total of $s$ = 100 simulated scenarios were assessed for $\Delta sk$ and $\Delta ku$ whereas $s$ = 64 for $\Delta Zr$.For each scenario we ran 2,500 simulations.
 
-fig_bias  <- image_read("./output/figs/bias.png")
+fig_bias <- image_read("./output/figs/bias.png")
 fig_bias
 ```
 
+##### Fig. S2
 ```{r, fig-plot_why}
 #| label: fig-plot_why
 #| echo: false
 #| fig.cap: Bias of analytical point estimators in relation to the absolute difference in skewness and kurtosis between groups. A) skewness and b) kurtosis. Colour of points correspond to the sample size and each point is a singel simulated scenario. The dotted line is the zero bias line.
 
-plot_why  <- image_read("./output/figs/plot_why.png")
+plot_why <- image_read("./output/figs/plot_why.png")
 plot_why
 ```
 
-#### Evaluating Sampling Variance Estimators for $\Delta sk$, $\Delta ku$, and $\Delta Zr$
+#### Evaluating sampling variance estimators for $\Delta sk$, $\Delta ku$, and $\Delta Zr$
 
 In contrast to point estimators, the effectiveness of sampling variance estimators for $\Delta sk$, $\Delta ku$, and $\Delta Zr$ varied. Analytical sampling variance formulas for $\Delta sk$ and $\Delta ku$ were consistently biased (@fig-relbias). Jackknife resampling, when combined with analytical point estimates ([@fig-relbias]D & [@fig-relbias]E), improved performance. Under these conditions, estimators performed well when n > 50. In contrast, the performance of sampling variance estimators for $\Delta Zr$ was best when using the analytical formulas for both the point estimator and it's associated sampling variance ([@fig-relbias]I).
 
+##### Fig. S3
 ```{r, fig-relbias}
 #| label: fig-relbias
 #| echo: false  
 #| fig.cap: Relative Bias in $\Delta sk$, $\Delta ku$ and $\Delta Zr$ effect estimates across simulations where samples ranged in group sample sizes between $n \in \{10, 20, \dots, 100, 150, 500\}$. A total of $s$ = 100 simulated scenarios were assessed for $\Delta sk$ and $\Delta ku$ whereas $s$ = 64 for $\Delta Zr$. Note that for relative bias different combinations of point estimates and sampling variance estimates were used in their calculation as indicated in their titles which show the calculation. Notation is as follows ku and sk are the skewness and kurtosis calculated using original formulas.  sk_sv and ku_sv are the sampling variance estimates using the original formulas.  jack_skew_sv and jack_ku_sv are the sampling variance estimates for skewness and kurtosis using jackknife. jack_skew_bc and jack_ku_bc are the bias corrected point estimates from the jackknife. For each scenario we ran 2,500 simulations.
 
-fig_relbias  <- image_read("./output/figs/relativebias.png")
+fig_relbias <- image_read("./output/figs/relativebias.png")
 fig_relbias
 ```
 
@@ -642,7 +733,7 @@ In light of these simulation results, we suggest pairing the formula-based point
 
 ## Skewness
 
-Following Pick et al. (2022).  
+Following Joanes & Gill (1998).  
 
 
 $$
@@ -663,6 +754,8 @@ $$
 
 ## Kurtosis 
 
+Following Joanes & Gill (1998).  
+
 $$
 ku = \frac{n (n + 1) (n - 1)}{(n - 2)(n - 3)} 
 \frac{\sum_{i = 1}^{n}(x_{i} - \bar{x}) ^ 4}
@@ -682,6 +775,8 @@ s^2_{\Delta ku} = s^2_{ku_1} + s^2_{ku_2} - 2 \rho_{ku} s_{ku_1} s_{ku_2}
 $$
 
 ## Zr
+
+Following Hedges & Olkin (1985).  
 
 $$
 Zr =  \frac{ln(\frac{1 + r}{1 - r})}{2}
@@ -722,7 +817,17 @@ df_raw <-
                                 strain_accession_id == "MGI:2160139" ~ 
                                   "NJcl"))
 
-df_meta_analysed <-
+df_raw_wide <-
+  df_raw %>% 
+  select(- strain_accession_id) %>% 
+  pivot_wider(id_cols = c(specimen_id,
+                          trait_name,
+                          phenotyping_center,
+                          strain_fig),
+              names_from = sex,
+              values_from = value)
+
+df_meta_analysed <- # takes 30s to a minute to run
   df_raw %>% 
   group_by(sex,
            trait_name,
@@ -732,24 +837,33 @@ df_meta_analysed <-
                         na.rm = T),
             sd = sd(value,
                     na.rm = T),
-            n = n(),
-            SK_est = calc.skewness(value),
-            SK_var = calc.skewness(value, output = "var"),
-            KU_est = calc.kurtosis(value),
-            KU_var = calc.kurtosis(value, output = "var")) %>% 
+            n = n()) %>% 
   pivot_wider(id_cols = c(trait_name,
                           phenotyping_center,
                           strain_fig),
               names_from = sex,
-              values_from = c(mean:KU_var)) %>% 
-  mutate(SK_delta_est = SK_est_male - SK_est_female,
-         SK_delta_var = SK_var_male + SK_var_female,
-         KU_delta_est = KU_est_male - KU_est_female,
-         KU_delta_var = KU_var_male + KU_var_female) %>% 
+              values_from = c(mean:n)) %>% 
   bind_cols(calc.effect(., m = "ROM")) %>% # lnRR
   bind_cols(calc.effect(., m = "CVR")) %>% # lnCVR
-  bind_cols(calc.effect(., m = "VR")) %>% # lnVR
-  filter(!is.na(CVR_est)) %>% 
+  bind_cols(calc.effect(., m = "VR")) %>%  # lnVR
+  left_join(df_raw_wide %>% 
+              group_by(trait_name,
+                       phenotyping_center,
+                       strain_fig) %>% 
+              reframe(orchaRd::moment_effects(x1 = na.omit(male),
+                                              x2 = na.omit(female),
+                                              type = "skew"))) %>% 
+  left_join(df_raw_wide %>% 
+              group_by(trait_name,
+                       phenotyping_center,
+                       strain_fig) %>% 
+              reframe(orchaRd::moment_effects(x1 = na.omit(male),
+                                              x2 = na.omit(female),
+                                              type = "kurt"))) %>% 
+  rename(SK_delta_est = d_skew,
+         SK_delta_var = d_skew_v,
+         KU_delta_est = d_kurt,
+         KU_delta_var = d_kurt_v) %>% 
   mutate(n_total = n_female + n_male,
          prop_females = n_female / (n_female + n_male)) %>% 
   select(trait_name,
@@ -835,48 +949,66 @@ map2_dfr(.x = c("fat_mass",
 
 # Visualisations
 
-## *Meta-analytic Visualisations*
-```{r}
-## figure_2 ----
-list_figure_2 <- list()
-list_figure_2[[1]] <- ridgeline.custom("fat_mass")
-list_figure_2[2:5] <- map2(.x = rep("fat_mass", 4),
+## Meta-analytic
+### Figure 3
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.width = 12, fig.height = 12}
+list_figure_3 <- list()
+list_figure_3[[1]] <- ridgeline.custom("fat_mass")
+list_figure_3[2:5] <- map2(.x = rep("fat_mass",
+                                    4),
                            .y = c("ROM",
                                   "VR",
                                   "SK_delta",
                                   "KU_delta"),
                            .f = caterpillar.custom)
-list_figure_2[[6]] <- ridgeline.custom("heart_weight")
-list_figure_2[7:10] <- map2(.x = rep("heart_weight", 4),
+list_figure_3[[6]] <- ridgeline.custom("heart_weight")
+list_figure_3[7:10] <- map2(.x = rep("heart_weight",
+                                     4),
                             .y = c("ROM",
                                    "VR",
                                    "SK_delta",
                                    "KU_delta"),
                             .f = caterpillar.custom)
 
-(figure_2 <-
-    list_figure_2 %>% 
+(figure_3 <-
+    list_figure_3 %>% 
     wrap_plots(ncol = 5) +
     plot_annotation(tag_levels = "A"))
 
-## figure_3 ----
-list_figure_3 <- list()
-list_figure_3[1:6] <- cor.plot.custom(chosen_trait_1 = "fat_mass",
+# ggsave("./output/figs/figure_3.jpg",
+#        figure_3,
+#        bg = "white",
+#        dpi = 600,
+#        width = 7,
+#        height = 7,
+#        units = "in")
+```
+
+### Figure 4
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.width = 12, fig.height = 12}
+list_figure_4 <- list()
+list_figure_4[1:6] <- cor.plot.custom(chosen_trait_1 = "fat_mass",
                                       chosen_trait_2 = "heart_weight")
-list_figure_3[[7]] <- cor.caterpillar.custom(chosen_trait_1 = "fat_mass",
+list_figure_4[[7]] <- cor.caterpillar.custom(chosen_trait_1 = "fat_mass",
                                              chosen_trait_2 = "heart_weight")
 
-list_figure_3[8:13] <- cor.plot.custom(chosen_trait_1 = "glucose",
+list_figure_4[8:13] <- cor.plot.custom(chosen_trait_1 = "glucose",
                                        chosen_trait_2 = "total_cholesterol")
 
-list_figure_3[[14]] <- cor.caterpillar.custom(chosen_trait_1 = "glucose",
+list_figure_4[[14]] <- cor.caterpillar.custom(chosen_trait_1 = "glucose",
                                               chosen_trait_2 = "total_cholesterol")
-(figure_3 <-
-    list_figure_3 %>% 
+(figure_4 <-
+    list_figure_4 %>% 
     wrap_plots() +
     plot_layout(design = layout_2,
-                heights = c(rep(1, 6), 0.6),
-                widths = c(rep(0.23, 2), 0.02, rep(0.23, 2)),
+                heights = c(rep(1, 
+                                6),
+                            0.6),
+                widths = c(rep(0.23, 
+                               2),
+                           0.02, 
+                           rep(0.23, 
+                               2)),
                 axes = "collect",
                 guides = "collect") +
     plot_annotation(tag_levels = list(c("A", 
@@ -888,34 +1020,54 @@ list_figure_3[[14]] <- cor.caterpillar.custom(chosen_trait_1 = "glucose",
                                             5),
                                         "D"))))
 
-## figure_4 ----
-list_figure_4 <- list()
-list_figure_4[[1]] <- ridgeline.custom("glucose")
-list_figure_4[2:5] <- map2(.x = rep("glucose", 4),
+# ggsave("./output/figs/figure_4.jpg",
+#        figure_4,
+#        bg = "white",
+#        dpi = 600,
+#        width = 7,
+#        height = 7,
+#        units = "in")
+```
+
+### Figure 5
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.width = 12, fig.height = 12}
+list_figure_5 <- list()
+list_figure_5[[1]] <- ridgeline.custom("glucose")
+list_figure_5[2:5] <- map2(.x = rep("glucose", 
+                                    4),
                            .y = c("ROM",
                                   "VR",
                                   "SK_delta",
                                   "KU_delta"),
                            .f = caterpillar.custom)
-list_figure_4[[6]] <- ridgeline.custom("total_cholesterol")
-list_figure_4[7:10] <- map2(.x = rep("total_cholesterol", 4),
+list_figure_5[[6]] <- ridgeline.custom("total_cholesterol")
+list_figure_5[7:10] <- map2(.x = rep("total_cholesterol",
+                                     4),
                             .y = c("ROM",
                                    "VR",
                                    "SK_delta",
                                    "KU_delta"),
                             .f = caterpillar.custom)
 
-(figure_4 <-
-    list_figure_4 %>% 
+(figure_5 <-
+    list_figure_5 %>% 
     wrap_plots(ncol = 5) +
     plot_annotation(tag_levels = "A"))
+
+# ggsave("./output/figs/figure_5.jpg",
+#        figure_5,
+#        bg = "white",
+#        dpi = 600,
+#        width = 7,
+#        height = 7,
+#        units = "in")
 ```
 
-## *Scenarios Explored for Differences in Skewness* {#sec-skewness}
+## Scenarios explored for differences in skewness {#sec-skewness}
 
 ::: {.panel-tabset .tabset-pills .tabset-fade}
 
-### Fig. 1
+### Fig. S4
 
 ```{r}
 #| label: fig-skewness-1
@@ -923,14 +1075,16 @@ list_figure_4[7:10] <- map2(.x = rep("total_cholesterol", 4),
 #| 
 # Plot 1 code goes here
 files <- list.files("./output/figs/skewness/")
-images  <- lapply(files, function(x) {
-  magick::image_read(paste0("./output/figs/skewness/", x))
-})
+images  <- lapply(files, 
+                  function(x) {
+                    magick::image_read(paste0("./output/figs/skewness/", 
+                                              x))
+                  })
 
 images[[1]]
 ```
 
-### Fig. 2
+### Fig. S5
 ```{r}
 #| label: fig-skewness-2
 #| echo: false
@@ -939,7 +1093,7 @@ images[[2]]
 
 ```
 
-### Fig. 3
+### Fig. S6
 ```{r}
 #| label: fig-skewness-3
 #| echo: false
@@ -947,7 +1101,7 @@ images[[2]]
 images[[3]]
 ```
 
-### Fig. 4
+### Fig. S7
 ```{r}
 #| label: fig-skewness-4
 #| echo: false
@@ -955,7 +1109,7 @@ images[[3]]
 images[[4]]
 ```
 
-### Fig. 5
+### Fig. S8
 ```{r}
 #| label: fig-skewness-5
 #| echo: false
@@ -964,7 +1118,7 @@ images[[5]]
 ```
 
 
-### Fig. 6
+### Fig. S9
 ```{r}
 #| label: fig-skewness-6
 #| echo: false
@@ -972,7 +1126,7 @@ images[[5]]
 images[[6]]
 ```
 
-### Fig. 7
+### Fig. S10
 ```{r}
 #| label: fig-skewness-7
 #| echo: false
@@ -980,7 +1134,7 @@ images[[6]]
 images[[7]]
 ```
 
-### Fig. 8
+### Fig. S11
 ```{r}
 #| label: fig-skewness-8
 #| echo: false
@@ -988,7 +1142,7 @@ images[[7]]
 images[[8]]
 ``` 
 
-### Fig. 9
+### Fig. S12
 ```{r}
 #| label: fig-skewness-9
 #| echo: false
@@ -996,7 +1150,7 @@ images[[8]]
 images[[9]]
 ```
 
-### Fig. 10
+### Fig. S13
 ```{r}
 #| label: fig-skewness-10
 #| echo: false
@@ -1006,12 +1160,12 @@ images[[10]]
 :::
 
 
-## *Scenarios Explored for Differences in Kurtosis* {#sec-kurtosis}
+## Scenarios explored for differences in kurtosis {#sec-kurtosis}
 
 
 ::: {.panel-tabset .tabset-pills .tabset-fade}
 
-### Fig. 1
+### Fig. S14
 
 ```{r}
 #| label: fig-kurtosis-1
@@ -1019,14 +1173,16 @@ images[[10]]
 #| 
 # Plot 1 code goes here
 files <- list.files("./output/figs/kurtosis/")
-images  <- lapply(files, function(x) {
-  magick::image_read(paste0("./output/figs/kurtosis/", x))
-})
+images  <- lapply(files,
+                  function(x) {
+                    magick::image_read(paste0("./output/figs/kurtosis/",
+                                              x))
+                  })
 
 images[[1]]
 ```
 
-### Fig. 2
+### Fig. S15
 ```{r}
 #| label: fig-kurtosis-2
 #| echo: false
@@ -1035,7 +1191,7 @@ images[[2]]
 
 ```
 
-### Fig. 3
+### Fig. S16
 ```{r}
 #| label: fig-kurtosis-3
 #| echo: false
@@ -1043,7 +1199,7 @@ images[[2]]
 images[[3]]
 ```
 
-### Fig. 4
+### Fig. S17
 ```{r}
 #| label: fig-kurtosis-4
 #| echo: false
@@ -1051,7 +1207,7 @@ images[[3]]
 images[[4]]
 ```
 
-### Fig. 5
+### Fig. S18
 ```{r}
 #| label: fig-kurtosis-5
 #| echo: false
@@ -1059,7 +1215,7 @@ images[[4]]
 images[[5]]
 ```
 
-### Fig. 6
+### Fig. S19
 ```{r}
 #| label: fig-kurtosis-6
 #| echo: false
@@ -1067,7 +1223,7 @@ images[[5]]
 images[[6]]
 ```
 
-### Fig. 7
+### Fig. S20
 ```{r}
 #| label: fig-kurtosis-7
 #| echo: false
@@ -1075,7 +1231,7 @@ images[[6]]
 images[[7]]
 ```
 
-### Fig. 8
+### Fig. S21
 ```{r}
 #| label: fig-kurtosis-8
 #| echo: false
@@ -1083,7 +1239,7 @@ images[[7]]
 images[[8]]
 ``` 
 
-### Fig. 9
+### Fig. S22
 ```{r}
 #| label: fig-kurtosis-9
 #| echo: false
@@ -1091,7 +1247,7 @@ images[[8]]
 images[[9]]
 ```
 
-### Fig. 10
+### Fig. S23
 ```{r}
 #| label: fig-kurtosis-10
 #| echo: false
@@ -1099,9 +1255,6 @@ images[[9]]
 images[[10]]
 ```
 :::
-
-
-
 
 # Software and package versions  
 
