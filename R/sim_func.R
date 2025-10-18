@@ -79,6 +79,10 @@ sim_func <- function(params, nsims = nsims, type = c("skewness", "kurtosis")) {
   jack_skew_sv <- numeric(nsims) # Jackknife method sampling variance for skewness
   jack_kurt_sv <- numeric(nsims) # Jackknife method sampling variance for kurtosis
 
+# Coverage indicators
+  coverage_sk <- numeric(nsims)
+  coverage_sk_jack_bc <- numeric(nsims)
+
 for(i in 1:nsims) {
 ##---------------------------##
   # Simulate data for group 1
@@ -118,10 +122,16 @@ for(i in 1:nsims) {
      x1_skew_jack <- tryCatch(jack_skew(x1),  error = function(e) {return(NA)})
      x2_skew_jack <- tryCatch(jack_skew(x2),  error = function(e) {return(NA)})
 
+  # Point estimates
        sk[i] = tryCatch((calc.skewness(x1) - calc.skewness(x2)), error = function(e) {return(NA)}) # small sample size corrected
     sk_sv[i] = tryCatch((calc.skewness(x1, output = "var") + calc.skewness(x2, output = "var")), error = function(e) {return(NA)})
      jack_skew_bc[i] = (x1_skew_jack$est_bc - x2_skew_jack$est_bc)
      jack_skew_sv[i] =  (x1_skew_jack$var + x2_skew_jack$var)
+
+  # Coverage indicators
+    coverage_sk[i] = ((params$skewness_g1 - params$skewness_g2) >= (sk[i] - 1.96 * sqrt(sk_sv[i])) && (params$skewness_g1 - params$skewness_g2) <= (sk[i] + 1.96 * sqrt(sk_sv[i])))
+    coverage_sk_jack_bc[i] = ((params$skewness_g1 - params$skewness_g2) >= (jack_skew_bc[i] - 1.96 * sqrt(jack_skew_sv[i])) && (params$skewness_g1 - params$skewness_g2) <= (jack_skew_bc[i] + 1.96 * sqrt(jack_skew_sv[i])))
+
   }
 
   if(type == "kurtosis") {
@@ -131,10 +141,16 @@ for(i in 1:nsims) {
     x1_kurt_jack <- tryCatch(jack_kurt(x1), error = function(e) {return(NA)})
     x2_kurt_jack <- tryCatch(jack_kurt(x2), error = function(e) {return(NA)})
 
+  # Point estimates
        ku[i] = tryCatch((calc.kurtosis(x1) - calc.kurtosis(x2)), error = function(e) {return(NA)})
     ku_sv[i] = tryCatch((calc.kurtosis(x1, output = "var") + calc.kurtosis(x2, output = "var")), error = function(e) {return(NA)}) 
          jack_kurt_bc[i] = (x1_kurt_jack$est_bc - x2_kurt_jack$est_bc)
          jack_kurt_sv[i] =  (x1_kurt_jack$var + x2_kurt_jack$var)
+
+  # Coverage indicators
+    coverage_ku[i] = ((params$kurtosis_g1 - params$kurtosis_g2) >= (ku[i] - 1.96 * sqrt(ku_sv[i])) && (params$kurtosis_g1 - params$kurtosis_g2) <= (ku[i] + 1.96 * sqrt(ku_sv[i])))
+    coverage_ku_jack_bc[i] = ((params$kurtosis_g1 - params$kurtosis_g2) >= (jack_kurt_bc[i] - 1.96 * sqrt(jack_kurt_sv[i])) && (params$kurtosis_g1 - params$kurtosis_g2) <= (jack_kurt_bc[i] + 1.96 * sqrt(jack_kurt_sv[i])))
+
   }
 }
 
@@ -157,8 +173,8 @@ if(type == "skewness") {
     bias_sk_jack_sk_sv = ((mean(jack_skew_sv) - sd(sk)^2) / sd(sk)^2)*100, 
 
     # Coverage
-            coverage_sk = ((params$skewness_g1 - params$skewness_g2) >= (mean(sk) - 1.96 * sqrt(var(sk))) && (params$skewness_g1 - params$skewness_g2) <= (mean(sk) + 1.96 * sqrt(var(sk)))),
-        coverage_sk_jack_bc = ((params$skewness_g1 - params$skewness_g2) >= (mean(jack_skew_bc) - 1.96 * sqrt(var(jack_skew_bc))) && (params$skewness_g1 - params$skewness_g2) <= (mean(jack_skew_bc) + 1.96 * sqrt(var(jack_skew_bc)))),
+            coverage_sk = sum(coverage_sk) / nsims,
+        coverage_sk_jack_bc = sum(coverage_sk_jack_bc) / nsims,
     
     # Monte Carlo Error
     mcse_bias_sv_jack_sk = sqrt(var(jack_skew_sv) / length(jack_skew_sv)), 
@@ -182,8 +198,8 @@ if(type == "kurtosis") {
          bias_ku_jack_ku_sv = ((mean(jack_kurt_sv) - sd(ku)^2) / sd(ku)^2)*100,
 
      # Coverage
-            coverage_ku = ((params$kurtosis_g1 - params$kurtosis_g2) >= (mean(ku) - 1.96 * sqrt(var(ku))) && (params$kurtosis_g1 - params$kurtosis_g2) <= (mean(ku) + 1.96 * sqrt(var(ku)))),
-        coverage_ku_jack_bc = ((params$kurtosis_g1 - params$kurtosis_g2) >= (mean(jack_kurt_bc) - 1.96 * sqrt(var(jack_kurt_bc))) && (params$kurtosis_g1 - params$kurtosis_g2) <= (mean(jack_kurt_bc) + 1.96 * sqrt(var(jack_kurt_bc)))),
+            coverage_ku = sum(coverage_ku) / nsims,
+        coverage_ku_jack_bc = sum(coverage_ku_jack_bc) / nsims,
 
     # Monte Carlo error
     mcse_bias_jack_ku_bc = sqrt(var(jack_kurt_bc) / length(jack_kurt_bc)), 
