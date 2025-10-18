@@ -17,8 +17,13 @@ sim_cor <- function(params, nsims = nsims) {
       d_cor <- numeric(nsims)
    d_cor_sv <- numeric(nsims)
 
+  # Point estimates
    jack_d_cor_bc <- numeric(nsims)
    jack_d_cor_sv <- numeric(nsims)
+
+  # Coverage indicators
+  coverage_d_cor <- numeric(nsims)
+  coverage_d_cor_jack_bc <- numeric(nsims)  
 
 for(i in 1:nsims) {
 ##---------------------------##
@@ -55,9 +60,14 @@ for(i in 1:nsims) {
   g2_cor_jack <- tryCatch(jack_cor(g2), error = function(e) {return(NA)})
 
   ## Calculate the bias-corrected estimates and sampling variances from bootstraps and jackknife
-  
        jack_d_cor_bc[i] <- (g1_cor_jack$est_bc - g2_cor_jack$est_bc) 
        jack_d_cor_sv[i] <- (g1_cor_jack$var + g2_cor_jack$var)
+
+  # Coverage indicators
+  coverage_d_cor[i] <- ((r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) >= (d_cor[i] - 1.96 * sqrt(d_cor_sv[i])) & 
+                        (r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) <= (d_cor[i] + 1.96 * sqrt(d_cor_sv[i])))
+  coverage_d_cor_jack_bc[i] <- ((r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) >= (jack_d_cor_bc[i] - 1.96 * sqrt(jack_d_cor_sv[i])) & 
+                                (r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) <= (jack_d_cor_bc[i] + 1.96 * sqrt(jack_d_cor_sv[i])))
 }
 
 ##-------------------------------------------------##
@@ -74,6 +84,10 @@ for(i in 1:nsims) {
  bias_jack_d_cor_sv = ((mean(jack_d_cor_sv, na.rm = TRUE) - sd(jack_d_cor_bc, na.rm = TRUE)^2) / sd(jack_d_cor_bc, na.rm = TRUE)^2)*100,
  bias_d_cor_jack_sv = ((mean(jack_d_cor_sv, na.rm = TRUE) - sd(d_cor, na.rm = TRUE)^2) / sd(d_cor, na.rm = TRUE)^2)*100,
  bias_jack_d_cor_sv = ((mean(d_cor_sv, na.rm = TRUE) - sd(jack_d_cor_bc, na.rm = TRUE)^2) / sd(jack_d_cor_bc, na.rm = TRUE)^2)*100,
+
+      # Coverage
+              coverage_d_cor = sum(coverage_d_cor) / nsims,
+      coverage_d_cor_jack_bc = sum(coverage_d_cor_jack_bc) / nsims,
 
          # Monte Carlo Error
  mcse_jack_d_cor_sv = sqrt(var(jack_d_cor_sv, na.rm = TRUE) / nsims),
