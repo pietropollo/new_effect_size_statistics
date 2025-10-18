@@ -155,6 +155,10 @@ if(type == "skewness") {
        bias_sk_jack_sv = ((mean(jack_skew_sv) - sd(jack_skew_bc)^2) / sd(jack_skew_bc)^2)*100, 
     bias_sk_sk_jack_sv = ((mean(sk_sv)        - sd(jack_skew_bc)^2) / sd(jack_skew_bc)^2)*100, 
     bias_sk_jack_sk_sv = ((mean(jack_skew_sv) - sd(sk)^2) / sd(sk)^2)*100, 
+
+    # Coverage
+            coverage_sk = ((params$skewness_g1 - params$skewness_g2) >= (mean(sk) - 1.96 * sqrt(var(sk))) && (params$skewness_g1 - params$skewness_g2) <= (mean(sk) + 1.96 * sqrt(var(sk)))),
+        coverage_sk_jack_bc = ((params$skewness_g1 - params$skewness_g2) >= (mean(jack_skew_bc) - 1.96 * sqrt(var(jack_skew_bc))) && (params$skewness_g1 - params$skewness_g2) <= (mean(jack_skew_bc) + 1.96 * sqrt(var(jack_skew_bc)))),
     
     # Monte Carlo Error
     mcse_bias_sv_jack_sk = sqrt(var(jack_skew_sv) / length(jack_skew_sv)), 
@@ -176,6 +180,10 @@ if(type == "kurtosis") {
                  bias_ku_sv = ((mean(ku_sv) - sd(ku)^2) / sd(ku)^2)*100, 
          bias_ku_ku_jack_sv = ((mean(ku_sv) - sd(jack_kurt_bc)^2) / sd(jack_kurt_bc)^2)*100,
          bias_ku_jack_ku_sv = ((mean(jack_kurt_sv) - sd(ku)^2) / sd(ku)^2)*100,
+
+     # Coverage
+            coverage_ku = ((params$kurtosis_g1 - params$kurtosis_g2) >= (mean(ku) - 1.96 * sqrt(var(ku))) && (params$kurtosis_g1 - params$kurtosis_g2) <= (mean(ku) + 1.96 * sqrt(var(ku)))),
+        coverage_ku_jack_bc = ((params$kurtosis_g1 - params$kurtosis_g2) >= (mean(jack_kurt_bc) - 1.96 * sqrt(var(jack_kurt_bc))) && (params$kurtosis_g1 - params$kurtosis_g2) <= (mean(jack_kurt_bc) + 1.96 * sqrt(var(jack_kurt_bc)))),
 
     # Monte Carlo error
     mcse_bias_jack_ku_bc = sqrt(var(jack_kurt_bc) / length(jack_kurt_bc)), 
