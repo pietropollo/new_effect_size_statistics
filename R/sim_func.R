@@ -80,8 +80,12 @@ sim_func <- function(params, nsims = nsims, type = c("skewness", "kurtosis")) {
   jack_kurt_sv <- numeric(nsims) # Jackknife method sampling variance for kurtosis
 
 # Coverage indicators
-  coverage_sk <- numeric(nsims)
-  coverage_sk_jack_bc <- numeric(nsims)
+  coverage_sk <- numeric(nsims)         # Coverage for skewness with sampling variance for skewness
+  coverage_sk_jack_bc <- numeric(nsims) # Coverage for skewness with jackknife bias-corrected method and jackknife sampling variance for skewness
+  coverage_sk_jack_sv <- numeric(nsims) # Coverage for skewness with jackknife sampling variance for skewness
+  coverage_ku <- numeric(nsims)         # Coverage for kurtosis with sampling variance for kurtosis
+  coverage_ku_jack_bc <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and jackknife sampling variance for kurtosis
+  coverage_ku_jack_sv <- numeric(nsims) # Coverage for kurtosis with jackknife sampling variance for kurtosis
 
 for(i in 1:nsims) {
 ##---------------------------##
@@ -131,6 +135,7 @@ for(i in 1:nsims) {
   # Coverage indicators
     coverage_sk[i] = ((params$skewness_g1 - params$skewness_g2) >= (sk[i] - 1.96 * sqrt(sk_sv[i])) && (params$skewness_g1 - params$skewness_g2) <= (sk[i] + 1.96 * sqrt(sk_sv[i])))
     coverage_sk_jack_bc[i] = ((params$skewness_g1 - params$skewness_g2) >= (jack_skew_bc[i] - 1.96 * sqrt(jack_skew_sv[i])) && (params$skewness_g1 - params$skewness_g2) <= (jack_skew_bc[i] + 1.96 * sqrt(jack_skew_sv[i])))
+    coverage_sk_jack_sv[i] = ((params$skewness_g1 - params$skewness_g2) >= (sk[i] - 1.96 * sqrt(jack_skew_sv[i])) && (params$skewness_g1 - params$skewness_g2) <= (sk[i] + 1.96 * sqrt(jack_skew_sv[i])))
 
   }
 
@@ -150,6 +155,7 @@ for(i in 1:nsims) {
   # Coverage indicators
     coverage_ku[i] = ((params$kurtosis_g1 - params$kurtosis_g2) >= (ku[i] - 1.96 * sqrt(ku_sv[i])) && (params$kurtosis_g1 - params$kurtosis_g2) <= (ku[i] + 1.96 * sqrt(ku_sv[i])))
     coverage_ku_jack_bc[i] = ((params$kurtosis_g1 - params$kurtosis_g2) >= (jack_kurt_bc[i] - 1.96 * sqrt(jack_kurt_sv[i])) && (params$kurtosis_g1 - params$kurtosis_g2) <= (jack_kurt_bc[i] + 1.96 * sqrt(jack_kurt_sv[i])))
+    coverage_ku_jack_sv[i] = ((params$kurtosis_g1 - params$kurtosis_g2) >= (ku[i] - 1.96 * sqrt(jack_kurt_sv[i])) && (params$kurtosis_g1 - params$kurtosis_g2) <= (ku[i] + 1.96 * sqrt(jack_kurt_sv[i])))
 
   }
 }
@@ -175,6 +181,7 @@ if(type == "skewness") {
     # Coverage
             coverage_sk = sum(coverage_sk) / nsims,
         coverage_sk_jack_bc = sum(coverage_sk_jack_bc) / nsims,
+        coverage_sk_jack_sv = sum(coverage_sk_jack_sv) / nsims,
     
     # Monte Carlo Error
     mcse_bias_sv_jack_sk = sqrt(var(jack_skew_sv) / length(jack_skew_sv)), 
