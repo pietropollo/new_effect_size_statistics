@@ -68,6 +68,10 @@ for(i in 1:nsims) {
                         (r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) <= (d_cor[i] + 1.96 * sqrt(d_cor_sv[i])))
   coverage_d_cor_jack_bc[i] <- ((r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) >= (jack_d_cor_bc[i] - 1.96 * sqrt(jack_d_cor_sv[i])) & 
                                 (r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) <= (jack_d_cor_bc[i] + 1.96 * sqrt(jack_d_cor_sv[i])))
+  coverage_jack_bc_sv[i] <- ((r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) >= (jack_d_cor_bc[i] - 1.96 * sqrt(d_cor_sv[i])) & 
+                                (r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) <= (jack_d_cor_bc[i] + 1.96 * sqrt(d_cor_sv[i])))
+  coverage_bc_jack_sv[i] <- ((r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) >= (d_cor[i] - 1.96 * sqrt(jack_d_cor_sv[i])) & 
+                                (r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) <= (d_cor[i] + 1.96 * sqrt(jack_d_cor_sv[i])))                                                            
 }
 
 ##-------------------------------------------------##
@@ -88,6 +92,8 @@ for(i in 1:nsims) {
       # Coverage
               coverage_d_cor = sum(coverage_d_cor) / nsims,
       coverage_d_cor_jack_bc = sum(coverage_d_cor_jack_bc) / nsims,
+      coverage_jack_bc_sv = sum(coverage_jack_bc_sv) / nsims,
+      coverage_bc_jack_sv = sum(coverage_bc_jack_sv) / nsims,
 
          # Monte Carlo Error
  mcse_jack_d_cor_sv = sqrt(var(jack_d_cor_sv, na.rm = TRUE) / nsims),
