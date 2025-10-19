@@ -729,6 +729,17 @@ fig_relbias
 In light of these simulation results, we suggest pairing the formula-based point estimators for skewness (Eq. 1 in main manuscript) and kurtosis (Eq. 3 in main manuscript) with jackknife standard errors for $\Delta sk$ and $\Delta ku$. For $\Delta Zr$, the standard analytic variance is recommended (Eqns. 9-12 in main manuscript). This choice balances efficiency under normality with robustness to realistic deviations from it, and aligns with our broader guidance to avoid very small group sizes for these statistics.
 
 
+#### Coverage of 95% confidence intervals
+
+```{r, fig-coverage}
+#| label: fig-coverage
+#| echo: false  
+#| fig.cap: Coverage of 95% confidence intervals for $\Delta sk$, $\Delta ku$ and $\Delta Zr$ effect estimates across simulations where samples ranged in group sample sizes between $n \in \{10, 20, \dots, 100, 150, 500\}$. A total of 100 simulated scenarios were assessed for $\Delta sk$ and $\Delta ku$ whereas 64 simulated scenarios were assessed for $\Delta Zr$. For each scenario we ran 2,500 simulations. 
+
+fig_coverage <- image_read("./output/figs/coverage.png")
+fig_coverage
+```
+
 # Equations and custom functions to calculate effect sizes
 
 ## Skewness
