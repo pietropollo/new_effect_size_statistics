@@ -313,102 +313,108 @@ coverage_sk_jack_sv <-
                                          linetype = "dashed",
                                          color = "red")
 
-bias_sk_jack_sk_sv <- 
+coverage_jack_sk_sv <- 
   plot_bias_violin(result_skew,
-                   "bias_sk_jack_sk_sv",
-                   "Relative bias $\\textit{s^2}_{\\Delta \\textit{sk}}$ (%)",
-                   title = "((mean(jack_skew_sv) - sd(sk)^2) / sd(sk)^2)*100",
+                   "coverage_jack_sk_sv",
+                   "Coverage (%)",
+                   title = "Jackknife estimator with Traditional Sampling Variance",
                    ylim = c(-80,
                             80)) + geom_hline(aes(yintercept = 95),
                                          linetype = "dashed",
                                          color = "red")
 
 ## Kurtosis ----
-bias_ku_sv <- 
+coverage_ku <- 
   plot_bias_violin(result_kurt,
-                   "bias_ku_sv",
-                   "Relative bias $\\textit{s^2}_{\\Delta \\textit{ku}}$ (%)",
-                   title = "((mean(ku_sv) - sd(ku)^2) / sd(ku)^2)*100",
+                   "coverage_ku",
+                   "Coverage (%)",
+                   title = "Traditional (estimator & Sampling Variance)",
                    ylim = c(-100,
-                            100)) ## Problem as excludes 40 rows
+                            100)) + geom_hline(aes(yintercept = 95),
+                                         linetype = "dashed",
+                                         color = "red")
 
-bias_sv_ku_jack <- 
+ 
+coverage_ku_jack_bc <- 
   plot_bias_violin(result_kurt,
-                   "bias_ku_jack_sv",
-                   "Relative bias $\\textit{s^2}_{\\Delta \\textit{ku}}$ (%)",
-                   title = "((mean(jack_ku_sv) - sd(jack_ku_bc)^2) / sd(jack_ku_bc)^2)*100",
+                   "coverage_ku_jack_bc",
+                   "Coverage (%)",
+                   title = "Jackknife (estimator & Sampling Variance)",
                    ylim = c(-100,
                             100))
 
-bias_ku_ku_jack_sv <- 
+coverage_ku_jack_sv <- 
   plot_bias_violin(result_kurt,
-                   "bias_ku_ku_jack_sv",
-                   "Relative bias $\\textit{s^2}_{\\Delta \\textit{ku}}$ (%)",
-                   title = "((mean(ku_sv) - sd(jack_ku_bc)^2) / sd(jack_ku_bc)^2)*100",
+                   "coverage_ku_jack_sv",
+                   "Coverage (%)",
+                   title = "Traditional estimator with Jackknife Sampling Variance",
                    ylim = c(-100,
                             100))
 
-bias_ku_jack_ku_sv <- 
-  plot_bias_violin(result_kurt, 
-                   "bias_ku_jack_ku_sv",
-                   "Relative bias $\\textit{s^2}_{\\Delta \\textit{ku}}$ (%)",
-                   title = "((mean(jack_ku_sv) - sd(ku)^2) / sd(ku)^2)*100",
-                   ylim = c(-100,
-                            100))
+coverage_jack_ku_sv <- 
+  plot_bias_violin(result_kurt,
+                   "coverage_jack_ku_sv",
+                   "Coverage (%)",
+                   title = "Jackknife estimator & Traditional Sampling Variance",
+                   ylim = c(-80,
+                            80)) + geom_hline(aes(yintercept = 95),
+                                         linetype = "dashed",
+                                         color = "red")
+
 
 ## Correlation ----
-bias_sv_z <-
+coverage_d_cor <-
   plot_bias_violin(result_cor,
-                   "bias_d_cor_sv",
-                   "Relative bias $\\textit{s^2}_{\\Delta \\textit{Zr}}$ (%)",
-                   title = "((mean(d_cor_sv) - sd(d_cor)^2) / sd(d_cor)^2)*100",
+                   "coverage_d_cor",
+                   "Coverage (%)",
+                   title = "Traditional (estimator & Sampling Variance)",
                    ylim = c(-20,
                             80))
-bias_sv_z_jack <-
+coverage_d_cor_jack_bc <- 
   plot_bias_violin(result_cor,
-                   "bias_jack_d_cor_sv",
-                   "Relative bias $\\textit{s^2}_{\\Delta \\textit{Zr}}$ (%)",
-                   title = "(mean(jack_d_cor_sv) - sd(jack_d_cor_bc)^2) / sd(jack_d_cor_bc)^2)*100",
+                   "coverage_d_cor_jack_bc",
+                   "Coverage (%)",
+                   title = "Jackknife (estimator & Sampling Variance)",
                    ylim = c(-20, 
                             80))
 
-bias_d_cor_jack_sv <-
+coverage_jack_bc_sv <-
   plot_bias_violin(result_cor,
-                   "bias_d_cor_jack_sv",
-                   "Relative bias $\\textit{s^2}_{\\Delta \\textit{Zr}}$ (%)",
-                   title = "(mean(jack_d_cor_sv) - sd(d_cor)^2) / sd(d_cor)^2)*100", 
+                   "coverage_jack_bc_sv",
+                   "Coverage (%)",
+                   title = "Traditional estimator with Jackknife Sampling Variance", 
                    ylim = c(-20,
                             80))
 
-bias_jack_d_cor_sv.1 <-
+coverage_bc_jack_sv <-
   plot_bias_violin(result_cor,
-                   "bias_jack_d_cor_sv.1", 
-                   "Relative bias $\\textit{s^2}_{\\Delta \\textit{Zr}}$ (%)",
-                   title = "(mean(d_cor_sv) - sd(jack_d_cor_bc)^2) / sd(jack_d_cor_bc)^2)*100",
+                   "coverage_bc_jack_sv", 
+                   "Coverage (%)",
+                   title = "Jackknife estimator with Traditional Sampling Variance",
                    ylim = c(-20, 
                             80))
 
 ## Combine ----
-final_rel_bias_plot <- 
-  bias_sv_sk + 
-  bias_sv_sk_jack +
-  bias_sk_sk_jack_sv + 
-  bias_sk_jack_sk_sv +
-  bias_ku_sv +
-  bias_sv_ku_jack +
-  bias_ku_ku_jack_sv +
-  bias_ku_jack_ku_sv +
-  bias_sv_z +
-  bias_sv_z_jack +
-  bias_d_cor_jack_sv +
-  bias_jack_d_cor_sv.1 +
-  plot_layout(nrow = 3) +
+final_coverage_plot <- 
+  coverage_sv_sk +
+  coverage_sv_sk_jack +
+  coverage_sk_jack_sv +
+  coverage_jack_sk_sv +
+  coverage_ku +
+  coverage_ku_jack_bc +
+  coverage_ku_jack_sv +
+  coverage_jack_ku_sv +
+  coverage_d_cor +
+  coverage_d_cor_jack_bc +
+  coverage_jack_bc_sv +
+  coverage_bc_jack_sv + 
+  plot_layout(nrow = 3, ncol = 4) +
   plot_annotation(tag_levels = 'A') &
   theme(plot.tag = element_text(size = 12))
 
 # Final plot ----
-ggsave("./output/figs/relativebias.png",
-       plot = final_rel_bias_plot,
+ggsave("./output/figs/coverage.png",
+       plot = final_coverage_plot,
        bg = "white",
        dpi = 600,
        width = 16,
