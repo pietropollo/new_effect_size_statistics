@@ -64,14 +64,14 @@ for(i in 1:nsims) {
        jack_d_cor_sv[i] <- (g1_cor_jack$var + g2_cor_jack$var)
 
   # Coverage indicators
-  coverage_d_cor[i] <- ((r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) >= (d_cor[i] - 1.96 * sqrt(d_cor_sv[i])) & 
-                        (r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) <= (d_cor[i] + 1.96 * sqrt(d_cor_sv[i])))
-  coverage_d_cor_jack_bc[i] <- ((r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) >= (jack_d_cor_bc[i] - 1.96 * sqrt(jack_d_cor_sv[i])) & 
-                                (r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) <= (jack_d_cor_bc[i] + 1.96 * sqrt(jack_d_cor_sv[i])))
-  coverage_jack_bc_sv[i] <- ((r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) >= (jack_d_cor_bc[i] - 1.96 * sqrt(d_cor_sv[i])) & 
-                                (r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) <= (jack_d_cor_bc[i] + 1.96 * sqrt(d_cor_sv[i])))
-  coverage_bc_jack_sv[i] <- ((r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) >= (d_cor[i] - 1.96 * sqrt(jack_d_cor_sv[i])) & 
-                                (r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) <= (d_cor[i] + 1.96 * sqrt(jack_d_cor_sv[i])))                                                            
+  coverage_d_cor[i] <- ((r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) >= (d_cor[i] - qt(0.975, df = params$n - 2) * sqrt(d_cor_sv[i])) & 
+                        (r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) <= (d_cor[i] + qt(0.975, df = params$n - 2) * sqrt(d_cor_sv[i])))
+  coverage_d_cor_jack_bc[i] <- ((r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) >= (jack_d_cor_bc[i] - qt(0.975, df = params$n - 2) * sqrt(jack_d_cor_sv[i])) & 
+                                (r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) <= (jack_d_cor_bc[i] + qt(0.975, df = params$n - 2) * sqrt(jack_d_cor_sv[i])))
+  coverage_jack_bc_sv[i] <- ((r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) >= (jack_d_cor_bc[i] - qt(0.975, df = params$n - 2) * sqrt(d_cor_sv[i])) & 
+                                (r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) <= (jack_d_cor_bc[i] + qt(0.975, df = params$n - 2) * sqrt(d_cor_sv[i])))
+  coverage_bc_jack_sv[i] <- ((r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) >= (d_cor[i] - qt(0.975, df = params$n - 2) * sqrt(jack_d_cor_sv[i])) & 
+                                (r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) <= (d_cor[i] + qt(0.975, df = params$n - 2) * sqrt(jack_d_cor_sv[i])))                                                            
 }
 
 ##-------------------------------------------------##
@@ -100,6 +100,10 @@ for(i in 1:nsims) {
     mcse_jack_d_cor = sqrt(var(jack_d_cor_bc, na.rm = TRUE) / nsims),
           mcse_bias = sqrt(var(d_cor, na.rm = TRUE) / nsims),
        mcse_bias_sv = sqrt(var(d_cor_sv, na.rm = TRUE) / nsims),
+       mcse_coverage_d_cor = sqrt((coverage_d_cor * (1 - coverage_d_cor)) / nsims),
+mcse_coverage_d_cor_jack_bc = sqrt((mean(coverage_d_cor_jack_bc) * (1 - mean(coverage_d_cor_jack_bc))) / nsims),
+   mcse_coverage_jack_bc_sv = sqrt((mean(coverage_jack_bc_sv) * (1 - mean(coverage_jack_bc_sv))) / nsims),
+   mcse_coverage_bc_jack_sv = sqrt((mean(coverage_bc_jack_sv) * (1 - mean(coverage_bc_jack_sv))) / nsims),
               n_sim = length(d_cor)))
 }
 

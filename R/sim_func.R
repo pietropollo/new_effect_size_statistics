@@ -133,10 +133,10 @@ for(i in 1:nsims) {
      jack_skew_sv[i] =  (x1_skew_jack$var + x2_skew_jack$var)
 
   # Coverage indicators
-    coverage_sk[i] = ((params$skewness_g1 - params$skewness_g2) >= (sk[i] - 1.96 * sqrt(sk_sv[i])) && (params$skewness_g1 - params$skewness_g2) <= (sk[i] + 1.96 * sqrt(sk_sv[i])))
-    coverage_sk_jack_bc[i] = ((params$skewness_g1 - params$skewness_g2) >= (jack_skew_bc[i] - 1.96 * sqrt(jack_skew_sv[i])) && (params$skewness_g1 - params$skewness_g2) <= (jack_skew_bc[i] + 1.96 * sqrt(jack_skew_sv[i])))
-    coverage_sk_jack_sv[i] = ((params$skewness_g1 - params$skewness_g2) >= (sk[i] - 1.96 * sqrt(jack_skew_sv[i])) && (params$skewness_g1 - params$skewness_g2) <= (sk[i] + 1.96 * sqrt(jack_skew_sv[i])))
-    coverage_jack_sk_sv[i] = ((params$skewness_g1 - params$skewness_g2) >= (jack_skew_bc[i] - 1.96 * sqrt(jack_skew_sv[i])) && (params$skewness_g1 - params$skewness_g2) <= (jack_skew_bc[i] + 1.96 * sqrt(jack_skew_sv[i])))
+    coverage_sk[i] = ((params$skewness_g1 - params$skewness_g2) >= (sk[i] - qt(0.975, params$n-2) * sqrt(sk_sv[i])) && (params$skewness_g1 - params$skewness_g2) <= (sk[i] + qt(0.975, params$n-2) * sqrt(sk_sv[i])))
+    coverage_sk_jack_bc[i] = ((params$skewness_g1 - params$skewness_g2) >= (jack_skew_bc[i] - qt(0.975, params$n-2) * sqrt(jack_skew_sv[i])) && (params$skewness_g1 - params$skewness_g2) <= (jack_skew_bc[i] + qt(0.975, params$n-2) * sqrt(jack_skew_sv[i])))
+    coverage_sk_jack_sv[i] = ((params$skewness_g1 - params$skewness_g2) >= (sk[i] - qt(0.975, params$n-2) * sqrt(jack_skew_sv[i])) && (params$skewness_g1 - params$skewness_g2) <= (sk[i] + qt(0.975, params$n-2) * sqrt(jack_skew_sv[i])))
+    coverage_jack_sk_sv[i] = ((params$skewness_g1 - params$skewness_g2) >= (jack_skew_bc[i] - qt(0.975, params$n-2) * sqrt(jack_skew_sv[i])) && (params$skewness_g1 - params$skewness_g2) <= (jack_skew_bc[i] + qt(0.975, params$n-2) * sqrt(jack_skew_sv[i])))
 
   }
 
@@ -154,10 +154,10 @@ for(i in 1:nsims) {
          jack_kurt_sv[i] =  (x1_kurt_jack$var + x2_kurt_jack$var)
 
   # Coverage indicators
-    coverage_ku[i] = ((params$kurtosis_g1 - params$kurtosis_g2) >= (ku[i] - 1.96 * sqrt(ku_sv[i])) && (params$kurtosis_g1 - params$kurtosis_g2) <= (ku[i] + 1.96 * sqrt(ku_sv[i])))
-    coverage_ku_jack_bc[i] = ((params$kurtosis_g1 - params$kurtosis_g2) >= (jack_kurt_bc[i] - 1.96 * sqrt(jack_kurt_sv[i])) && (params$kurtosis_g1 - params$kurtosis_g2) <= (jack_kurt_bc[i] + 1.96 * sqrt(jack_kurt_sv[i])))
-    coverage_ku_jack_sv[i] = ((params$kurtosis_g1 - params$kurtosis_g2) >= (ku[i] - 1.96 * sqrt(jack_kurt_sv[i])) && (params$kurtosis_g1 - params$kurtosis_g2) <= (ku[i] + 1.96 * sqrt(jack_kurt_sv[i])))
-    coverage_jack_ku_sv[i] = ((params$kurtosis_g1 - params$kurtosis_g2) >= (jack_kurt_bc[i] - 1.96 * sqrt(ku_sv[i])) && (params$kurtosis_g1 - params$kurtosis_g2) <= (jack_kurt_bc[i] + 1.96 * sqrt(ku_sv[i])))
+    coverage_ku[i] = ((params$kurtosis_g1 - params$kurtosis_g2) >= (ku[i] - qt(0.975, params$n-2) * sqrt(ku_sv[i])) && (params$kurtosis_g1 - params$kurtosis_g2) <= (ku[i] + qt(0.975, params$n-2) * sqrt(ku_sv[i])))
+    coverage_ku_jack_bc[i] = ((params$kurtosis_g1 - params$kurtosis_g2) >= (jack_kurt_bc[i] - qt(0.975, params$n-2) * sqrt(jack_kurt_sv[i])) && (params$kurtosis_g1 - params$kurtosis_g2) <= (jack_kurt_bc[i] + qt(0.975, params$n-2) * sqrt(jack_kurt_sv[i])))
+    coverage_ku_jack_sv[i] = ((params$kurtosis_g1 - params$kurtosis_g2) >= (ku[i] - qt(0.975, params$n-2) * sqrt(jack_kurt_sv[i])) && (params$kurtosis_g1 - params$kurtosis_g2) <= (ku[i] + qt(0.975, params$n-2) * sqrt(jack_kurt_sv[i])))
+    coverage_jack_ku_sv[i] = ((params$kurtosis_g1 - params$kurtosis_g2) >= (jack_kurt_bc[i] - qt(0.975, params$n-2) * sqrt(ku_sv[i])) && (params$kurtosis_g1 - params$kurtosis_g2) <= (jack_kurt_bc[i] + qt(0.975, params$n-2) * sqrt(ku_sv[i])))
 
   }
 }
@@ -218,6 +218,10 @@ if(type == "kurtosis") {
     mcse_bias_sv_jack_ku = sqrt(var(jack_kurt_sv) / length(jack_kurt_sv)), 
             mcse_bias_ku = sqrt(var(ku) / length(ku)),      
          mcse_bias_sv_ku = sqrt(var(ku_sv) / length(ku_sv)), 
+         mcse_coverage_ku = sqrt((mean(coverage_ku) * (1 - mean(coverage_ku))) / nsims),
+     mcse_coverage_ku_jack_bc = sqrt((mean(coverage_ku_jack_bc) * (1 - mean(coverage_ku_jack_bc))) / nsims),
+        mcse_coverage_ku_jack_sv = sqrt((mean(coverage_ku_jack_sv) * (1 - mean(coverage_ku_jack_sv))) / nsims),
+        mcse_coverage_jack_ku_sv = sqrt((mean(coverage_jack_ku_sv) * (1 - mean(coverage_jack_ku_sv))) / nsims),
          n_sims = length(ku_sv)))
     }
 }
