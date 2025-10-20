@@ -24,6 +24,8 @@ sim_cor <- function(params, nsims = nsims) {
   # Coverage indicators
   coverage_d_cor <- numeric(nsims)
   coverage_d_cor_jack_bc <- numeric(nsims)  
+  coverage_jack_bc_sv <- numeric(nsims)
+  coverage_bc_jack_sv <- numeric(nsims)
 
 for(i in 1:nsims) {
 ##---------------------------##

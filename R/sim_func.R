@@ -86,7 +86,8 @@ sim_func <- function(params, nsims = nsims, type = c("skewness", "kurtosis")) {
   coverage_ku <- numeric(nsims)         # Coverage for kurtosis with sampling variance for kurtosis
   coverage_ku_jack_bc <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and jackknife sampling variance for kurtosis
   coverage_ku_jack_sv <- numeric(nsims) # Coverage for kurtosis with jackknife sampling variance for kurtosis
-
+coverage_jack_sk_sv <- numeric(nsims) # Coverage for skewness with jackknife bias-corrected method and sampling variance for skewness
+coverage_jack_ku_sv <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and sampling variance for kurtosis
 for(i in 1:nsims) {
 ##---------------------------##
   # Simulate data for group 1
