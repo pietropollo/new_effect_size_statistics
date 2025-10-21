@@ -288,18 +288,16 @@ coverage_sv_sk <-
                    "coverage_sk",
                    "Coverage (%)",
                    title = "Traditional (estimator & Sampling Variance)",
-                   ylim = c(-80,
-                            80)) + geom_hline(aes(yintercept = 95),
+                   ylim = c(0.5,1)) + geom_hline(aes(yintercept = 0.95),
                                          linetype = "dashed",
                                          color = "red")
 
 coverage_sv_sk_jack <- 
   plot_bias_violin(result_skew,
-                   "coverage_sk_jack_sv",
+                   "coverage_sk_jack_bc",
                    "Coverage (%)",
                    title = "Jackknife (estimator & Sampling Variance)",
-                   ylim = c(-80,
-                            80)) + geom_hline(aes(yintercept = 95),
+                   ylim = c(0.5,1)) + geom_hline(aes(yintercept = 0.95),
                                          linetype = "dashed",
                                          color = "red")
 
@@ -308,8 +306,7 @@ coverage_sk_jack_sv <-
                    "coverage_sk_jack_sv",
                    "Coverage (%)",
                    title = "Traditional estimator with Jackknife Sampling Variance",
-                   ylim = c(-80,
-                            80)) + geom_hline(aes(yintercept = 95),
+                   ylim = c(0.5,1)) + geom_hline(aes(yintercept = 0.95),
                                          linetype = "dashed",
                                          color = "red")
 
@@ -318,8 +315,7 @@ coverage_jack_sk_sv <-
                    "coverage_jack_sk_sv",
                    "Coverage (%)",
                    title = "Jackknife estimator with Traditional Sampling Variance",
-                   ylim = c(-80,
-                            80)) + geom_hline(aes(yintercept = 95),
+                   ylim = c(0.5,1)) + geom_hline(aes(yintercept = 0.95),
                                          linetype = "dashed",
                                          color = "red")
 
@@ -329,8 +325,7 @@ coverage_ku <-
                    "coverage_ku",
                    "Coverage (%)",
                    title = "Traditional (estimator & Sampling Variance)",
-                   ylim = c(-100,
-                            100)) + geom_hline(aes(yintercept = 95),
+                   ylim = c(0.5,1)) + geom_hline(aes(yintercept = 0.95),
                                          linetype = "dashed",
                                          color = "red")
 
@@ -340,26 +335,27 @@ coverage_ku_jack_bc <-
                    "coverage_ku_jack_bc",
                    "Coverage (%)",
                    title = "Jackknife (estimator & Sampling Variance)",
-                   ylim = c(-100,
-                            100))
+                   ylim = c(0.5,1)) + geom_hline(aes(yintercept = 0.95),
+                                              linetype = "dashed",
+                                              color = "red")
 
 coverage_ku_jack_sv <- 
   plot_bias_violin(result_kurt,
                    "coverage_ku_jack_sv",
                    "Coverage (%)",
                    title = "Traditional estimator with Jackknife Sampling Variance",
-                   ylim = c(-100,
-                            100))
+                   ylim = c(0.5,1)) + geom_hline(aes(yintercept = 0.95),
+                                              linetype = "dashed",
+                                              color = "red")
 
 coverage_jack_ku_sv <- 
   plot_bias_violin(result_kurt,
                    "coverage_jack_ku_sv",
                    "Coverage (%)",
                    title = "Jackknife estimator & Traditional Sampling Variance",
-                   ylim = c(-80,
-                            80)) + geom_hline(aes(yintercept = 95),
-                                         linetype = "dashed",
-                                         color = "red")
+                   ylim = c(0.5,1)) + geom_hline(aes(yintercept = 0.95),
+                                              linetype = "dashed",
+                                              color = "red")
 
 
 ## Correlation ----
@@ -368,31 +364,35 @@ coverage_d_cor <-
                    "coverage_d_cor",
                    "Coverage (%)",
                    title = "Traditional (estimator & Sampling Variance)",
-                   ylim = c(-20,
-                            80))
+                   ylim = c(0.5,1)) + geom_hline(aes(yintercept = 0.95),
+                                              linetype = "dashed",
+                                              color = "red")
 coverage_d_cor_jack_bc <- 
   plot_bias_violin(result_cor,
                    "coverage_d_cor_jack_bc",
                    "Coverage (%)",
                    title = "Jackknife (estimator & Sampling Variance)",
-                   ylim = c(-20, 
-                            80))
+                   ylim = c(0.5,1)) + geom_hline(aes(yintercept = 0.95),
+                                              linetype = "dashed",
+                                              color = "red")
 
 coverage_jack_bc_sv <-
   plot_bias_violin(result_cor,
                    "coverage_jack_bc_sv",
                    "Coverage (%)",
                    title = "Traditional estimator with Jackknife Sampling Variance", 
-                   ylim = c(-20,
-                            80))
+                   ylim = c(0.5,1)) + geom_hline(aes(yintercept = 0.95),
+                                              linetype = "dashed",
+                                              color = "red")
 
 coverage_bc_jack_sv <-
   plot_bias_violin(result_cor,
                    "coverage_bc_jack_sv", 
                    "Coverage (%)",
                    title = "Jackknife estimator with Traditional Sampling Variance",
-                   ylim = c(-20, 
-                            80))
+                   ylim = c(0.5,1)) + geom_hline(aes(yintercept = 0.95),
+                                              linetype = "dashed",
+                                              color = "red")
 
 ## Combine ----
 final_coverage_plot <- 
