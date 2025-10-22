@@ -92,10 +92,10 @@ for(i in 1:nsims) {
  bias_jack_d_cor_sv = ((mean(d_cor_sv, na.rm = TRUE) - sd(jack_d_cor_bc, na.rm = TRUE)^2) / sd(jack_d_cor_bc, na.rm = TRUE)^2)*100,
 
       # Coverage
-              coverage_d_cor = sum(coverage_d_cor) / nsims,
-      coverage_d_cor_jack_bc = sum(coverage_d_cor_jack_bc) / nsims,
-      coverage_jack_bc_sv = sum(coverage_jack_bc_sv) / nsims,
-      coverage_bc_jack_sv = sum(coverage_bc_jack_sv) / nsims,
+              coverage_d_cor_all = sum(coverage_d_cor) / nsims,
+      coverage_d_cor_jack_bc_all = sum(coverage_d_cor_jack_bc) / nsims,
+      coverage_jack_bc_sv_all = sum(coverage_jack_bc_sv) / nsims,
+      coverage_bc_jack_sv_all = sum(coverage_bc_jack_sv) / nsims,
 
          # Monte Carlo Error
  mcse_jack_d_cor_sv = sqrt(var(jack_d_cor_sv, na.rm = TRUE) / nsims),
