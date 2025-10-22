@@ -285,7 +285,7 @@ ggsave("./output/figs/relativebias.png",
 ## Skewness ----
 coverage_sv_sk <- 
   plot_bias_violin(result_skew,
-                   "coverage_sk",
+                   "coverage_sk_all",
                    "Coverage (%)",
                    title = "Traditional (estimator & Sampling Variance)",
                    ylim = c(0.5,1)) + geom_hline(aes(yintercept = 0.95),
@@ -294,7 +294,7 @@ coverage_sv_sk <-
 
 coverage_sv_sk_jack <- 
   plot_bias_violin(result_skew,
-                   "coverage_sk_jack_bc",
+                   "coverage_sk_jack_bc_all",
                    "Coverage (%)",
                    title = "Jackknife (estimator & Sampling Variance)",
                    ylim = c(0.5,1)) + geom_hline(aes(yintercept = 0.95),
@@ -303,7 +303,7 @@ coverage_sv_sk_jack <-
 
 coverage_sk_jack_sv <- 
   plot_bias_violin(result_skew,
-                   "coverage_sk_jack_sv",
+                   "coverage_sk_jack_sv_all",
                    "Coverage (%)",
                    title = "Traditional estimator with Jackknife Sampling Variance",
                    ylim = c(0.5,1)) + geom_hline(aes(yintercept = 0.95),
@@ -312,7 +312,7 @@ coverage_sk_jack_sv <-
 
 coverage_jack_sk_sv <- 
   plot_bias_violin(result_skew,
-                   "coverage_jack_sk_sv",
+                   "coverage_jack_sk_sv_all",
                    "Coverage (%)",
                    title = "Jackknife estimator with Traditional Sampling Variance",
                    ylim = c(0.5,1)) + geom_hline(aes(yintercept = 0.95),
@@ -322,7 +322,7 @@ coverage_jack_sk_sv <-
 ## Kurtosis ----
 coverage_ku <- 
   plot_bias_violin(result_kurt,
-                   "coverage_ku",
+                   "coverage_ku_all",
                    "Coverage (%)",
                    title = "Traditional (estimator & Sampling Variance)",
                    ylim = c(0.5,1)) + geom_hline(aes(yintercept = 0.95),
@@ -332,7 +332,7 @@ coverage_ku <-
  
 coverage_ku_jack_bc <- 
   plot_bias_violin(result_kurt,
-                   "coverage_ku_jack_bc",
+                   "coverage_ku_jack_bc_all",
                    "Coverage (%)",
                    title = "Jackknife (estimator & Sampling Variance)",
                    ylim = c(0.5,1)) + geom_hline(aes(yintercept = 0.95),
@@ -341,7 +341,7 @@ coverage_ku_jack_bc <-
 
 coverage_ku_jack_sv <- 
   plot_bias_violin(result_kurt,
-                   "coverage_ku_jack_sv",
+                   "coverage_ku_jack_sv_all",
                    "Coverage (%)",
                    title = "Traditional estimator with Jackknife Sampling Variance",
                    ylim = c(0.5,1)) + geom_hline(aes(yintercept = 0.95),
@@ -350,7 +350,7 @@ coverage_ku_jack_sv <-
 
 coverage_jack_ku_sv <- 
   plot_bias_violin(result_kurt,
-                   "coverage_jack_ku_sv",
+                   "coverage_jack_ku_sv_all",
                    "Coverage (%)",
                    title = "Jackknife estimator & Traditional Sampling Variance",
                    ylim = c(0.5,1)) + geom_hline(aes(yintercept = 0.95),
@@ -361,7 +361,7 @@ coverage_jack_ku_sv <-
 ## Correlation ----
 coverage_d_cor <-
   plot_bias_violin(result_cor,
-                   "coverage_d_cor",
+                   "coverage_d_cor_all",
                    "Coverage (%)",
                    title = "Traditional (estimator & Sampling Variance)",
                    ylim = c(0.5,1)) + geom_hline(aes(yintercept = 0.95),
@@ -369,7 +369,7 @@ coverage_d_cor <-
                                               color = "red")
 coverage_d_cor_jack_bc <- 
   plot_bias_violin(result_cor,
-                   "coverage_d_cor_jack_bc",
+                   "coverage_d_cor_jack_bc_all",
                    "Coverage (%)",
                    title = "Jackknife (estimator & Sampling Variance)",
                    ylim = c(0.5,1)) + geom_hline(aes(yintercept = 0.95),
@@ -378,7 +378,7 @@ coverage_d_cor_jack_bc <-
 
 coverage_jack_bc_sv <-
   plot_bias_violin(result_cor,
-                   "coverage_jack_bc_sv",
+                   "coverage_jack_bc_sv_all",
                    "Coverage (%)",
                    title = "Traditional estimator with Jackknife Sampling Variance", 
                    ylim = c(0.5,1)) + geom_hline(aes(yintercept = 0.95),
@@ -387,7 +387,7 @@ coverage_jack_bc_sv <-
 
 coverage_bc_jack_sv <-
   plot_bias_violin(result_cor,
-                   "coverage_bc_jack_sv", 
+                   "coverage_bc_jack_sv_all", 
                    "Coverage (%)",
                    title = "Jackknife estimator with Traditional Sampling Variance",
                    ylim = c(0.5,1)) + geom_hline(aes(yintercept = 0.95),
