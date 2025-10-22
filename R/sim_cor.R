@@ -148,3 +148,4 @@ result <- cbind(params_all, results_d_cor)
 
 #Save the results to a file
 saveRDS(result, file = "./output/result_cor.rds") # Save the results to a file
+0.40*0.5
