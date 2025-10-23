@@ -483,8 +483,28 @@ var_diff<- result_kurt %>%
   geom_violin(aes(x = var_diff, y = bias_ku, group = var_diff, fill = var_diff)) + labs(x = "Variance difference between groups", y = "Bias in kurtosis estimate") + theme_classic() + theme(legend.position = "none")
 
 # When groups differ in their kurtosis does bias vary?
-kurt_diff<- result_kurt %>%
+kurt_diff_coverage <- result_kurt %>%
   ggplot() +
-  geom_violin(aes(x = kurt_diff, y = coverage_ku_jack_sv_all, group = kurt_diff, fill = kurt_diff)) + labs(x = "Kurtosis difference between groups", y = "Coverage in kurtosis estimate") + theme_classic() + theme(legend.position = "none") + geom_hline(aes(yintercept = 0.95),
+  geom_violin(aes(x = kurt_diff, y = coverage_ku_jack_sv_all, group = kurt_diff, fill = kurt_diff)) + labs(x = "Absolute Kurtosis difference between groups", y = "Coverage in kurtosis estimate") + theme_classic() + theme(legend.position = "none") + geom_hline(aes(yintercept = 0.95),
              linetype = "dashed",
              color = "red")
+
+
+kurt_diff_bias<- result_kurt %>%
+  ggplot() +
+  geom_violin(aes(x = kurt_diff, y = bias_ku_jack_bc, group = kurt_diff, fill = kurt_diff)) + labs(x = "Absolute Kurtosis difference between groups", y = "Bias in kurtosis estimate") + theme_classic() + theme(legend.position = "none") + geom_hline(aes(yintercept = 0),
+             linetype = "dashed",
+             color = "black")
+
+kurt_diff_relbias<- result_kurt %>%
+  ggplot() +
+  geom_violin(aes(x = kurt_diff, y = bias_ku_jack_ku_sv, group = kurt_diff, fill = kurt_diff)) + labs(x = "Absolute Kurtosis difference between groups", y = "Relative Bias") + theme_classic() + theme(legend.position = "none") + geom_hline(aes(yintercept = 0),
+             linetype = "dashed",
+             color = "black")
+
+final_kurtosis_explore <- kurt_diff_bias +
+  kurt_diff_relbias +
+  kurt_diff_coverage +
+  plot_layout(nrow = 1) +
+  plot_annotation(tag_levels = 'A') &
+  theme(plot.tag = element_text(size = 12))
