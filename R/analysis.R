@@ -463,3 +463,28 @@ ggsave("./output/figs/ms_plot.png",
        width = 10,
        height = 7,
        units = "in")
+
+# Exploring kurtosis results ----
+
+# First, is bias, coverage and relative bias related to mean differences?
+
+result_kurt <- result_kurt  %>% mutate(diff = ifelse(mean_g1 == mean_g2, 0, abs(mean_g1 - mean_g2)),
+                                      var_diff = ifelse(variance_g1 == variance_g2, 0, abs(variance_g1 - variance_g2)),
+                                      kurt_diff = ifelse(kurtosis_g1 == kurtosis_g2, 0, abs(kurtosis_g1 - kurtosis_g2)))
+
+# When the groups differ in their means does bias vary?
+mean_diff<- result_kurt %>%
+  ggplot() +
+  geom_violin(aes(x = diff, y = bias_ku, group = diff, fill = diff)) + labs(x = "Mean difference between groups", y = "Bias in kurtosis estimate") + theme_classic() + theme(legend.position = "none")
+
+# When groups differ in their variances does bias vary?
+var_diff<- result_kurt %>%
+  ggplot() +
+  geom_violin(aes(x = var_diff, y = bias_ku, group = var_diff, fill = var_diff)) + labs(x = "Variance difference between groups", y = "Bias in kurtosis estimate") + theme_classic() + theme(legend.position = "none")
+
+# When groups differ in their kurtosis does bias vary?
+kurt_diff<- result_kurt %>%
+  ggplot() +
+  geom_violin(aes(x = kurt_diff, y = coverage_ku_jack_sv_all, group = kurt_diff, fill = kurt_diff)) + labs(x = "Kurtosis difference between groups", y = "Coverage in kurtosis estimate") + theme_classic() + theme(legend.position = "none") + geom_hline(aes(yintercept = 0.95),
+             linetype = "dashed",
+             color = "red")
