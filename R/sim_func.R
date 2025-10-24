@@ -161,7 +161,7 @@ for(i in 1:nsims) {
                 ku_sv[i] = tryCatch((calc.kurtosis(x1, output = "var") + calc.kurtosis(x2, output = "var")), error = function(e) {return(NA)}) 
          jack_kurt_bc[i] = (x1_kurt_jack$est_bc - x2_kurt_jack$est_bc)
          jack_kurt_sv[i] = (x1_kurt_jack$var + x2_kurt_jack$var) 
-     jack_kurt_adj_sv[i] = (x1_kurt_jack$est_bc - x2_kurt_jack$est_bc) + abs_diff_ku^2          # Adjust jacknife to see if we can correct bias in coverage when kurtosis is far from normal
+     jack_kurt_adj_sv[i] = (x1_kurt_jack$var + x2_kurt_jack$var) + abs_diff_ku^2          # Adjust jacknife to see if we can correct bias in coverage when kurtosis is far from normal
   
   # Coverage indicators
     true_ku_diff <- params$kurtosis_g1 - params$kurtosis_g2
