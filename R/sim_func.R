@@ -80,18 +80,57 @@ sim_func <- function(params, nsims = nsims, type = c("skewness", "kurtosis")) {
       jack_kurt_sv <- numeric(nsims) # Jackknife method sampling variance for kurtosis
          ku_adj_sv <- numeric(nsims) # Adjusted sampling variance for kurtosis
   jack_kurt_adj_sv <- numeric(nsims) # Jackknife adjusted sampling variance for kurtosis
+jack_kurt_adj_sv_w_ku <- numeric(nsims) # Jackknife adjusted sampling variance for kurtosis with observed kurtosis adjustment
+jack_kurt_adj_sv_0.1 <- numeric(nsims) # Jackknife adjusted sampling variance for kurtosis with 0.1 adjustment
+jack_kurt_adj_sv_0.2 <- numeric(nsims) # Jackknife adjusted sampling variance for kurtosis with 0.2 adjustment
+jack_kurt_adj_sv_0.3 <- numeric(nsims) # Jackknife adjusted sampling variance for kurtosis with 0.3 adjustment    
+jack_kurt_adj_sv_0.4 <- numeric(nsims) # Jackknife adjusted sampling variance for kurtosis with 0.4 adjustment
+jack_kurt_adj_sv_0.5 <- numeric(nsims) # Jackknife adjusted sampling variance for kurtosis with 0.5 adjustment
+jack_kurt_adj_sv_0.6 <- numeric(nsims) # Jackknife adjusted sampling variance for kurtosis with 0.6 adjustment
+jack_kurt_adj_sv_0.7 <- numeric(nsims) # Jackknife adjusted sampling variance for kurtosis with 0.7 adjustment
+jack_kurt_adj_sv_0.8 <- numeric(nsims) # Jackknife adjusted sampling variance for kurtosis with 0.8 adjustment
+jack_kurt_adj_sv_0.9 <- numeric(nsims) # Jackknife adjusted sampling variance for kurtosis with 0.9 adjustment
+jack_kurt_adj_sv_w_ku_0.1 <- numeric(nsims) # Jackknife adjusted sampling variance for kurtosis with observed kurtosis adjustment and 0.1 adjustment
+jack_kurt_adj_sv_w_ku_0.2 <- numeric(nsims) # Jackknife adjusted sampling variance for kurtosis with observed kurtosis adjustment and 0.2 adjustment
+jack_kurt_adj_sv_w_ku_0.3 <- numeric(nsims) # Jackknife adjusted sampling variance for kurtosis with observed kurtosis adjustment and 0.3 adjustment
+jack_kurt_adj_sv_w_ku_0.4 <- numeric(nsims) # Jackknife adjusted sampling variance for kurtosis with observed kurtosis adjustment and 0.4 adjustment
+jack_kurt_adj_sv_w_ku_0.5 <- numeric(nsims) # Jackknife adjusted sampling variance for kurtosis with observed kurtosis adjustment and 0.5 adjustment
+jack_kurt_adj_sv_w_ku_0.6 <- numeric(nsims) # Jackknife adjusted sampling variance for kurtosis with observed kurtosis adjustment and 0.6 adjustment
+jack_kurt_adj_sv_w_ku_0.7 <- numeric(nsims) # Jackknife adjusted sampling variance for kurtosis with observed kurtosis adjustment and 0.7 adjustment
+jack_kurt_adj_sv_w_ku_0.8 <- numeric(nsims) # Jackknife adjusted sampling variance for kurtosis with observed kurtosis adjustment and 0.8 adjustment
+jack_kurt_adj_sv_w_ku_0.9 <- numeric(nsims) # Jackknife adjusted sampling variance for kurtosis with observed kurtosis adjustment and 0.9 adjustment
 
 # Coverage indicators
-          coverage_sk <- numeric(nsims) # Coverage for skewness with sampling variance for skewness
-  coverage_sk_jack_bc <- numeric(nsims) # Coverage for skewness with jackknife bias-corrected method and jackknife sampling variance for skewness
-  coverage_sk_jack_sv <- numeric(nsims) # Coverage for skewness with jackknife sampling variance for skewness
-          coverage_ku <- numeric(nsims) # Coverage for kurtosis with sampling variance for kurtosis
-  coverage_ku_jack_bc <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and jackknife sampling variance for kurtosis
-  coverage_ku_jack_sv <- numeric(nsims) # Coverage for kurtosis with jackknife sampling variance for kurtosis
-  coverage_jack_sk_sv <- numeric(nsims) # Coverage for skewness with jackknife bias-corrected method and sampling variance for skewness
-  coverage_jack_ku_sv <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and sampling variance for kurtosis
-   coverage_adj_ku_sv <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and adjusted jackknife sampling variance for kurtosis
-  coverage_adj_jack_ku_sv <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and adjusted jackknife sampling variance for kurtosis
+               coverage_sk <- numeric(nsims) # Coverage for skewness with sampling variance for skewness
+       coverage_sk_jack_bc <- numeric(nsims) # Coverage for skewness with jackknife bias-corrected method and jackknife sampling variance for skewness
+       coverage_sk_jack_sv <- numeric(nsims) # Coverage for skewness with jackknife sampling variance for skewness
+               coverage_ku <- numeric(nsims) # Coverage for kurtosis with sampling variance for kurtosis
+       coverage_ku_jack_bc <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and jackknife sampling variance for kurtosis
+       coverage_ku_jack_sv <- numeric(nsims) # Coverage for kurtosis with jackknife sampling variance for kurtosis
+       coverage_jack_sk_sv <- numeric(nsims) # Coverage for skewness with jackknife bias-corrected method and sampling variance for skewness
+       coverage_jack_ku_sv <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and sampling variance for kurtosis
+        coverage_adj_ku_sv <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and adjusted jackknife sampling variance for kurtosis
+   coverage_adj_jack_ku_sv <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and adjusted jackknife sampling variance for kurtosis
+   coverage_adj_jack_ku_sv_0.1 <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and adjusted jackknife sampling variance for kurtosis with 0.1 adjustment
+   coverage_adj_jack_ku_sv_0.2 <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and adjusted jackknife sampling variance for kurtosis with 0.2 adjustment
+   coverage_adj_jack_ku_sv_0.3 <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and adjusted jackknife sampling variance for kurtosis with 0.3 adjustment
+   coverage_adj_jack_ku_sv_0.4 <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and adjusted jackknife sampling variance for kurtosis with 0.4 adjustment
+   coverage_adj_jack_ku_sv_0.5 <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and adjusted jackknife sampling variance for kurtosis with 0.5 adjustment
+   coverage_adj_jack_ku_sv_0.6 <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and adjusted jackknife sampling variance for kurtosis with 0.6 adjustment
+   coverage_adj_jack_ku_sv_0.7 <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and adjusted jackknife sampling variance for kurtosis with 0.7 adjustment
+   coverage_adj_jack_ku_sv_0.8 <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and adjusted jackknife sampling variance for kurtosis with 0.8 adjustment
+   coverage_adj_jack_ku_sv_0.9 <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and adjusted jackknife sampling variance for kurtosis with 0.9 adjustment
+
+   coverage_jack_kurt_adj_sv_w_ku <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and adjusted jackknife sampling variance for kurtosis
+   coverage_jack_kurt_adj_sv_w_ku_0.1 <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and adjusted jackknife sampling variance for kurtosis with 0.1 adjustment
+   coverage_jack_kurt_adj_sv_w_ku_0.2 <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and adjusted jackknife sampling variance for kurtosis with 0.2 adjustment
+   coverage_jack_kurt_adj_sv_w_ku_0.3 <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and adjusted jackknife sampling variance for kurtosis with 0.3 adjustment
+   coverage_jack_kurt_adj_sv_w_ku_0.4 <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and adjusted jackknife sampling variance for kurtosis with 0.4 adjustment
+   coverage_jack_kurt_adj_sv_w_ku_0.5 <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and adjusted jackknife sampling variance for kurtosis with 0.5 adjustment
+   coverage_jack_kurt_adj_sv_w_ku_0.6 <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and adjusted jackknife sampling variance for kurtosis with 0.6 adjustment
+   coverage_jack_kurt_adj_sv_w_ku_0.7 <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and adjusted jackknife sampling variance for kurtosis with 0.7 adjustment
+   coverage_jack_kurt_adj_sv_w_ku_0.8 <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and adjusted jackknife sampling variance for kurtosis with 0.8 adjustment
+   coverage_jack_kurt_adj_sv_w_ku_0.9 <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and adjusted jackknife sampling variance for kurtosis with 0.9 adjustment
 
 for(i in 1:nsims) {
 ##---------------------------##
@@ -155,22 +194,64 @@ for(i in 1:nsims) {
     x2_kurt_jack <- tryCatch(jack_kurt(x2), error = function(e) {return(NA)})
 
   # Point estimates and sampling error (variances)
-  abs_diff_ku <- abs(params$kurtosis_g1 - params$kurtosis_g2)
+                         ku[i] = tryCatch((calc.kurtosis(x1) - calc.kurtosis(x2)), error = function(e) {return(NA)})
+                      ku_sv[i] = tryCatch((calc.kurtosis(x1, output = "var") + calc.kurtosis(x2, output = "var")), error = function(e) {return(NA)}) 
+               jack_kurt_bc[i] = (x1_kurt_jack$est_bc - x2_kurt_jack$est_bc)
+               jack_kurt_sv[i] = (x1_kurt_jack$var + x2_kurt_jack$var) 
+           jack_kurt_adj_sv[i] = (x1_kurt_jack$var + x2_kurt_jack$var) + abs(jack_kurt_bc[i])^2          # Adjust jacknife to see if we can correct bias in coverage when kurtosis is far from normal
+      jack_kurt_adj_sv_w_ku[i] = (x1_kurt_jack$var + x2_kurt_jack$var) + abs(ku[i])^2          # Adjust jacknife to see if we can correct bias in coverage when kurtosis is far from normal
 
-                   ku[i] = tryCatch((calc.kurtosis(x1) - calc.kurtosis(x2)), error = function(e) {return(NA)})
-                ku_sv[i] = tryCatch((calc.kurtosis(x1, output = "var") + calc.kurtosis(x2, output = "var")), error = function(e) {return(NA)}) 
-         jack_kurt_bc[i] = (x1_kurt_jack$est_bc - x2_kurt_jack$est_bc)
-         jack_kurt_sv[i] = (x1_kurt_jack$var + x2_kurt_jack$var) 
-     jack_kurt_adj_sv[i] = (x1_kurt_jack$var + x2_kurt_jack$var) + abs_diff_ku^2          # Adjust jacknife to see if we can correct bias in coverage when kurtosis is far from normal
-  
+
+  # Adjusted jackknife sampling variance
+  jack_kurt_adj_sv_0.1[i] = (x1_kurt_jack$var + x2_kurt_jack$var) + abs(jack_kurt_bc[i])^2*0.1
+  jack_kurt_adj_sv_0.2[i] = (x1_kurt_jack$var + x2_kurt_jack$var) + abs(jack_kurt_bc[i])^2*0.2
+  jack_kurt_adj_sv_0.3[i] = (x1_kurt_jack$var + x2_kurt_jack$var) + abs(jack_kurt_bc[i])^2*0.3
+  jack_kurt_adj_sv_0.4[i] = (x1_kurt_jack$var + x2_kurt_jack$var) + abs(jack_kurt_bc[i])^2*0.4
+  jack_kurt_adj_sv_0.5[i] = (x1_kurt_jack$var + x2_kurt_jack$var) + abs(jack_kurt_bc[i])^2*0.5
+  jack_kurt_adj_sv_0.6[i] = (x1_kurt_jack$var + x2_kurt_jack$var) + abs(jack_kurt_bc[i])^2*0.6
+  jack_kurt_adj_sv_0.7[i] = (x1_kurt_jack$var + x2_kurt_jack$var) + abs(jack_kurt_bc[i])^2*0.7
+  jack_kurt_adj_sv_0.8[i] = (x1_kurt_jack$var + x2_kurt_jack$var) + abs(jack_kurt_bc[i])^2*0.8
+  jack_kurt_adj_sv_0.9[i] = (x1_kurt_jack$var + x2_kurt_jack$var) + abs(jack_kurt_bc[i])^2*0.9
+
+
+  jack_kurt_adj_sv_w_ku_0.1[i] = (x1_kurt_jack$var + x2_kurt_jack$var) + abs(ku[i])^2*0.1
+  jack_kurt_adj_sv_w_ku_0.2[i] = (x1_kurt_jack$var + x2_kurt_jack$var) + abs(ku[i])^2*0.2
+  jack_kurt_adj_sv_w_ku_0.3[i] = (x1_kurt_jack$var + x2_kurt_jack$var) + abs(ku[i])^2*0.3
+  jack_kurt_adj_sv_w_ku_0.4[i] = (x1_kurt_jack$var + x2_kurt_jack$var) + abs(ku[i])^2*0.4
+  jack_kurt_adj_sv_w_ku_0.5[i] = (x1_kurt_jack$var + x2_kurt_jack$var) + abs(ku[i])^2*0.5
+  jack_kurt_adj_sv_w_ku_0.6[i] = (x1_kurt_jack$var + x2_kurt_jack$var) + abs(ku[i])^2*0.6
+  jack_kurt_adj_sv_w_ku_0.7[i] = (x1_kurt_jack$var + x2_kurt_jack$var) + abs(ku[i])^2*0.7
+  jack_kurt_adj_sv_w_ku_0.8[i] = (x1_kurt_jack$var + x2_kurt_jack$var) + abs(ku[i])^2*0.8
+  jack_kurt_adj_sv_w_ku_0.9[i] = (x1_kurt_jack$var + x2_kurt_jack$var) + abs(ku[i])^2*0.9
+
   # Coverage indicators
     true_ku_diff <- params$kurtosis_g1 - params$kurtosis_g2
-            coverage_ku[i] = true_ku_diff >= (ku[i] - qt(0.975, params$n-2) * sqrt(ku_sv[i])) && true_ku_diff <= (ku[i] + qt(0.975, params$n-2) * sqrt(ku_sv[i]))
-    coverage_ku_jack_bc[i] = true_ku_diff >= (jack_kurt_bc[i] - qt(0.975, params$n-2) * sqrt(jack_kurt_sv[i])) && true_ku_diff <= (jack_kurt_bc[i] + qt(0.975, params$n-2) * sqrt(jack_kurt_sv[i]))
-    coverage_ku_jack_sv[i] = true_ku_diff >= (ku[i] - qt(0.975, params$n-2) * sqrt(jack_kurt_sv[i])) && true_ku_diff <= (ku[i] + qt(0.975, params$n-2) * sqrt(jack_kurt_sv[i]))
-    coverage_jack_ku_sv[i] = true_ku_diff >= (jack_kurt_bc[i] - qt(0.975, params$n-2) * sqrt(ku_sv[i])) && true_ku_diff <= (jack_kurt_bc[i] + qt(0.975, params$n-2) * sqrt(ku_sv[i]))
-    coverage_adj_ku_sv[i] = true_ku_diff >= (ku[i] - qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv[i])) && true_ku_diff <= (ku[i] + qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv[i]))
+                coverage_ku[i] = true_ku_diff >= (ku[i] - qt(0.975, params$n-2) * sqrt(ku_sv[i])) && true_ku_diff <= (ku[i] + qt(0.975, params$n-2) * sqrt(ku_sv[i]))
+        coverage_ku_jack_bc[i] = true_ku_diff >= (jack_kurt_bc[i] - qt(0.975, params$n-2) * sqrt(jack_kurt_sv[i])) && true_ku_diff <= (jack_kurt_bc[i] + qt(0.975, params$n-2) * sqrt(jack_kurt_sv[i]))
+        coverage_ku_jack_sv[i] = true_ku_diff >= (ku[i] - qt(0.975, params$n-2) * sqrt(jack_kurt_sv[i])) && true_ku_diff <= (ku[i] + qt(0.975, params$n-2) * sqrt(jack_kurt_sv[i]))
+        coverage_jack_ku_sv[i] = true_ku_diff >= (jack_kurt_bc[i] - qt(0.975, params$n-2) * sqrt(ku_sv[i])) && true_ku_diff <= (jack_kurt_bc[i] + qt(0.975, params$n-2) * sqrt(ku_sv[i]))
+         coverage_adj_ku_sv[i] = true_ku_diff >= (ku[i] - qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv[i])) && true_ku_diff <= (ku[i] + qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv[i]))
     coverage_adj_jack_ku_sv[i] = true_ku_diff >= (jack_kurt_bc[i] - qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv[i])) && true_ku_diff <= (jack_kurt_bc[i] + qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv[i]))
+    coverage_adj_jack_ku_sv_0.1[i] = true_ku_diff >= (jack_kurt_bc[i] - qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_0.1[i])) && true_ku_diff <= (jack_kurt_bc[i] + qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_0.1[i]))
+    coverage_adj_jack_ku_sv_0.2[i] = true_ku_diff >= (jack_kurt_bc[i] - qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_0.2[i])) && true_ku_diff <= (jack_kurt_bc[i] + qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_0.2[i]))
+    coverage_adj_jack_ku_sv_0.3[i] = true_ku_diff >= (jack_kurt_bc[i] - qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_0.3[i])) && true_ku_diff <= (jack_kurt_bc[i] + qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_0.3[i]))
+    coverage_adj_jack_ku_sv_0.4[i] = true_ku_diff >= (jack_kurt_bc[i] - qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_0.4[i])) && true_ku_diff <= (jack_kurt_bc[i] + qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_0.4[i])) 
+    coverage_adj_jack_ku_sv_0.5[i] = true_ku_diff >= (jack_kurt_bc[i] - qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_0.5[i])) && true_ku_diff <= (jack_kurt_bc[i] + qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_0.5[i]))
+    coverage_adj_jack_ku_sv_0.6[i] = true_ku_diff >= (jack_kurt_bc[i] - qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_0.6[i])) && true_ku_diff <= (jack_kurt_bc[i] + qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_0.6[i]))
+    coverage_adj_jack_ku_sv_0.7[i] = true_ku_diff >= (jack_kurt_bc[i] - qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_0.7[i])) && true_ku_diff <= (jack_kurt_bc[i] + qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_0.7[i]))
+    coverage_adj_jack_ku_sv_0.8[i] = true_ku_diff >= (jack_kurt_bc[i] - qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_0.8[i])) && true_ku_diff <= (jack_kurt_bc[i] + qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_0.8[i]))
+    coverage_adj_jack_ku_sv_0.9[i] = true_ku_diff >= (jack_kurt_bc[i] - qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_0.9[i])) && true_ku_diff <= (jack_kurt_bc[i] + qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_0.9[i]))
+
+    coverage_jack_kurt_adj_sv_w_ku[i] = true_ku_diff >= (jack_kurt_bc[i] - qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_w_ku[i])) && true_ku_diff <= (jack_kurt_bc[i] + qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_w_ku[i]))
+    coverage_jack_kurt_adj_sv_w_ku_0.1[i] = true_ku_diff >= (jack_kurt_bc[i] - qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_w_ku_0.1[i])) && true_ku_diff <= (jack_kurt_bc[i] + qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_w_ku_0.1[i]))
+    coverage_jack_kurt_adj_sv_w_ku_0.2[i] = true_ku_diff >= (jack_kurt_bc[i] - qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_w_ku_0.2[i])) && true_ku_diff <= (jack_kurt_bc[i] + qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_w_ku_0.2[i]))
+    coverage_jack_kurt_adj_sv_w_ku_0.3[i] = true_ku_diff >= (jack_kurt_bc[i] - qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_w_ku_0.3[i])) && true_ku_diff <= (jack_kurt_bc[i] + qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_w_ku_0.3[i]))
+    coverage_jack_kurt_adj_sv_w_ku_0.4[i] = true_ku_diff >= (jack_kurt_bc[i] - qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_w_ku_0.4[i])) && true_ku_diff <= (jack_kurt_bc[i] + qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_w_ku_0.4[i]))
+    coverage_jack_kurt_adj_sv_w_ku_0.5[i] = true_ku_diff >= (jack_kurt_bc[i] - qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_w_ku_0.5[i])) && true_ku_diff <= (jack_kurt_bc[i] + qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_w_ku_0.5[i]))
+    coverage_jack_kurt_adj_sv_w_ku_0.6[i] = true_ku_diff >= (jack_kurt_bc[i] - qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_w_ku_0.6[i])) && true_ku_diff <= (jack_kurt_bc[i] + qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_w_ku_0.6[i]))
+    coverage_jack_kurt_adj_sv_w_ku_0.7[i] = true_ku_diff >= (jack_kurt_bc[i] - qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_w_ku_0.7[i])) && true_ku_diff <= (jack_kurt_bc[i] + qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_w_ku_0.7[i]))
+    coverage_jack_kurt_adj_sv_w_ku_0.8[i] = true_ku_diff >= (jack_kurt_bc[i] - qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_w_ku_0.8[i])) && true_ku_diff <= (jack_kurt_bc[i] + qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_w_ku_0.8[i]))
+    coverage_jack_kurt_adj_sv_w_ku_0.9[i] = true_ku_diff >= (jack_kurt_bc[i] - qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_w_ku_0.9[i])) && true_ku_diff <= (jack_kurt_bc[i] + qt(0.975, params$n-2) * sqrt(jack_kurt_adj_sv_w_ku_0.9[i]))
   }
 }
 
@@ -212,12 +293,17 @@ if(type == "kurtosis") {
     # Bias in point estimates
                  bias_ku = mean(ku)           - (params$kurtosis_g1 - params$kurtosis_g2),          
          bias_ku_jack_bc = mean(jack_kurt_bc) - (params$kurtosis_g1 - params$kurtosis_g2),           
-         
-    # Relative bias for sampling variance
-            bias_ku_jack_sv = ((mean(jack_kurt_sv) - sd(jack_kurt_bc)^2) / sd(jack_kurt_bc)^2)*100, 
-                 bias_ku_sv = ((mean(ku_sv) - sd(ku)^2) / sd(ku)^2)*100, 
-         bias_ku_ku_jack_sv = ((mean(ku_sv) - sd(jack_kurt_bc)^2) / sd(jack_kurt_bc)^2)*100,
-         bias_ku_jack_ku_sv = ((mean(jack_kurt_sv) - sd(ku)^2) / sd(ku)^2)*100,
+    
+    # Store sampling variances
+
+    # Relative bias for sampling variance, add in adjusted sampling variances
+                 bias_ku_jack_sv = ((mean(jack_kurt_sv) - sd(jack_kurt_bc)^2) / sd(jack_kurt_bc)^2)*100, 
+                      bias_ku_sv = ((mean(ku_sv) - sd(ku)^2) / sd(ku)^2)*100, 
+              bias_ku_ku_jack_sv = ((mean(ku_sv) - sd(jack_kurt_bc)^2) / sd(jack_kurt_bc)^2)*100,
+              bias_ku_jack_ku_sv = ((mean(jack_kurt_sv) - sd(ku)^2) / sd(ku)^2)*100,
+  adj_jack_sv_w_jack_bc_rel_bias = ((mean(jack_kurt_adj_sv) - sd(jack_kurt_bc)^2) / sd(jack_kurt_bc)^2)*100,
+       adj_jack_sv_w_ku_rel_bias = ((mean(jack_kurt_adj_sv) - sd(ku)^2) / sd(ku)^2)*100,
+
 
      # Coverage
                 coverage_ku_all = sum(coverage_ku) / nsims,
@@ -226,6 +312,25 @@ if(type == "kurtosis") {
         coverage_jack_ku_sv_all = sum(coverage_jack_ku_sv) / nsims,
         coverage_adj_ku_sv_all = sum(coverage_adj_ku_sv) / nsims,
   coverage_adj_jack_ku_sv_all = sum(coverage_adj_jack_ku_sv) / nsims,
+  coverage_adj_jack_ku_sv_0.1_all = sum(coverage_adj_jack_ku_sv_0.1) / nsims,
+  coverage_adj_jack_ku_sv_0.2_all = sum(coverage_adj_jack_ku_sv_0.2) / nsims,
+  coverage_adj_jack_ku_sv_0.3_all = sum(coverage_adj_jack_ku_sv_0.3) / nsims,
+  coverage_adj_jack_ku_sv_0.4_all = sum(coverage_adj_jack_ku_sv_0.4) / nsims,
+  coverage_adj_jack_ku_sv_0.5_all = sum(coverage_adj_jack_ku_sv_0.5) / nsims,
+  coverage_adj_jack_ku_sv_0.6_all = sum(coverage_adj_jack_ku_sv_0.6) / nsims, 
+  coverage_adj_jack_ku_sv_0.7_all = sum(coverage_adj_jack_ku_sv_0.7) / nsims, 
+  coverage_adj_jack_ku_sv_0.8_all = sum(coverage_adj_jack_ku_sv_0.8) / nsims,
+  coverage_adj_jack_ku_sv_0.9_all = sum(coverage_adj_jack_ku_sv_0.9) / nsims,
+  coverage_jack_kurt_adj_sv_w_ku_all = sum(coverage_jack_kurt_adj_sv_w_ku) / nsims,
+  coverage_jack_kurt_adj_sv_w_ku_0.1_all = sum(coverage_jack_kurt_adj_sv_w_ku_0.1) / nsims,
+  coverage_jack_kurt_adj_sv_w_ku_0.2_all = sum(coverage_jack_kurt_adj_sv_w_ku_0.2) / nsims,
+  coverage_jack_kurt_adj_sv_w_ku_0.3_all = sum(coverage_jack_kurt_adj_sv_w_ku_0.3) / nsims,
+  coverage_jack_kurt_adj_sv_w_ku_0.4_all = sum(coverage_jack_kurt_adj_sv_w_ku_0.4) / nsims,
+  coverage_jack_kurt_adj_sv_w_ku_0.5_all = sum(coverage_jack_kurt_adj_sv_w_ku_0.5) / nsims,
+  coverage_jack_kurt_adj_sv_w_ku_0.6_all = sum(coverage_jack_kurt_adj_sv_w_ku_0.6) / nsims,
+  coverage_jack_kurt_adj_sv_w_ku_0.7_all = sum(coverage_jack_kurt_adj_sv_w_ku_0.7) / nsims,
+  coverage_jack_kurt_adj_sv_w_ku_0.8_all = sum(coverage_jack_kurt_adj_sv_w_ku_0.8) / nsims,
+  coverage_jack_kurt_adj_sv_w_ku_0.9_all = sum(coverage_jack_kurt_adj_sv_w_ku_0.9) / nsims,
 
     # Monte Carlo error
     mcse_bias_jack_ku_bc = sqrt(var(jack_kurt_bc) / length(jack_kurt_bc)), 

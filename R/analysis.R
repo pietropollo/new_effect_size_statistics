@@ -358,6 +358,24 @@ coverage_jack_ku_sv <-
                                               linetype = "dashed",
                                               color = "red")
 
+# Now lets have a look at the adjusted sampling variance that includes a correction factor for the difference in ku between groups
+coverage_adj_jack_ku_sv_all <- 
+  plot_bias_violin(result_kurt,
+                   "coverage_adj_jack_ku_sv_all",
+                   "Coverage (%)",
+                   title = "Adjusted Jackknife estimator & Traditional Sampling Variance",
+                   ylim = lims_cov) + geom_hline(aes(yintercept = 0.95),
+                                              linetype = "dashed",
+                                              color = "red")
+
+coverage_adj_ku_sv_all <- 
+  plot_bias_violin(result_kurt,
+                   "coverage_adj_ku_sv_all",
+                   "Coverage (%)",
+                   title = "Adjusted Jackknife estimator & Traditional Sampling Variance",
+                   ylim = lims_cov) + geom_hline(aes(yintercept = 0.95),
+                                              linetype = "dashed",
+                                              color = "red")                                              
 
 ## Correlation ----
 coverage_d_cor <-
