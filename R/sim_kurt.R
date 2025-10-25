@@ -81,6 +81,10 @@ jack_kurt_adj_sv_w_ku_0.8 <- numeric(nsims) # Jackknife adjusted sampling varian
 jack_kurt_adj_sv_w_ku_0.9 <- numeric(nsims) # Jackknife adjusted sampling variance for kurtosis with observed kurtosis adjustment and 0.9 adjustment
 
 # Coverage indicators
+              coverage_ku <- numeric(nsims) # Coverage for kurtosis effect size
+			  coverage_ku_jack_bc <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method
+			  coverage_ku_jack_sv <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and sampling variance for kurtosis
+			  coverage_ku_jack_adj_sv <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and adjusted jackknife sampling variance for kurtosis
        coverage_jack_ku_sv <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and sampling variance for kurtosis
         coverage_adj_ku_sv <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and adjusted jackknife sampling variance for kurtosis
    coverage_adj_jack_ku_sv <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and adjusted jackknife sampling variance for kurtosis
