@@ -232,14 +232,14 @@ final_rel_bias_plot <-
   list_sk_plots[["bias_sk_sk_jack_sv"]] + 
   list_sk_plots[["bias_sk_jack_sk_sv"]] +
   list_ku_plots[["bias_ku_sv"]] +
-  list_ku_plots[["bias_sv_ku_jack"]] +
+  list_ku_plots[["bias_ku_jack_sv"]] + 
   list_ku_plots[["bias_ku_ku_jack_sv"]] +
   list_ku_plots[["bias_ku_jack_ku_sv"]] +
-  list_cor_plots[["bias_sv_z"]] +
-  list_cor_plots[["bias_sv_z_jack"]] +
+  list_cor_plots[["bias_d_cor_sv"]] + 
+  list_cor_plots[["bias_jack_d_cor_sv"]] + 
   list_cor_plots[["bias_d_cor_jack_sv"]] +
   list_cor_plots[["bias_jack_d_cor_sv.1"]] +
-  plot_layout(nrow = 3) +
+  plot_layout(nrow = 3, ncol = 4) +
   plot_annotation(tag_levels = 'A') &
   theme(plot.tag = element_text(size = 12))
 
@@ -284,15 +284,15 @@ coverage_ku  <- c("coverage_ku_all",
                   "coverage_ku_jack_bc_all",
                   "coverage_ku_jack_sv_all",
                   "coverage_jack_ku_sv_all",
-                  "coverage_adj_jack_ku_sv_all",
-                  "coverage_adj_ku_sv_all")
+                  "coverage_adj_ku_sv_all",
+                  "coverage_adj_jack_ku_sv_all")
 
 plot_labels_cov_ku <- c("Traditional (estimator & Sampling Variance)",
                          "Jackknife (estimator & Sampling Variance)",
                          "Traditional estimator with Jackknife Sampling Variance",
                          "Jackknife estimator with Traditional Sampling Variance",
-                         "Adjusted Jackknife estimator & Traditional Sampling Variance",
-                         "Adjusted Jackknife estimator & Traditional Sampling Variance")
+                         "Traditional estimator & Adjusted Traditional Sampling Variance",
+                         "Jackknife estimator & Adjusted Jackknife Sampling Variance")
 
 list_cov_kurt_plots <- list()
 
@@ -331,24 +331,26 @@ for(i in seq_along(coverage_cor)) {
   names(list_cov_cor_plots)[i]  <- coverage_cor[i]
 }
 
+                  
 ## Combine ----
 final_coverage_plot <- 
-  list_cov_skew_plots[["coverage_sv_sk"]] +
-  list_cov_skew_plots[["coverage_sv_sk_jack"]] +
-  list_cov_skew_plots[["coverage_sk_jack_sv"]] +
-  list_cov_skew_plots[["coverage_jack_sk_sv"]] +
-  list_cov_kurt_plots[["coverage_ku"]] +
-  list_cov_kurt_plots[["coverage_ku_jack_bc"]] +
-  list_cov_kurt_plots[["coverage_ku_jack_sv"]] +
-  list_cov_kurt_plots[["coverage_jack_ku_sv"]] +
-  list_cov_cor_plots[["coverage_d_cor"]] +
-  list_cov_cor_plots[["coverage_d_cor_jack_bc"]] +
-  list_cov_cor_plots[["coverage_jack_bc_sv"]] +
-  list_cov_cor_plots[["coverage_bc_jack_sv"]] +
+  list_cov_skew_plots[["coverage_sk_all"]] +
+  list_cov_skew_plots[["coverage_sk_jack_bc_all"]] +    
+  list_cov_skew_plots[["coverage_sk_jack_sv_all"]] + 
+  list_cov_skew_plots[["coverage_jack_sk_sv_all"]] +
+  list_cov_kurt_plots[["coverage_ku_all"]] +
+  list_cov_kurt_plots[["coverage_ku_jack_bc_all"]] +
+  list_cov_kurt_plots[["coverage_adj_jack_ku_sv_all"]] + # "coverage_adj_jack_ku_sv_all" & "coverage_ku_jack_sv_all"
+  list_cov_kurt_plots[["coverage_adj_ku_sv_all"]] + # "coverage_adj_ku_sv_all" & "coverage_jack_ku_sv_all"
+  list_cov_cor_plots[["coverage_d_cor_all"]] +
+  list_cov_cor_plots[["coverage_d_cor_jack_bc_all"]] +
+  list_cov_cor_plots[["coverage_jack_bc_sv_all"]] +
+  list_cov_cor_plots[["coverage_bc_jack_sv_all"]] +
   plot_layout(nrow = 3, ncol = 4) +
   plot_annotation(tag_levels = 'A') &
   theme(plot.tag = element_text(size = 12))
 
+                  
 # Final plot ----
 ggsave("./output/figs/coverage.png",
        plot = final_coverage_plot,
