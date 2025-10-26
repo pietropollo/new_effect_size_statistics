@@ -16,7 +16,7 @@ source("./R/func.R") # Load the functions from func.R
 
 # Load the simulation results ----
 result_kurt <- readRDS("./output/result_kurt.rds") # Load the kurtosis results
-result_cor <- readRDS("./output/result_cor.rds") # Load the correlation results	
+ result_cor <- readRDS("./output/result_cor.rds") # Load the correlation results	
 result_skew <- readRDS("./output/result_skewness.rds") # Load the skewness results
 
 # Best estimators ----
@@ -341,7 +341,7 @@ final_coverage_plot <-
   list_cov_kurt_plots[["coverage_ku_all"]] +
   list_cov_kurt_plots[["coverage_ku_jack_bc_all"]] +
   list_cov_kurt_plots[["coverage_adj_jack_ku_sv_all"]] + # "coverage_adj_jack_ku_sv_all" & "coverage_ku_jack_sv_all"
-  list_cov_kurt_plots[["coverage_adj_ku_sv_all"]] + # "coverage_adj_ku_sv_all" & "coverage_jack_ku_sv_all"
+  list_cov_kurt_plots[["coverage_adj_ku_sv_all"]] + # "coverage_adj_ku_sv_all" & "coverage_jack_ku_sv_all" & coverage_adj_ku_sv_all
   list_cov_cor_plots[["coverage_d_cor_all"]] +
   list_cov_cor_plots[["coverage_d_cor_jack_bc_all"]] +
   list_cov_cor_plots[["coverage_jack_bc_sv_all"]] +

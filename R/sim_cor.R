@@ -22,10 +22,10 @@ sim_cor <- function(params, nsims = nsims) {
    jack_d_cor_sv <- numeric(nsims)
 
   # Coverage indicators
-  coverage_d_cor <- numeric(nsims)
+          coverage_d_cor <- numeric(nsims)
   coverage_d_cor_jack_bc <- numeric(nsims)  
-  coverage_jack_bc_sv <- numeric(nsims)
-  coverage_bc_jack_sv <- numeric(nsims)
+     coverage_jack_bc_sv <- numeric(nsims)
+     coverage_bc_jack_sv <- numeric(nsims)
 
 for(i in 1:nsims) {
 ##---------------------------##
@@ -66,14 +66,15 @@ for(i in 1:nsims) {
        jack_d_cor_sv[i] <- (g1_cor_jack$var + g2_cor_jack$var)
 
   # Coverage indicators
-  coverage_d_cor[i] <- ((r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) >= (d_cor[i] - qt(0.975, df = params$n - 2) * sqrt(d_cor_sv[i])) & 
-                        (r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) <= (d_cor[i] + qt(0.975, df = params$n - 2) * sqrt(d_cor_sv[i])))
-  coverage_d_cor_jack_bc[i] <- ((r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) >= (jack_d_cor_bc[i] - qt(0.975, df = params$n - 2) * sqrt(jack_d_cor_sv[i])) & 
-                                (r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) <= (jack_d_cor_bc[i] + qt(0.975, df = params$n - 2) * sqrt(jack_d_cor_sv[i])))
-  coverage_jack_bc_sv[i] <- ((r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) >= (jack_d_cor_bc[i] - qt(0.975, df = params$n - 2) * sqrt(d_cor_sv[i])) & 
-                                (r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) <= (jack_d_cor_bc[i] + qt(0.975, df = params$n - 2) * sqrt(d_cor_sv[i])))
-  coverage_bc_jack_sv[i] <- ((r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) >= (d_cor[i] - qt(0.975, df = params$n - 2) * sqrt(jack_d_cor_sv[i])) & 
-                                (r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)) <= (d_cor[i] + qt(0.975, df = params$n - 2) * sqrt(jack_d_cor_sv[i])))                                                            
+              true_cor_diff <- r.to.zr(params$cor_g1) - r.to.zr(params$cor_g2)
+          coverage_d_cor[i] <- (true_cor_diff >= (d_cor[i] - qt(0.975, df = params$n - 2) * sqrt(d_cor_sv[i])) & 
+                                true_cor_diff <= (d_cor[i] + qt(0.975, df = params$n - 2) * sqrt(d_cor_sv[i])))
+  coverage_d_cor_jack_bc[i] <- (true_cor_diff >= (jack_d_cor_bc[i] - qt(0.975, df = params$n - 2) * sqrt(jack_d_cor_sv[i])) & 
+                                true_cor_diff <= (jack_d_cor_bc[i] + qt(0.975, df = params$n - 2) * sqrt(jack_d_cor_sv[i])))
+     coverage_jack_bc_sv[i] <- (true_cor_diff >= (jack_d_cor_bc[i] - qt(0.975, df = params$n - 2) * sqrt(d_cor_sv[i])) & 
+                                true_cor_diff <= (jack_d_cor_bc[i] + qt(0.975, df = params$n - 2) * sqrt(d_cor_sv[i])))
+     coverage_bc_jack_sv[i] <- (true_cor_diff >= (d_cor[i] - qt(0.975, df = params$n - 2) * sqrt(jack_d_cor_sv[i])) & 
+                                true_cor_diff <= (d_cor[i] + qt(0.975, df = params$n - 2) * sqrt(jack_d_cor_sv[i])))                                                            
 }
 
 ##-------------------------------------------------##
