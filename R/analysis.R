@@ -15,7 +15,7 @@ pacman::p_load(moments,
 source("./R/func.R") # Load the functions from func.R
 
 # Load the simulation results ----
-result_kurt <- readRDS("./output/result_kurt.rds") # Load the kurtosis results
+result_kurt <- readRDS("./output/result_kurt.rds") # Load the kurtosis results, has adjustements (x1_kurt_jack$var + x2_kurt_jack$var) + ku[i]^2 / (2*(params$n + params$n -2))
  result_cor <- readRDS("./output/result_cor.rds") # Load the correlation results	
 result_skew <- readRDS("./output/result_skewness.rds") # Load the skewness results
 
@@ -421,12 +421,24 @@ var_diff<- result_kurt %>%
   geom_violin(aes(x = var_diff, y = bias_ku, group = var_diff, fill = var_diff)) + labs(x = "Variance difference between groups", y = "Bias in kurtosis estimate") + theme_classic() + theme(legend.position = "none")
 
 # When groups differ in their kurtosis does bias vary?
-kurt_diff_coverage <- result_kurt %>%
+# Use the estimated Kurtosis difference **IMPORTANT PLOT**
+ku_est_coverage <- result_kurt %>%
   ggplot() +
-  geom_violin(aes(x = kurt_diff, y = coverage_adj_jack_ku_sv_all, group = kurt_diff, fill = kurt_diff)) + labs(x = "Absolute Kurtosis difference between groups", y = "Coverage in kurtosis estimate") + theme_classic() + theme(legend.position = "none") + geom_hline(aes(yintercept = 0.95),
+  geom_point(aes(x = abs(ku_est), y = coverage_adj_jack_ku_sv_all, col = kurt_diff, size = n)) + labs(x = "Absolute Estimated Kurtosis Difference between groups", y = "Coverage in kurtosis estimate", col = "True Difference in Kurtosis") + theme_classic() + theme(legend.position = "right", axis.title = element_text(size = 14)) + geom_hline(aes(yintercept = 0.95),
              linetype = "dashed",
              color = "red")
 
+ku_est_coverage_var <- result_kurt %>%
+  ggplot() +
+  geom_point(aes(x = abs(ku_est), y = coverage_adj_jack_ku_sv_all, col = var_diff, size = n)) + labs(x = "Absolute Estimated Kurtosis Difference between groups", y = "Coverage in kurtosis estimate", col = "True Difference in Variance Between Groups") + theme_classic() + theme(legend.position = "right", axis.title = element_text(size = 14)) + geom_hline(aes(yintercept = 0.95),
+             linetype = "dashed",
+             color = "red")             
+
+explore_ku <- ku_est_coverage + ku_est_coverage_var +
+  plot_layout(nrow = 1) +
+  plot_annotation(tag_levels = 'A') &
+  theme(plot.tag = element_text(size = 12))
+# -----------------------
 
 kurt_diff_bias<- result_kurt %>%
   ggplot() +
