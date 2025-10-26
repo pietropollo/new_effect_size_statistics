@@ -350,7 +350,6 @@ final_coverage_plot <-
   plot_annotation(tag_levels = 'A') &
   theme(plot.tag = element_text(size = 12))
 
-                  
 # Final plot ----
 ggsave("./output/figs/coverage.png",
        plot = final_coverage_plot,
@@ -359,6 +358,48 @@ ggsave("./output/figs/coverage.png",
        width = 16,
        height = 7,
        units = "in")
+
+#### COVERAGE ACROSS SCENARIOS ######
+
+results_abs_ku2_N <- readRDS("./output/result_kurt_abs(ku)^2_N.rds") # Load the kurtosis results, has adjustements (x1_kurt_jack$var + x2_kurt_jack$var) + ku[i]^2 / (2*(params$n + params$n -2))
+    results_ku2_N <- readRDS("./output/result_kurt_ku^2_N.rds") # Load the kurtosis results, has adjustements (x1_kurt_jack$var + x2_kurt_jack$var) + ku[i]^2 / (2*(params$n + params$n -2))
+     results_ku2 <- readRDS("./output/result_kurt_ku^2.rds") # Load the kurtosis results, has adjustements (x1_kurt_jack$var + x2_kurt_jack$var) + ku[i]^2 / (2*(params$n + params$n -2))
+
+ku_data_list <- list(results_ku2,
+                  results_abs_ku2_N,
+                     results_ku2_N,
+                     results_ku2)
+
+coverage_ku_adj  <- c("coverage_ku_jack_sv_all",
+                  "coverage_adj_jack_ku_sv_all",
+                  "coverage_adj_jack_ku_sv_all",
+                  "coverage_adj_jack_ku_sv_all")
+
+plot_labels_cov_ku_adj <- c("(x1_kurt_jack$var + x2_kurt_jack$var)",
+                         "(x1_kurt_jack$var + x2_kurt_jack$var) + abs(ku[i])^2 / (2*(params$n + params$n -2))",
+                         "(x1_kurt_jack$var + x2_kurt_jack$var) + ku[i]^2 / (2*(params$n + params$n -2))",
+                         "(x1_kurt_jack$var + x2_kurt_jack$var) + ku[i]^2")
+
+list_cov_kurt_adj_plots <- list()
+
+for(i in seq_along(coverage_ku_adj)) {
+  list_cov_kurt_adj_plots[[i]] <- plot_bias_violin(ku_data_list[[i]],
+                                              coverage_ku_adj[i],
+                                              "Coverage (%)",
+                                              title = plot_labels_cov_ku_adj[i],
+                                              ylim = lims_cov) + geom_hline(aes(yintercept = 0.95),
+                                                                    linetype = "dashed",
+                                                                    color = "red")
+}
+
+ku_coverage <- list_cov_kurt_adj_plots[[1]] +
+  list_cov_kurt_adj_plots[[2]] +
+  list_cov_kurt_adj_plots[[3]] + 
+  list_cov_kurt_adj_plots[[4]] + 
+  plot_layout(nrow = 2, ncol = 2) +
+  plot_annotation(tag_levels = 'A') &
+  theme(plot.tag = element_text(size = 12))                  
+
 
 
 # Main MS plot ----
@@ -424,13 +465,13 @@ var_diff<- result_kurt %>%
 # Use the estimated Kurtosis difference **IMPORTANT PLOT**
 ku_est_coverage <- result_kurt %>%
   ggplot() +
-  geom_point(aes(x = abs(ku_est), y = coverage_adj_jack_ku_sv_all, col = kurt_diff, size = n)) + labs(x = "Absolute Estimated Kurtosis Difference between groups", y = "Coverage in kurtosis estimate", col = "True Difference in Kurtosis") + theme_classic() + theme(legend.position = "right", axis.title = element_text(size = 14)) + geom_hline(aes(yintercept = 0.95),
+  geom_point(aes(x = abs(ku_est), y = coverage_adj_ku_sv_all, col = kurt_diff, size = n)) + labs(x = TeX("Absolute Estimated $\\Delta \\textit{ku}$"), y = TeX("Coverage in $\\Delta \\textit{ku}$"), col = TeX("True Absolute $\\Delta \\textit{ku}$")) + theme_classic() + theme(legend.position = "right", axis.title = element_text(size = 14)) + geom_hline(aes(yintercept = 0.95),
              linetype = "dashed",
              color = "red")
 
 ku_est_coverage_var <- result_kurt %>%
   ggplot() +
-  geom_point(aes(x = abs(ku_est), y = coverage_adj_jack_ku_sv_all, col = var_diff, size = n)) + labs(x = "Absolute Estimated Kurtosis Difference between groups", y = "Coverage in kurtosis estimate", col = "True Difference in Variance Between Groups") + theme_classic() + theme(legend.position = "right", axis.title = element_text(size = 14)) + geom_hline(aes(yintercept = 0.95),
+  geom_point(aes(x = abs(ku_est), y = coverage_adj_ku_sv_all, col = var_diff, size = n)) + labs(x = TeX("Absolute Estimated $\\Delta \\textit{ku}$"), y = TeX("Coverage in $\\Delta \\textit{ku}$"), col = TeX("True Absolute $\\Delta \\textit{v}$")) + theme_classic() + theme(legend.position = "right", axis.title = element_text(size = 14)) + geom_hline(aes(yintercept = 0.95),
              linetype = "dashed",
              color = "red")             
 
