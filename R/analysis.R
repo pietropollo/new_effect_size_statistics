@@ -449,7 +449,14 @@ ggsave("./output/figs/ms_plot.png",
 
 result_kurt <- result_kurt  %>% mutate(diff = ifelse(mean_g1 == mean_g2, 0, abs(mean_g1 - mean_g2)),
                                       var_diff = ifelse(variance_g1 == variance_g2, 0, abs(variance_g1 - variance_g2)),
-                                      kurt_diff = ifelse(kurtosis_g1 == kurtosis_g2, 0, abs(kurtosis_g1 - kurtosis_g2)))
+                                      kurt_diff = ifelse(kurtosis_g1 == kurtosis_g2, 0, abs(kurtosis_g1 - kurtosis_g2)),
+                                      abs_ku_est = abs(ku_est))
+
+model <- lm(coverage_ku_jack_sv_all ~ abs_ku_est + log(n) + abs_ku_est*log(n), data = result_kurt) 
+summary(model)
+hist(residuals(model)) # Check normality of residuals
+
+cor_factors <- coefficients(model)
 
 # When the groups differ in their means does bias vary?
 mean_diff<- result_kurt %>%
@@ -465,7 +472,7 @@ var_diff<- result_kurt %>%
 # Use the estimated Kurtosis difference **IMPORTANT PLOT**
 ku_est_coverage <- result_kurt %>%
   ggplot() +
-  geom_point(aes(x = abs(ku_est), y = coverage_adj_ku_sv_all, col = kurt_diff, size = n)) + labs(x = TeX("Absolute Estimated $\\Delta \\textit{ku}$"), y = TeX("Coverage in $\\Delta \\textit{ku}$"), col = TeX("True Absolute $\\Delta \\textit{ku}$")) + theme_classic() + theme(legend.position = "right", axis.title = element_text(size = 14)) + geom_hline(aes(yintercept = 0.95),
+  geom_point(aes(x = abs(ku_est), y = coverage_ku_jack_sv_all, col = kurt_diff, size = n)) + labs(x = TeX("Absolute Estimated $\\Delta \\textit{ku}$"), y = TeX("Coverage in $\\Delta \\textit{ku}$"), col = TeX("True Absolute $\\Delta \\textit{ku}$")) + theme_classic() + theme(legend.position = "right", axis.title = element_text(size = 14)) + geom_hline(aes(yintercept = 0.95),
              linetype = "dashed",
              color = "red")
 

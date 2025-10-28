@@ -121,9 +121,9 @@ for(i in 1:nsims) {
                jack_kurt_sv[i] = (x1_kurt_jack$var + x2_kurt_jack$var) 
 
    # Adjusted sampling variances to improve coverage
-              a_n <- 0.2 + (100 / params$n)^-1 # Multiplier for adjustment
-           jack_kurt_adj_sv[i] = (x1_kurt_jack$var + x2_kurt_jack$var) + abs(jack_kurt_bc[i]^2) * a_n
-      jack_kurt_adj_sv_w_ku[i] = (x1_kurt_jack$var + x2_kurt_jack$var) + abs(ku[i])^2 * a_n
+              a_n <- 0.92635863 + (-0.49165101 * abs(ku[i])) + (0.11237324 * log(params$n)) + (0.05368794 * (params$n^2) * abs(ku[i])) # From the model fitted in analysis.R
+           jack_kurt_adj_sv[i] = (x1_kurt_jack$var + x2_kurt_jack$var) + a_n^2
+      jack_kurt_adj_sv_w_ku[i] = (x1_kurt_jack$var + x2_kurt_jack$var) + a_n^2
 
   # Coverage indicators
                       coverage_ku[i] = coverage(ku[i], ku_sv[i], params$n, true_ku_diff)
