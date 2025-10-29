@@ -121,7 +121,7 @@ for(i in 1:nsims) {
                jack_kurt_sv[i] = (x1_kurt_jack$var + x2_kurt_jack$var) 
 
    # Adjusted sampling variances to improve coverage
-              a_n <- 0.92635863 + (-0.49165101 * abs(ku[i])) + (0.11237324 * log(params$n)) + (0.05368794 * log(params$n) * abs(ku[i])) # From the model fitted in analysis.R
+              a_n <- 0.92635863 + (-0.49165101 * abs(ku[i])) + (-0.01184840 * log(1/params$n)) + (-0.05368794 * log(1/params$n) * abs(ku[i])) # From the model fitted in analysis.R
            jack_kurt_adj_sv[i] = (x1_kurt_jack$var + x2_kurt_jack$var) + a_n^2
       jack_kurt_adj_sv_w_ku[i] = (x1_kurt_jack$var + x2_kurt_jack$var) + a_n^2
 
