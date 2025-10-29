@@ -452,7 +452,7 @@ result_kurt <- result_kurt  %>% mutate(diff = ifelse(mean_g1 == mean_g2, 0, abs(
                                       kurt_diff = ifelse(kurtosis_g1 == kurtosis_g2, 0, abs(kurtosis_g1 - kurtosis_g2)),
                                       abs_ku_est = abs(ku_est))
 
-model <- lm(coverage_ku_jack_sv_all ~ abs_ku_est + log(n) + abs_ku_est*log(n), data = result_kurt) 
+model <- lm(coverage_ku_jack_sv_all ~ abs_ku_est + log(1/n) + abs_ku_est*log(1/n), data = result_kurt) 
 summary(model)
 hist(residuals(model)) # Check normality of residuals
 
