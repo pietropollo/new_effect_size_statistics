@@ -460,3 +460,36 @@
       1 / (n - 3)
   }
 ## ================================================================
+
+## ================================================================
+## 15. # Plot function for the results
+##    – creates violin plots for bias in estimates
+## ================================================================
+
+plot_bias_violin <- 
+  function(data, 
+           y_var, 
+           y_lab, 
+           title = "", 
+           ylim = c(-1, 
+                    1)) {
+    ggplot(data,
+           aes(x = factor(n),
+               y = .data[[y_var]],
+               fill = factor(n))) + 
+      ylim(ylim) +
+      geom_violin() + 
+      geom_hline(aes(yintercept = 0),
+                 linetype = "dashed",
+                 color = "black") +
+      labs(x = "Sample size",
+           y = TeX(y_lab),
+           title = TeX(title)) +
+      scale_fill_viridis_d() +
+      theme_classic() + 
+      theme(legend.position = "none",
+            axis.title = element_text(size = 12),
+            axis.text = element_text(size = 10),
+            title = element_text(size = 6))
+  }
+
