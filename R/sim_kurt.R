@@ -52,36 +52,28 @@ sim_kurt <- function(params, nsims = nsims) {
   jack_kurt_bc <- numeric(nsims) # Jackknife bias-corrected method for kurtosis
          ku <- numeric(nsims)
    
-# Sampling variance for kurtosis
+  # Sampling variance for kurtosis
               ku_sv <- numeric(nsims) # Sampling variance for kurtosis
       jack_kurt_sv <- numeric(nsims) # Jackknife method sampling variance for kurtosis
-         ku_adj_sv <- numeric(nsims) # Adjusted sampling variance for kurtosis
-  jack_kurt_adj_sv <- numeric(nsims) # Jackknife adjusted sampling variance for kurtosis
-jack_kurt_adj_sv_w_ku <- numeric(nsims) # Jackknife adjusted sampling variance for kurtosis with observed kurtosis adjustment
-#boot_kurt_sv <- numeric(nsims) # Bootstrap sampling variance for kurtosis
-
-# Coverage indicators
+   
+  # Coverage indicators
               coverage_ku <- numeric(nsims) # Coverage for kurtosis effect size
 			  coverage_ku_jack_bc <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method
 			  coverage_ku_jack_sv <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and sampling variance for kurtosis
 			  coverage_ku_jack_adj_sv <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and adjusted jackknife sampling variance for kurtosis
        coverage_jack_ku_sv <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and sampling variance for kurtosis
-        coverage_adj_ku_sv <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and adjusted jackknife sampling variance for kurtosis
-   coverage_adj_jack_ku_sv <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and adjusted jackknife sampling variance for kurtosis
-   coverage_jack_kurt_adj_sv_w_ku <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and adjusted jackknife sampling variance for kurtosis with observed kurtosis adjustment
-   #coverage_boot_ku_sv <- numeric(nsims) # Coverage for kurtosis with bootstrap sampling variance
-
+    
     true_ku_diff <- (params$kurtosis_g1 - 3) - (params$kurtosis_g2 - 3) # True difference in EXCESS kurtosis between groups
 
     coverage <- function(est, sv, n, true_diff) {
       true_diff >= (est - qt(0.975, n-2) * sqrt(sv)) && true_diff <= (est + qt(0.975, n-2) * sqrt(sv))
     }
-##-------------------------------------------------##
+  ##-------------------------------------------------##
 
-for(i in 1:nsims) {
-##---------------------------##
+  for(i in 1:nsims) {
+  ##---------------------------##
   # Simulate data for group 1
-##---------------------------##
+  ##---------------------------##
   x1 <- tryCatch(rpearson(params$n, 
 				 moments = c(    mean = params$mean_g1, 
 							 variance = params$variance_g1, 
@@ -92,9 +84,9 @@ for(i in 1:nsims) {
                    return(NA)
                  })
 				 
-##---------------------------##
+  ##---------------------------##
   # Simulate data for group 2
-##---------------------------##
+  ##---------------------------##
   x2 <- tryCatch(rpearson(params$n, 
 				 moments = c(    mean = params$mean_g2, 
 							 variance = params$variance_g2, 
@@ -105,11 +97,11 @@ for(i in 1:nsims) {
                    return(NA)
                  })
 
-##-------------------------------------------------##
+  ##-------------------------------------------------##
   # Calculate effect statistics
-##-------------------------------------------------##
+  ##-------------------------------------------------##
 
-#Calculate and store the effect statistics for skewness and kurtosis
+  #Calculate and store the effect statistics for skewness and kurtosis
 
       # Do the computations and save to objects
 
@@ -122,36 +114,24 @@ for(i in 1:nsims) {
                jack_kurt_bc[i] = (x1_kurt_jack$est_bc - x2_kurt_jack$est_bc) # THIS IS EXCESS KURTOSIS DIFFERENCE
                jack_kurt_sv[i] = (x1_kurt_jack$var + x2_kurt_jack$var) 
 
-   # Adjusted sampling variances to improve coverage
-              #a_n <- 0.92635863 + (-0.49165101 * abs(ku[i])) + (-0.01184840 * log(1/params$n)) + (-0.05368794 * log(1/params$n) * abs(ku[i])) # From the model fitted in analysis.R
-           #jack_kurt_adj_sv[i] = (x1_kurt_jack$var + x2_kurt_jack$var) + a_n^2
-      #jack_kurt_adj_sv_w_ku[i] = (x1_kurt_jack$var + x2_kurt_jack$var) + a_n^2
-
   # Coverage indicators
                       coverage_ku[i] = coverage(ku[i], ku_sv[i], params$n, true_ku_diff)
               coverage_ku_jack_bc[i] = coverage(jack_kurt_bc[i], jack_kurt_sv[i], params$n, true_ku_diff)
               coverage_ku_jack_sv[i] = coverage(ku[i], jack_kurt_sv[i], params$n, true_ku_diff) # Recommended
               coverage_jack_ku_sv[i] = coverage(jack_kurt_bc[i], ku_sv[i], params$n, true_ku_diff)
-               # coverage_adj_ku_sv[i] = coverage(ku[i], jack_kurt_adj_sv_w_ku[i], params$n, true_ku_diff) # One we want to improve
-          #coverage_adj_jack_ku_sv[i] = coverage(jack_kurt_bc[i], jack_kurt_adj_sv[i], params$n, true_ku_diff)
-   #coverage_jack_kurt_adj_sv_w_ku[i] = coverage(jack_kurt_bc[i], jack_kurt_adj_sv_w_ku[i], params$n, true_ku_diff)
-              #coverage_boot_ku_sv[i] = coverage(ku[i], boot_kurt_sv[i], params$n, true_ku_diff) # Bootstrap sv coverage
 
-}
+  }
 
-##-------------------------------------------------##
-# Return data with all the simulation results
-# Calculate bias, relative bias and MCSE for all methods
-##-------------------------------------------------##
+  ##-------------------------------------------------##
+  # Return data with all the simulation results
+  # Calculate bias, relative bias and MCSE for all methods
+  ##-------------------------------------------------##
 
   return(data.frame(
 				    	 ku_est = mean(ku),
 		       jack_kurt_bc_est = mean(jack_kurt_bc),
 		              ku_sv_est = mean(ku_sv),
 			   jack_kurt_sv_est = mean(jack_kurt_sv),
-		   #jack_kurt_adj_sv_est = mean(jack_kurt_adj_sv),
-		   #jack_kurt_adj_sv_w_ku_est = mean(jack_kurt_adj_sv_w_ku),
-
 
     # Bias in point estimates
                  bias_ku = mean(ku)           - true_ku_diff,          
@@ -164,20 +144,13 @@ for(i in 1:nsims) {
                       bias_ku_sv = ((mean(ku_sv) - sd(ku)^2) / sd(ku)^2)*100, 
               bias_ku_ku_jack_sv = ((mean(ku_sv) - sd(jack_kurt_bc)^2) / sd(jack_kurt_bc)^2)*100,
               bias_ku_jack_ku_sv = ((mean(jack_kurt_sv) - sd(ku)^2) / sd(ku)^2)*100,
-  #adj_jack_sv_w_jack_bc_rel_bias = ((mean(jack_kurt_adj_sv) - sd(jack_kurt_bc)^2) / sd(jack_kurt_bc)^2)*100,
-       #adj_jack_sv_w_ku_rel_bias = ((mean(jack_kurt_adj_sv) - sd(ku)^2) / sd(ku)^2)*100,
-      # boot_rel_bias = ((mean(boot_kurt_sv) - sd(ku)^2) / sd(ku)^2)*100,
 
      # Coverage
                 coverage_ku_all = sum(coverage_ku) / nsims,
         coverage_ku_jack_bc_all = sum(coverage_ku_jack_bc) / nsims,
         coverage_ku_jack_sv_all = sum(coverage_ku_jack_sv) / nsims,
-        coverage_jack_ku_sv_all = sum(coverage_jack_ku_sv) / nsims,
-        #coverage_adj_ku_sv_all = sum(coverage_adj_ku_sv) / nsims,
-  #coverage_adj_jack_ku_sv_all = sum(coverage_adj_jack_ku_sv) / nsims,
-  #coverage_jack_kurt_adj_sv_w_ku_all = sum(coverage_jack_kurt_adj_sv_w_ku) / nsims,
-        #coverage_boot_ku_sv_all = sum(coverage_boot_ku_sv) / nsims,
-  
+        coverage_jack_ku_sv_all = sum(coverage_jack_ku_sv) / nsims,  
+    
     # Monte Carlo error
     mcse_bias_jack_ku_bc = sqrt(var(jack_kurt_bc) / length(jack_kurt_bc)), 
     mcse_bias_sv_jack_ku = sqrt(var(jack_kurt_sv) / length(jack_kurt_sv)), 
