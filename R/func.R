@@ -493,3 +493,53 @@ plot_bias_violin <-
             title = element_text(size = 6))
   }
 
+## ================================================================
+## 16. Non-parametric bootstrap for excess kurtosis
+##    – returns a list:  Bias corrected accelerated bootstrap estimate, se, replicates*
+## ================================================================
+  #' @title Bootstrap Estimation of Excess Kurtosis BCa
+  #' @description Computes bootstrap estimate and standard error of excess kurtosis using BCa.
+  #' @param x A numeric vector.
+  #' @param B Number of bootstrap replicates. Default is 2000.
+  #' @param bias.correct Logical, whether to apply bias correction. Default is TRUE.
+  #' @param return.replicates Logical, whether to return replicate values. Default is FALSE.
+  #' @return A list with estimate (`est`), bias-corrected estimate (`est_bc`), variance, and standard error.
+  #' @examples
+  #' x <- rgamma(25, shape = 5)
+  #' boot_kurt(x)
+  boot_kurt <- function(x, B = 2000, bias.correct = TRUE,
+                        return.replicates = FALSE) {
+    g2 <- function(z) mean((z - mean(z))^4) /
+      mean((z - mean(z))^2)^2 - 3
+
+    b.reps <- boot::boot(data = x, statistic = g2, R = B)
+
+    ci <- boot::boot.ci(b.reps, type = "bca")
+
+    est    <- g2(x)
+    est.bc <- if (bias.correct) 2 * est - mean(b.reps) else est
+    out    <- list(est     = est,
+                  est_bc  = est.bc,
+                  var     = sd(b.reps)^2,
+                  se      = sd(b.reps))
+    if (return.replicates) out$boot <- b.reps
+    out
+}
+
+
+x <- tryCatch(rpearson(100000, 
+				 moments = c( mean = 0, 
+							 variance = 1, 
+							 skewness = 1, 
+							 kurtosis = 2.5)),
+                 error = function(e) {
+                   message("Error in rpearson for group 1: ", e)
+                   return(NA)
+                 })
+
+g2 <- function(x, i) {mean((x - mean(x[i]))^4) /
+      mean((x - mean(x[i]))^2)^2 - 3}
+
+    b.reps <- boot::boot(data = x, statistic = g2, R = 1000)
+
+    ci <- boot::boot.ci(b.reps, type = "bca")
