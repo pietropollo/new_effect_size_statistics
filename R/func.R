@@ -493,3 +493,54 @@ plot_bias_violin <-
             title = element_text(size = 6))
   }
 
+## ================================================================
+## 16. # BCa Bootstrap CI function for the results
+##    – BCa bootstrap confidence intervals
+## ================================================================
+
+#' @title Bootstrap Estimation of Excess Kurtosis using BCa Method
+#' @description Computes bootstrap estimate and BCa CIs of excess kurtosis.
+#' @param x A numeric vector.
+#' @param B Number of bootstrap replicates. Default is 2000.
+#' @param return.replicates Logical, whether to return replicate values. Default is FALSE.
+#' @return A list with estimate (`est`), bias-corrected estimate (`est_bc`), variance, and standard error.
+#' @examples
+#' x <- rgamma(25, shape = 5)
+#' t  <- boot_kurt_bca(x)
+  # x1 <- tryCatch(rpearson(1000, 
+	#  			 moments = c(    mean = 0, 
+	#  						 variance = 1, 
+	#  						 skewness = 0, 
+	#  						 kurtosis = 6)),   # Should be estimated at 0.5 because excess kurosis so 2.5-3
+  #                 error = function(e) {
+  #                   message("Error in rpearson for group 1: ", e)
+  #                   return(NA)
+  #                 })
+  #  t  <- boot_kurt_bca(x1)
+
+  boot_kurt_bca <- function(x, B = 2000, bias.correct = TRUE,
+                        return.replicates = FALSE) {
+
+    # Excess kurtosis statistic function
+    g2 <- function(x, i) {
+      n = length(x[i])
+      ((((n + 1) * n * (n - 1)) / ((n - 2) * (n - 3))) *
+       (sum((x[i] - mean(x[i])) ^ 4) / (sum((x[i] - mean(x[i])) ^ 2) ^ 2))) -(3 * ((n - 1) ^ 2) / ((n - 2) * (n - 3)))
+      }
+
+    # Bootstrap resampling, non-parametric
+      b.reps <- boot::boot(data = x, statistic = g2, R = B)
+    
+    # Bias corrected accelerated (BCa) bootstrap CIs
+    boot_bca <- boot::boot.ci(b.reps, type = "bca")
+
+    out    <- list(est      = b.reps$t0,
+                  est_ci_l  = boot_bca$bca[4],
+                  est_ci_u  = boot_bca$bca[5],
+                  var       = sd(b.reps$t) ^ 2,
+                  se        = sd(b.reps$t))
+    
+    if (return.replicates) {out$boot <- b.reps}
+    
+    return(out)
+}
