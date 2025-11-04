@@ -496,7 +496,7 @@ plot_bias_violin <-
 ## ================================================================
 ## 16. # BCa Bootstrap CI function for the results
 ##    – BCa bootstrap confidence intervals
-## ================================================================
+#================================================================
 
 #' @title Bootstrap Estimation of Excess Kurtosis using BCa Method
 #' @description Computes bootstrap estimate and BCa CIs of excess kurtosis.
