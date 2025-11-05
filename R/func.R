@@ -518,8 +518,7 @@ plot_bias_violin <-
   #                 })
   #  t  <- boot_kurt_bca(x1)
 
-  boot_kurt_bca <- function(x, B = 2000, bias.correct = TRUE,
-                        return.replicates = FALSE) {
+  boot_kurt_bca <- function(x, B = 2000, return.replicates = FALSE) {
 
     # Excess kurtosis statistic function
     g2 <- function(x, i) {
@@ -531,15 +530,22 @@ plot_bias_violin <-
     # Bootstrap resampling, non-parametric
       b.reps <- boot::boot(data = x, statistic = g2, R = B)
     
+    # Point estimate
+    est    <- b.reps$t0
+    
+    # Bias corrected estimate
+    est.bc <-  2 * est - mean(b.reps$t)
+
     # Bias corrected accelerated (BCa) bootstrap CIs
     boot_bca <- boot::boot.ci(b.reps, type = "bca")
 
-    out    <- list(est      = b.reps$t0,
-                  est_ci_l  = boot_bca$bca[4],
-                  est_ci_u  = boot_bca$bca[5],
-                  var       = sd(b.reps$t) ^ 2,
-                  se        = sd(b.reps$t))
-    
+    out    <- list(est     = est,
+                  est_bc   = est.bc,
+                  est_ci_l = boot_bca$bca[4],
+                  est_ci_u = boot_bca$bca[5],
+                  var      = sd(b.reps$t) ^ 2,
+                  se       = sd(b.reps$t))
+
     if (return.replicates) {out$boot <- b.reps}
     
     return(out)
