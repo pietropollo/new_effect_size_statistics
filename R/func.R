@@ -500,36 +500,51 @@ plot_bias_violin <-
 
 #' @title Bootstrap Estimation of Excess Kurtosis using BCa Method
 #' @description Computes bootstrap estimate and BCa CIs of excess kurtosis.
-#' @param x A numeric vector.
+#' @param data A data frame containing the variables x1, and x2 (column names must match) which is the simulated excess kurtosis for each group.
 #' @param B Number of bootstrap replicates. Default is 2000.
 #' @param return.replicates Logical, whether to return replicate values. Default is FALSE.
 #' @return A list with estimate (`est`), bias-corrected estimate (`est_bc`), variance, and standard error.
 #' @examples
-#' x <- rgamma(25, shape = 5)
-#' t  <- boot_kurt_bca(x)
+#' x1 <- rgamma(25, shape = 5)
+#' x2 <- rgamma(25, shape = 5)
+#' data <- data.frame(x1 = x1, x2 = x2)
+#' t  <- boot_kurt_bca(data)
   # x1 <- tryCatch(rpearson(1000, 
 	#  			 moments = c(    mean = 0, 
 	#  						 variance = 1, 
 	#  						 skewness = 0, 
-	#  						 kurtosis = 6)),   # Should be estimated at 0.5 because excess kurosis so 2.5-3
+	#  						 kurtosis = 6)),   
   #                 error = function(e) {
   #                   message("Error in rpearson for group 1: ", e)
   #                   return(NA)
   #                 })
-  #  t  <- boot_kurt_bca(x1)
+  # x2 <- tryCatch(rpearson(1000, 
+	#  			 moments = c(    mean = 0, 
+	#  						 variance = 1, 
+	#  						 skewness = 0, 
+	#  						 kurtosis = 3)),   
+  #                 error = function(e) {
+  #                   message("Error in rpearson for group 1: ", e)
+  #                   return(NA)
+  #                 })
+  #       data <- data.frame(x1 = x1, x2 = x2)
+  #  t  <- boot_kurt_bca(data)
 
-  boot_kurt_bca <- function(x, B = 2000, return.replicates = FALSE) {
+  boot_kurt_bca <- function(data, B = 2000, return.replicates = FALSE) {
 
     # Excess kurtosis statistic function
     g2 <- function(x, i) {
-      n = length(x[i])
-      ((((n + 1) * n * (n - 1)) / ((n - 2) * (n - 3))) *
-       (sum((x[i] - mean(x[i])) ^ 4) / (sum((x[i] - mean(x[i])) ^ 2) ^ 2))) -(3 * ((n - 1) ^ 2) / ((n - 2) * (n - 3)))
+      n1 = length(x$x1[i])
+      n2 = length(x$x2[i])
+      (((((n1 + 1) * n1 * (n1 - 1)) / ((n1 - 2) * (n1 - 3))) *
+       (sum((x$x1[i] - mean(x$x1[i])) ^ 4) / (sum((x$x1[i] - mean(x$x1[i])) ^ 2) ^ 2))) -(3 * ((n1 - 1) ^ 2) / ((n1 - 2) * (n1 - 3)))) -  
+       (((((n2 + 1) * n2 * (n2 - 1)) / ((n2 - 2) * (n2 - 3))) *
+       (sum((x$x2[i] - mean(x$x2[i])) ^ 4) / (sum((x$x2[i] - mean(x$x2[i])) ^ 2) ^ 2))) -(3 * ((n2 - 1) ^ 2) / ((n2 - 2) * (n2 - 3))))
       }
 
     # Bootstrap resampling, non-parametric
-      b.reps <- boot::boot(data = x, statistic = g2, R = B)
-    
+      b.reps <- boot::boot(data, statistic = g2, R = B)
+
     # Point estimate
     est    <- b.reps$t0
     
