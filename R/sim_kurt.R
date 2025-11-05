@@ -135,7 +135,7 @@ sim_kurt <- function(params, nsims = nsims) {
               coverage_ku_jack_bc[i] = coverage(jack_kurt_bc[i], jack_kurt_sv[i], params$n, true_ku_diff)
               coverage_ku_jack_sv[i] = coverage(ku[i], jack_kurt_sv[i], params$n, true_ku_diff) # Recommended
               coverage_jack_ku_sv[i] = coverage(jack_kurt_bc[i], ku_sv[i], params$n, true_ku_diff)
-              boot_coverage_ku[i] = (true_ku_diff >= (kurt_boot$est_ci_l[i])) && (true_ku_diff <= (kurt_boot$est_ci_u[i]))
+              boot_coverage_ku[i] = (true_ku_diff >= (kurt_boot$est_ci_l)) && (true_ku_diff <= (kurt_boot$est_ci_u))
 
   }
 
