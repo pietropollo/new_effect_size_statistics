@@ -258,7 +258,7 @@ coverage_ku  <- c("coverage_ku_all",
                   "coverage_jack_ku_sv_all",
                   "coverage_adj_ku_sv_all",
                   "coverage_adj_jack_ku_sv_all", 
-                  "coverage_boot_ku_sv_all")
+                  "boot_coverage_ku_all")
 
 plot_labels_cov_ku <- c("Traditional (estimator & Sampling Variance)",
                          "Jackknife (estimator & Sampling Variance)",
@@ -266,7 +266,7 @@ plot_labels_cov_ku <- c("Traditional (estimator & Sampling Variance)",
                          "Jackknife estimator with Traditional Sampling Variance",
                          "Traditional estimator & Adjusted Traditional Sampling Variance",
                          "Jackknife estimator & Adjusted Jackknife Sampling Variance",
-                         "Traditional estimator & Bootstrap Sampling Variance")
+                         "Bootstrap BCA 95% CI")
 
 list_cov_kurt_plots <- list()
 
@@ -316,7 +316,7 @@ final_coverage_plot <-
   list_cov_kurt_plots[["coverage_ku_all"]] +
   list_cov_kurt_plots[["coverage_ku_jack_bc_all"]] +
   list_cov_kurt_plots[["coverage_ku_jack_sv_all"]] + # "coverage_adj_jack_ku_sv_all" & "coverage_ku_jack_sv_all"
-  list_cov_kurt_plots[["coverage_jack_ku_sv_all"]] + # "coverage_adj_ku_sv_all" & "coverage_jack_ku_sv_all" & coverage_adj_ku_sv_all
+  list_cov_kurt_plots[["boot_coverage_ku_all"]] + # "coverage_adj_ku_sv_all" & "coverage_jack_ku_sv_all" & coverage_adj_ku_sv_all
   list_cov_cor_plots[["coverage_d_cor_all"]] +
   list_cov_cor_plots[["coverage_d_cor_jack_bc_all"]] +
   list_cov_cor_plots[["coverage_jack_bc_sv_all"]] +
