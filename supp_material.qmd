@@ -89,7 +89,10 @@ options(DT.options = list(rownames = FALSE,
                           pageLength = 5,
                           columnDefs = list(list(targets = '_all', 
                                                  className = 'dt-center')),
-                          buttons = c('copy', 'csv', 'excel', 'pdf')))
+                          buttons = c('copy', 
+                                      'csv', 
+                                      'excel', 
+                                      'pdf')))
 
 source("layout.R")
 ```
@@ -123,7 +126,8 @@ calc.effect <- function(data = raw_data,
 
 # processing functions ----
 process.ind_effects <- function(chosen_trait = "fat_mass",
-                                measure = "KU_delta") {
+                                measure = "KU_delta",
+                                output = "results") {
   ind_effects <-
     df_meta_analysed %>% 
     filter(trait_name == chosen_trait,
@@ -136,49 +140,61 @@ process.ind_effects <- function(chosen_trait = "fat_mass",
     select(phenotyping_center,
            strain_fig,
            n = n_total,
-           est = paste0(measure, 
-                        "_",
-                        "est"),
-           var = paste0(measure, 
-                        "_",
-                        "var"),
-           lower = paste0(measure, 
-                          "_",
-                          "lower"),
-           upper = paste0(measure, 
-                          "_",
-                          "upper"))
+           est = all_of(paste0(measure, 
+                               "_",
+                               "est")),
+           var = all_of(paste0(measure, 
+                               "_",
+                               "var")),
+           lower = all_of(paste0(measure, 
+                                 "_",
+                                 "lower")),
+           upper = all_of(paste0(measure, 
+                                 "_",
+                                 "upper"))) %>% 
+    rowid_to_column("effect_size_id")
   
   model <- rma.mv(data = ind_effects,
                   yi = est,
                   V = var,
                   test = "t",
-                  random = list(~ 1|phenotyping_center, 
+                  random = list(~ 1|effect_size_id,
+                                ~ 1|phenotyping_center, 
                                 ~ 1|strain_fig))
   
-  df_model <- data.frame(trait_name = chosen_trait,
-                         est = model$beta[1],
-                         var = model$se ^ 2,
-                         lower = model$ci.lb,
-                         upper = model$ci.ub,
-                         phenotyping_center = "Mean",
-                         strain_fig = "ES")
-  
-  
-  ind_effects %>% 
-    bind_rows(df_model) %>% 
-    mutate(est_type = measure,
-           centre_and_strain = factor(paste0(phenotyping_center,
-                                             "\n",
-                                             strain_fig))) %>% 
-    mutate(centre_and_strain = factor(centre_and_strain,
-                                      levels = c("Mean\nES",
-                                                 rev(levels(centre_and_strain)[-6]))))
+  if (output == "results") {
+    df_model <- data.frame(trait_name = chosen_trait,
+                           est = model$beta[1],
+                           var = model$se ^ 2,
+                           lower = model$ci.lb,
+                           upper = model$ci.ub,
+                           phenotyping_center = "Mean",
+                           strain_fig = "ES")
+    
+    
+    ind_effects %>% 
+      bind_rows(df_model) %>% 
+      mutate(est_type = measure,
+             centre_and_strain = factor(paste0(phenotyping_center,
+                                               "\n",
+                                               strain_fig))) %>% 
+      mutate(centre_and_strain = factor(centre_and_strain,
+                                        levels = c("Mean\nES",
+                                                   rev(levels(centre_and_strain)[-6]))))
+    
+  } else if (output == "heterogeneity") {
+    tibble(trait_name_1 = chosen_trait,
+           trait_name_2 = NA,
+           est_type = measure) %>% 
+      add_column(as_tibble(t(i2_ml(model)))) %>% 
+      clean_names()
+  }
 }
 
 process.cor_effects <- 
   function(chosen_trait_1 = "fat_mass",
-           chosen_trait_2 = "heart_weight") {
+           chosen_trait_2 = "heart_weight",
+           output = "results") {
     
     df_raw_cor <-
       df_raw %>% 
@@ -243,30 +259,40 @@ process.cor_effects <-
       mutate(delta_zr_upper = delta_zr_est + qt(0.975, 
                                                 n_male + n_female - 2) * sqrt(delta_zr_var),
              delta_zr_lower = delta_zr_est - qt(0.975, 
-                                                n_male + n_female - 2) * sqrt(delta_zr_var))
+                                                n_male + n_female - 2) * sqrt(delta_zr_var)) %>% 
+      rowid_to_column("effect_size_id")
     
-    mlma_zr <-
+    model <-
       rma.mv(data = df_effects_cor,
              yi = delta_zr_est,
              V = delta_zr_var,
              test = "t",
-             random = list(~ 1|phenotyping_center, 
+             random = list(~ 1|effect_size_id,
+                           ~ 1|phenotyping_center, 
                            ~ 1|strain_fig))
     
-    df_model <- data.frame(delta_zr_est = mlma_zr$beta[1],
-                           delta_zr_lower = mlma_zr$ci.lb,
-                           delta_zr_upper = mlma_zr$ci.ub,
-                           phenotyping_center = "Mean",
-                           strain_fig = "ES")
-    
-    df_effects_cor %>% 
-      bind_rows(df_model) %>% 
-      mutate(centre_and_strain = factor(paste0(phenotyping_center,
-                                               "\n",
-                                               strain_fig))) %>% 
-      mutate(centre_and_strain = factor(centre_and_strain,
-                                        levels = c("Mean\nES",
-                                                   rev(levels(centre_and_strain)[-5]))))
+    if (output == "results") {
+      df_model <- data.frame(delta_zr_est = model$beta[1],
+                             delta_zr_lower = model$ci.lb,
+                             delta_zr_upper = model$ci.ub,
+                             phenotyping_center = "Mean",
+                             strain_fig = "ES")
+      
+      df_effects_cor %>% 
+        bind_rows(df_model) %>% 
+        mutate(centre_and_strain = factor(paste0(phenotyping_center,
+                                                 "\n",
+                                                 strain_fig))) %>% 
+        mutate(centre_and_strain = factor(centre_and_strain,
+                                          levels = c("Mean\nES",
+                                                     rev(levels(centre_and_strain)[-5]))))
+    } else if (output == "heterogeneity") {
+      tibble(trait_name_1 = chosen_trait_1,
+             trait_name_2 = chosen_trait_2,
+             est_type = "delta_zr") %>% 
+        add_column(as_tibble(t(i2_ml(model)))) %>% 
+        clean_names()
+    }
   }
 
 # visualisation functions ----
@@ -332,7 +358,9 @@ caterpillar.custom <-
   }
 
 ridgeline.custom <- function(chosen_trait = "fat_mass") {
-  df_raw %>% 
+  
+  processed_data <-
+    df_raw %>% 
     filter(trait_name == chosen_trait,
            phenotyping_center %in% c("CCP-IMG",
                                      "HMGU",
@@ -347,7 +375,27 @@ ridgeline.custom <- function(chosen_trait = "fat_mass") {
     mutate(centre_and_strain = factor(centre_and_strain,
                                       levels = c("Mean\nES",
                                                  rev(levels(centre_and_strain)[-5]))),
-           value_s = scale(value)) %>%
+           value_s = scale(value)[, 1])
+  
+  sample_sizes <-
+    processed_data %>% 
+    count(centre_and_strain,
+          sex) %>% 
+    slice(-1) %>% 
+    add_row(centre_and_strain = factor("Mean\nES"),
+            processed_data %>% 
+              filter(!is.na(sex)) %>% 
+              count(sex)) %>% 
+    pivot_wider(id_cols = centre_and_strain,
+                names_from = sex,
+                values_from = n) %>% 
+    mutate(label = paste0("Nf = ",
+                          female,
+                          ", Nm = ",
+                          male)) %>% 
+    arrange(centre_and_strain)
+  
+  processed_data %>% 
     ggplot(aes(x = value_s,
                y = centre_and_strain,
                fill = sex,
@@ -365,6 +413,12 @@ ridgeline.custom <- function(chosen_trait = "fat_mass") {
                                                     " ")),
                     "\n(scaled)"),
          y = "Phenotyping centre and mice strain") +
+    annotate(geom = "text",
+             x = mean(range(processed_data$value_s,
+                            na.rm = T)),
+             y = as.numeric(sample_sizes$centre_and_strain) - 0.15,
+             label = sample_sizes$label,
+             size = 2) +
     theme_classic() +
     theme(legend.position = "none",
           axis.title.x = element_text(size = 12, 
@@ -443,6 +497,19 @@ cor.plot.custom <-
              trait_1_s = scale(get(chosen_trait_1))[,1],
              trait_2_s = scale(get(chosen_trait_2))[,1])
     
+    sample_sizes <-
+      df_cor %>% 
+      count(centre_and_strain,
+            sex) %>% 
+      pivot_wider(id_cols = centre_and_strain,
+                  names_from = sex,
+                  values_from = n) %>% 
+      mutate(label = paste0("Nf = ",
+                            female,
+                            ", Nm = ",
+                            male)) %>% 
+      arrange(desc(centre_and_strain))
+    
     plot_list <- list()
     
     for (i in 1:length(levels(df_cor$centre_and_strain))) {
@@ -477,6 +544,11 @@ cor.plot.custom <-
                                                         "_", 
                                                         " ")),
                         " (scaled)")) +
+        annotate(geom = "text",
+                 x = mean(chosen_lims),
+                 y = 4.5,
+                 label = sample_sizes$label[i],
+                 size = 2) +
         theme_classic() +
         theme(legend.position = "none",
               plot.tag.position = c(0.05, 
@@ -953,6 +1025,38 @@ map2_dfr(.x = c("fat_mass",
                               "glucose and total cholesterol"),
                             each = 7)) %>% 
   relocate(relationship) %>%  
+  datatable(.,
+            extensions = "Buttons",
+            rownames = FALSE)
+```
+
+## Heterogeneity
+
+```{r}
+map2_dfr(.x = rep(c("fat_mass",
+                    "heart_weight",
+                    "glucose",
+                    "total_cholesterol"),
+                  each = 4),
+         .y = rep(c("ROM",
+                    "VR",
+                    "SK_delta",
+                    "KU_delta"), 
+                  4),
+         .f = ~ process.ind_effects(chosen_trait = .x,
+                                    measure = .y,
+                                    output = "heterogeneity")) %>% 
+  mutate(est_type = case_when(est_type == "ROM" ~ "lnRR",
+                              est_type == "VR" ~ "lnVR",
+                              est_type == "SK_delta" ~ "delta_sk",
+                              est_type == "KU_delta" ~ "delta_ku")) %>% 
+  bind_rows(map2_dfr(.x = c("fat_mass",
+                            "glucose"),
+                     .y = c("heart_weight",
+                            "total_cholesterol"),
+                     .f = ~ process.cor_effects(chosen_trait_1 = .x,
+                                                chosen_trait_2 = .y,
+                                                output = "heterogeneity"))) %>% 
   datatable(.,
             extensions = "Buttons",
             rownames = FALSE)
