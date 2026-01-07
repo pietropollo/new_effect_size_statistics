@@ -8,10 +8,10 @@ rm(list = ls()) # Remove all objects from the environment
 
 # Load required packages ----
 pacman::p_load(moments, 
-               PearsonDS, 
-               tidyverse, 
-               patchwork, 
-               latex2exp)  
+               PearsonDS,
+               tidyverse,
+               patchwork,
+               latex2exp)
 source("./R/func.R") # Load the functions from func.R
 
 # Load the simulation results ----
