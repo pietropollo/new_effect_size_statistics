@@ -49,18 +49,18 @@ sim_kurt <- function(params, nsims = nsims) {
   
   # Vectors to store results. Note that we have a bunch of new functions to calculate the effect sizes and sampling variances which don't assume normality
  # Point estimates for kurtosis
-  jack_kurt_bc <- numeric(nsims) # Jackknife bias-corrected method for kurtosis
-         ku <- numeric(nsims)
+        jack_kurt_bc <- numeric(nsims) # Jackknife bias-corrected method for kurtosis
+                  ku <- numeric(nsims)
          boot_bc_est <- numeric(nsims) # Bootstrap bias-corrected method for kurtosis
          
    
   # Sampling variance for kurtosis
-              ku_sv <- numeric(nsims) # Sampling variance for kurtosis
+             ku_sv <- numeric(nsims) # Sampling variance for kurtosis
       jack_kurt_sv <- numeric(nsims) # Jackknife method sampling variance for kurtosis
-      boot_sv <- numeric(nsims) # Bootstrap sampling variance for kurtosis
+           boot_sv <- numeric(nsims) # Bootstrap sampling variance for kurtosis
    
   # Coverage indicators
-              coverage_ku <- numeric(nsims) # Coverage for kurtosis effect size
+                coverage_ku <- numeric(nsims) # Coverage for kurtosis effect size
 			  coverage_ku_jack_bc <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method
 			  coverage_ku_jack_sv <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and sampling variance for kurtosis
 			  coverage_ku_jack_adj_sv <- numeric(nsims) # Coverage for kurtosis with jackknife bias-corrected method and adjusted jackknife sampling variance for kurtosis
