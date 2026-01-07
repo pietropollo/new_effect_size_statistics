@@ -46,18 +46,17 @@ pacman::p_load(moments,
 # Create combinations of parameters expanded by sample size vector. Each row is a scenario with a sample size which is used to set up the simulation
 	params_all_kur <- data.frame(tidyr::crossing(scenarios, n = n))
 
-# Lets keep sample size at 500 for true effect size calculations. 
-  params_true <- data.frame(tidyr::crossing(scenarios, n = 500))  %>% mutate(diff_ku = kurtosis_g1 - kurtosis_g2)  %>% filter(diff_ku >= 0 & mean_g1 == 0 & mean_g2 == 0 & variance_g1 == 1 & variance_g2 == 1 & skewness_g1 == 0 & skewness_g2 == 0 & skewness_g1 == 0 & skewness_g2 == 0) # Only keep scenarios where group 1 kurtosis is greater than or equal to group 2 kurtosis
+# Lets keep sample size at 10 for true effect size calculations. 
+  params_true <- data.frame(tidyr::crossing(scenarios, n = 10))  %>% mutate(diff_ku = kurtosis_g1 - kurtosis_g2)  %>% filter(diff_ku >= 0 & mean_g1 == 0 & mean_g2 == 0 & variance_g1 == 1 & variance_g2 == 1 & skewness_g1 == 0 & skewness_g2 == 0 & skewness_g1 == 0 & skewness_g2 == 0 & kurtosis_g1 == 5) # Only keep scenarios where group 1 kurtosis is greater than or equal to group 2 kurtosis
 
 ## Sample parameters for a single simulation run
-  params <- params_true[5, ] # Change the index to run different scenarios
+  #params <- params_true[1, ] # Change the index to run different scenarios
 
+for(i in 1:nrow(params_all_kur)) {
+  params  <- params_true[i, ]
 #-----------------------------##
 # Setup objects
 #-----------------------------##
-
-  # Calculate true effect sizes for kurtosis difference
-	true_ku_diff <- params$kurtosis_g1 - params$kurtosis_g2
 
 # Vectors to store results. Note that we have a bunch of new functions to calculate the effect sizes and sampling variances which don't assume normality
  # Point estimates for kurtosis
@@ -144,14 +143,6 @@ for(i in 1:nsims) {
   }
 
 
-    # Coverage indicators
-                      coverage_ku[i] = coverage(ku[i], ku_sv[i], params$n, true_ku_diff)
-              coverage_ku_jack_bc[i] = coverage(jack_kurt_bc[i], jack_kurt_sv[i], params$n, true_ku_diff)
-              coverage_ku_jack_sv[i] = coverage(ku[i], jack_kurt_sv[i], params$n, true_ku_diff) # Recommended
-              coverage_jack_ku_sv[i] = coverage(jack_kurt_bc[i], ku_sv[i], params$n, true_ku_diff)
-              boot_coverage_ku[i] = (true_ku_diff >= (kurt_boot$est_ci_l)) && (true_ku_diff <= (kurt_boot$est_ci_u))
-
-
 # plot distributions of the point estimates AND sampling variances for jacknife, bootstrap, and the regular estimate with regular sampling variance
 	main <- paste0("Scenario ", params$scenario, ": n = ", params$n, 
 				   ", Kurtosis G1 = ", params$kurtosis_g1, ", Kurtosis G2 = ", params$kurtosis_g2)
@@ -177,4 +168,5 @@ s1_p2  <- ggplot(data.frame(boot_bc_est = boot_bc_est),
   ) +
   theme_classic()
 
-ggsave("output/figs/scenario1_kurtosis_distributions.png", plot = s1_p1 + s1_p2 + plot_layout(ncol = 2), width = 12.269938, height = 5.341615 )
+ggsave(paste0("output/figs/scenario_", gsub(" ", "_", main), "_kurtosis_distributions.png"), plot = s1_p1 + s1_p2 + plot_layout(ncol = 2), width = 12.269938, height = 5.341615 )
+}
