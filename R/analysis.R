@@ -436,12 +436,24 @@ cor_factors <- coefficients(model)
 # When the groups differ in their means does bias vary?
 mean_diff<- result_kurt %>%
   ggplot() +
-  geom_violin(aes(x = diff, y = bias_ku, group = diff, fill = diff)) + labs(x = "Mean difference between groups", y = "Bias in kurtosis estimate") + theme_classic() + theme(legend.position = "none")
+  geom_violin(aes(x = diff, y = bias_ku, group = diff, fill = diff)) + labs(x = "Mean difference between groups", y = TeX("Bias $\\Delta \\textit{ku}$")) + theme_classic() + theme(legend.position = "none")
 
 # When groups differ in their variances does bias vary?
 var_diff<- result_kurt %>%
   ggplot() +
-  geom_violin(aes(x = var_diff, y = bias_ku, group = var_diff, fill = var_diff)) + labs(x = "Variance difference between groups", y = "Bias in kurtosis estimate") + theme_classic() + theme(legend.position = "none")
+  geom_violin(aes(x = var_diff, y = bias_ku, group = var_diff, fill = var_diff)) + labs(x = "Variance difference between groups", y = TeX("Bias $\\Delta \\textit{ku}$")) + theme_classic() + theme(legend.position = "none")
+
+combined_mean_var <- mean_diff +
+  var_diff +
+  plot_layout(nrow = 1) +
+  plot_annotation(tag_levels = 'A') &
+  theme(plot.tag = element_text(size = 12))
+ggsave("./output/figs/combined_mean_var.png", plot = combined_mean_var, width = 10, height = 5)
+
+# Plot difference in kurtosis when groups are either DIFERENT or NOT and when the sample size is SMALL or LARGE
+kurt_explore<- result_kurt %>% mutate(diff = ifelse(kurtosis_g1 == kurtosis_g2, "No", "Yes")) %>% filter(n %in% c(10, 500)) %>% mutate(n_diff = interaction(as.factor(n), as.factor(diff)))  %>% 
+  ggplot() +
+  geom_violin(aes(y = kurt_diff, x = n_diff, group = n_diff, fill = n_diff)) + theme_classic() + labs(y = TeX("$\\Delta \\textit{ku}$"), x = TeX("Scenario (no true diff vs true diff) and Sample Size (n)")) + theme(legend.position = "none") 
 
 # When groups differ in their kurtosis does bias vary?
 # Use the estimated Kurtosis difference **IMPORTANT PLOT**
