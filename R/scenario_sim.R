@@ -47,7 +47,7 @@ pacman::p_load(moments,
 	params_all_kur <- data.frame(tidyr::crossing(scenarios, n = n))
 
 # Lets keep sample size at 10 for true effect size calculations. 
-  params_true <- data.frame(tidyr::crossing(scenarios, n = 10))  %>% mutate(diff_ku = kurtosis_g1 - kurtosis_g2)  %>% filter(diff_ku >= 0 & mean_g1 == 0 & mean_g2 == 0 & variance_g1 == 1 & variance_g2 == 1 & skewness_g1 == 0 & skewness_g2 == 0 & skewness_g1 == 0 & skewness_g2 == 0 & kurtosis_g1 == 5) # Only keep scenarios where group 1 kurtosis is greater than or equal to group 2 kurtosis
+  params_true <- data.frame(tidyr::crossing(scenarios, n = 500))  %>% mutate(diff_ku = kurtosis_g1 - kurtosis_g2)  %>% filter(diff_ku >= 0 & mean_g1 == 0 & mean_g2 == 0 & variance_g1 == 1 & variance_g2 == 1 & skewness_g1 == 0 & skewness_g2 == 0 & skewness_g1 == 0 & skewness_g2 == 0 & kurtosis_g1 == 5) # Only keep scenarios where group 1 kurtosis is greater than or equal to group 2 kurtosis
 
 ## Sample parameters for a single simulation run
   #params <- params_true[1, ] # Change the index to run different scenarios
