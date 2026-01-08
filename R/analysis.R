@@ -399,13 +399,42 @@ bias_sv_z2 <-
                    ylim = c(-30,
                             30))
 
+coverage_sk_jack_sv_all <-
+  plot_bias_violin(result_skew,
+                   "coverage_sk_jack_sv_all",
+                   "Coverage in $\\Delta \\textit{sk}$",
+                   ylim = c(0,
+                            1)) + geom_hline(aes(yintercept = 0.95),
+                                              linetype = "dashed",
+                                              color = "red")
+
+coverage_ku_jack_sv_all <-
+  plot_bias_violin(result_kurt,
+                   "coverage_ku_jack_sv_all",
+                   "Coverage in $\\Delta \\textit{ku}$",
+                   ylim = c(0,
+                            1)) + geom_hline(aes(yintercept = 0.95),
+                                              linetype = "dashed",
+                                              color = "red")  
+
+coverage_bc_jack_sv_all <-
+  plot_bias_violin(result_cor,
+                   "coverage_bc_jack_sv_all",
+                   "Coverage in $\\Delta \\textit{Zr}$",
+                   ylim = c(0,
+                            1)) + geom_hline(aes(yintercept = 0.95),
+                                              linetype = "dashed",
+                                              color = "red")                                            
 ms_plot <- 
   bias_sk_plot + 
   bias_sk_jack_sk_sv2 +
+  coverage_sk_jack_sv_all +
   bias_ku_plot + 
   bias_ku_jack_ku_sv2 +
+  coverage_ku_jack_sv_all +
   bias_z_plot + 
   bias_sv_z2 +
+  coverage_bc_jack_sv_all +
   plot_layout(nrow = 3) +
   plot_annotation(tag_levels = 'A') &
   theme(plot.tag = element_text(size = 12))
