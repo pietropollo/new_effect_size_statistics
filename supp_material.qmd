@@ -586,19 +586,21 @@ We conducted Monte-Carlo simulations to evaluate bias and variance estimation fo
 
 For $\Delta Zr$ simulations, we simulated two groups each containing two variables with known correlations within each group.  For $\Delta Zr$ we drew bivariate normal data with target within-group correlations $r \in \{-0.8, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8\}$ using the *mvnorm* function in the MASS package of R [vers. 7.3.61, @MASS]. Marginals were standard normal and group sizes varied from $n \in \{10, 20, \dots, 100, 150, 500\}$. Again, we created all unique combinations of scenarios resulting in 768 unique scenarios. We estimated $\Delta Zr$ using Fisher’s Z transformation $Zr$ and calculating $\Delta Zr$ as the difference of $Zr$ across groups (Eqs. 9–11 in main manuscript). Sampling variance for $\Delta Zr$ was approximated used the standard analytic variance $\frac{1}{n-3}$ per group (summed; Eq. 10 in main manuscript) and a jackknife approach. Again, we assumed no correlation between our groups. 
 
-Across all simulations we conducted 2,500 replicates of each scenario. Performance metrics were (a) bias of the point estimator (mean estimate minus truth) (@eq-bias), (b) relative bias of the sampling-variance estimator (@eq-relbias), and (c) Monte-Carlo standard errors (MCSEs) (@eq-mcse). 
+Across all simulations we conducted 2,500 replicates of each scenario. Performance metrics were (a) bias of the point estimator (mean estimate minus truth) (@eq-bias), (b) relative bias of the sampling-variance estimator (@eq-relbias), (c) coverage (95%) and (d) Monte-Carlo standard errors (MCSEs) (@eq-mcse). 
 
 $$
-\text{Bias}(\hat{\theta}) = \frac{\sum_{i=1}^{n_{\text{sim}}} \hat{\theta}_i}{n_{\text{sim}}} - \theta
+\text{Bias}(\hat{\theta}_{mu}) = \frac{\sum_{i=1}^{n_{\text{sim}}} \hat{\theta}_i}{n_{\text{sim}}} - \theta
 $$ {#eq-bias}
 
 
-where $\theta$ is the true overall mean effect (i.e., the true $\Delta sk$, $\Delta ku$, and $\Delta Zr$ between groups), and $\hat{\theta}_i$ is the effect estimate from simulation $i$. 
+where $\theta_{mu}$ is the true overall mean effect (i.e., the true $\Delta sk$, $\Delta ku$, and $\Delta Zr$ between groups), and $\hat{\theta}_i$ is the effect estimate from simulation $i$. 
+
+We calcuated coverage as the proportion of 95% confidence intervals (CIs) that contained the true effect size across all simulations for each scenario. 
 
 To understand bias in the sampling variance, we computed the relative bias for the effect measure as:
 
 $$
-\text{Relative Bias}(\hat{\theta}) = \left( \frac{\mathbb{E}[\hat{SV}] - \hat{\theta}^2}{\hat{\theta}^2}\right) \cdot 100\% 
+\text{Relative Bias}(\hat{\theta}_{SV}) = \left( \frac{\mathbb{E}[\hat{SV}] - \hat{\theta}^2}{\hat{\theta}^2}\right) \cdot 100\% 
 $$ {#eq-relbias}
 
 where $\hat{\theta}^2$ is the estimated sampling variance for the effect measure and $\mathbb{E}[\hat{SV}]$ is the expected value of the sampling variance. Relative bias can be calculated using different combinations of estimates. For example, we can use $\hat{\theta}^2$ as the demoninator from a point estimate taken from the small sample correction for $\Delta sk$, $\Delta ku$, or $\Delta Zr$ or from the jackknife estimate. Alternatively, we can use the jackknife estimate for $\mathbb{E}[\hat{SV}]$ across each simulation. We created each of the four combinations for our performance measures. For each of our performance measures we also computed the Monte Carlo Standard Errors (MCSE) of the estimated bias with
@@ -762,10 +764,13 @@ In all cases, we found the Monte Carlo Sampling Error (MCSEs) to be low for all 
 
 #### Evaluating $\Delta sk$, $\Delta ku$, and $\Delta Zr$ point estimators
 
-Across all simulations, $\Delta sk$, $\Delta ku$, and $\Delta Zr$ point estimators exhibited small sample bias with less than 20-30 samples, except for $\Delta ku$, which continued to show this bias through to n ~ 50-60, indicating effect sizes involving kurtosis are more challenging to estimate (@fig-bias). Regardless, small sample biases were moderate, and there was rarely a consistent over or under-estimation in point estimates across the scenarios evaluated (@fig-bias). As expected, both the analytical and jackknife estimates for $\Delta sk$ and $\Delta ku$ had minimal bias when distributions were normally distributed (Skewness of both groups = 0; Analytical bias= `r round(sk_normal$mean_bias_sk, digits = 3)` with SD = `r round(sk_normal$sd_bias_sk, digits = 3)` & Jackknife = `r round(sk_normal$mean_bias_jack, digits = 3)` with SD = `r round(sk_normal$sd_bias_jack, digits = 3)`; Kurtosis of both groups = 3; Analytical bias=`r round(ku_normal$mean_bias_ku, digits = 3)` with SD = `r round(ku_normal$sd_bias_ku, digits = 3)` & Jackknife = `r round(ku_normal$mean_bias_jack, digits = 3)` with SD = `r round(ku_normal$sd_bias_jack, digits = 3)`), but bias in both seemed to change in complex ways that suggest challenges in estimating moments when groups are similar (@fig-plot_why). Bias-corrected jackknife estimates reduced the small-sample bias relative to analytical bias corrected-moment estimators ($\Delta sk$ Mean Square Bias (MSB): Jackknife: `r round(result_skew_least_bias$MSBE[rownames(result_skew_least_bias)=="ms_bias_bias_sk_jack_bc"], digits = 3)`, Analytical: `r round(result_skew_least_bias$MSBE[rownames(result_skew_least_bias) =="ms_bias_bias_sk"], digits = 3)`; $\Delta ku$ Mean Square Bias (MSB): Jackknife: `r round(result_kurt_least_bias$MSBE[rownames(result_kurt_least_bias) =="ms_bias_bias_ku_jack_bc"], digits = 3)`, Analytical: `r round(result_kurt_least_bias$MSBE[rownames(result_kurt_least_bias) =="ms_bias_bias_ku"], digits = 3)`; $\Delta cor$ Mean Square Bias (MSB): Jackknife: `r round(result_cor_least_bias$MSBE[rownames(result_cor_least_bias)=="ms_bias_bias_jack_d_cor"], digits = 3)`, Analytical: `r round(result_cor_least_bias$MSBE[rownames(result_cor_least_bias)=="ms_bias_bias_d_cor"], digits = 3)`). 
+Across all simulations, $\Delta sk$, $\Delta ku$, and $\Delta Zr$ point estimators exhibited small sample bias with less than 20-30 samples, except for $\Delta ku$, which continued to show this bias through to n ~ 50-60, indicating effect sizes involving kurtosis are more challenging to estimate (@fig-bias). Regardless, small sample biases were moderate, and there was rarely a consistent over or under-estimation in point estimates across the scenarios evaluated (@fig-bias). 
+
+As expected, both the analytical and jackknife estimates for $\Delta sk$ and $\Delta ku$ had minimal bias when distributions were normally distributed (Skewness of both groups = 0; Analytical bias= `r round(sk_normal$mean_bias_sk, digits = 3)` with SD = `r round(sk_normal$sd_bias_sk, digits = 3)` & Jackknife = `r round(sk_normal$mean_bias_jack, digits = 3)` with SD = `r round(sk_normal$sd_bias_jack, digits = 3)`; Kurtosis of both groups = 3; Analytical bias=`r round(ku_normal$mean_bias_ku, digits = 3)` with SD = `r round(ku_normal$sd_bias_ku, digits = 3)` & Jackknife = `r round(ku_normal$mean_bias_jack, digits = 3)` with SD = `r round(ku_normal$sd_bias_jack, digits = 3)`), but bias in both seemed to change in complex ways that suggest challenges in estimating moments (@fig-plot_why). This did not appear to be related to differences in group means or variances as bias patterns were similar across these conditions (@fig-mean_var), but rather the sampling distributions being skewed (see "Coverage" below).
 
 ##### Fig. S1
-```{r, fig-bias}
+
+```{r}
 #| label: fig-bias
 #| echo: false  
 #| fig.cap: Bias in $\Delta sk$, $\Delta ku$ and $\Delta Zr$ effect estimates across simulations where samples ranged in group sample sizes between $n \in \{10, 20, \dots, 100, 150, 500\}$. A total of 100 simulated scenarios were assessed for $\Delta sk$ and $\Delta ku$ whereas 64 simulated scenarios were assessed for $\Delta Zr$.For each scenario we ran 2,500 simulations.
@@ -774,22 +779,35 @@ fig_bias <- image_read("./output/figs/bias.png")
 fig_bias
 ```
 
+Importantly, bias-corrected jackknife estimates reduced the small-sample bias relative to analytical bias corrected-moment estimators (@fig-bias; $\Delta sk$ Mean Square Bias (MSB): Jackknife: `r round(result_skew_least_bias$MSBE[rownames(result_skew_least_bias)=="ms_bias_bias_sk_jack_bc"], digits = 3)`, Analytical: `r round(result_skew_least_bias$MSBE[rownames(result_skew_least_bias) =="ms_bias_bias_sk"], digits = 3)`; $\Delta ku$ Mean Square Bias (MSB): Jackknife: `r round(result_kurt_least_bias$MSBE[rownames(result_kurt_least_bias) =="ms_bias_bias_ku_jack_bc"], digits = 3)`, Analytical: `r round(result_kurt_least_bias$MSBE[rownames(result_kurt_least_bias) =="ms_bias_bias_ku"], digits = 3)`; $\Delta cor$ Mean Square Bias (MSB): Jackknife: `r round(result_cor_least_bias$MSBE[rownames(result_cor_least_bias)=="ms_bias_bias_jack_d_cor"], digits = 3)`, Analytical: `r round(result_cor_least_bias$MSBE[rownames(result_cor_least_bias)=="ms_bias_bias_d_cor"], digits = 3)`). 
+
 ##### Fig. S2
-```{r, fig-plot_why}
+```{r}
 #| label: fig-plot_why
 #| echo: false
-#| fig.cap: Bias of analytical point estimators in relation to the absolute difference in skewness and kurtosis between groups. A) skewness and b) kurtosis. Colour of points correspond to the sample size and each point is a singel simulated scenario. The dotted line is the zero bias line.
+#| fig.cap: Bias of analytical point estimators in relation to the absolute difference in skewness and kurtosis between groups. A) skewness and b) kurtosis. Colour of points correspond to the sample size and each point is a single simulated scenario. The dotted line is the zero bias line.
 
 plot_why <- image_read("./output/figs/plot_why.png")
 plot_why
+```
+
+##### Fig. S3
+
+```{r}
+#| label: fig-mean_var
+#| echo: false  
+#| fig.cap: Bias for $\Delta sk$ and $\Delta ku$ for simulated scenarios was not related to group means or variances being different. For each scenario we ran 2,500 simulations.
+
+mean_var <- image_read("./output/figs/combined_mean_var.png")
+mean_var
 ```
 
 #### Evaluating sampling variance estimators for $\Delta sk$, $\Delta ku$, and $\Delta Zr$
 
 In contrast to point estimators, the effectiveness of sampling variance estimators for $\Delta sk$, $\Delta ku$, and $\Delta Zr$ varied. Analytical sampling variance formulas for $\Delta sk$ and $\Delta ku$ were consistently biased (@fig-relbias). Jackknife resampling, when combined with analytical point estimates ([@fig-relbias]D & [@fig-relbias]E), improved performance. Under these conditions, estimators performed well when n > 50. In contrast, the performance of sampling variance estimators for $\Delta Zr$ was best when using the analytical formulas for both the point estimator and it's associated sampling variance ([@fig-relbias]I).
 
-##### Fig. S3
-```{r, fig-relbias}
+##### Fig. S4
+```{r}
 #| label: fig-relbias
 #| echo: false  
 #| fig.cap: Relative Bias in $\Delta sk$, $\Delta ku$ and $\Delta Zr$ effect estimates across simulations where samples ranged in group sample sizes between $n \in \{10, 20, \dots, 100, 150, 500\}$. A total of 100 simulated scenarios were assessed for $\Delta sk$ and $\Delta ku$ whereas 64 simulated scenarios were assessed for $\Delta Zr$. Note that for relative bias different combinations of point estimates and sampling variance estimates were used in their calculation as indicated in their titles which show the calculation. Notation is as follows ku and sk are the skewness and kurtosis calculated using original formulas.  sk_sv and ku_sv are the sampling variance estimates using the original formulas.  jack_skew_sv and jack_ku_sv are the sampling variance estimates for skewness and kurtosis using jackknife. jack_skew_bc and jack_ku_bc are the bias corrected point estimates from the jackknife. For each scenario we ran 2,500 simulations.
@@ -798,12 +816,12 @@ fig_relbias <- image_read("./output/figs/relativebias.png")
 fig_relbias
 ```
 
-In light of these simulation results, we suggest pairing the formula-based point estimators for skewness (Eq. 1 in main manuscript) and kurtosis (Eq. 3 in main manuscript) with jackknife standard errors for $\Delta sk$ and $\Delta ku$. For $\Delta Zr$, the standard analytic variance is recommended (Eqns. 9-12 in main manuscript). This choice balances efficiency under normality with robustness to realistic deviations from it, and aligns with our broader guidance to avoid very small group sizes for these statistics.
+#### 95% Coverage
 
+Coverage was generally close to nominal levels (95%) for $\Delta sk$ and $\Delta Zr$, but slighly poorer when sample sizes were small (< n = 20) (@fig-coverage). For $\Delta Zr$, coverage was close to nominal levels across all sample sizes when using the analytical sampling variance estimator (@fig-coverage). However, coverage was poor for $\Delta ku$ across many scenarios no matter what estimator was used (@fig-coverage). Unintuitively, coverage for $\Delta ku$ was often worse as sample sizes were larger (@fig-coverage), driven by the fact that point estimates were more accurately estimated with large sample sizes, but the sampling distribution became highly skewed, impacting coverage (@fig-sampledist). At small sample sizes $\Delta ku$ was estimated poorly when true $\Delta ku$ was high, leading to non-skewed distributions with good coverage. In contrast, large sample sizes improved point estimation of $\Delta ku$  when true differences existed, but the sampling distribution became highly skewed leading to poor coverage (@fig-sampledist). As a sensitivity analysis, we also evaluated coverage when using bootstrap resampling to estimate sampling variances for all effect sizes. Results were qualitatively similar. 
 
-#### Coverage of 95% confidence intervals
-
-```{r, fig-coverage}
+##### Fig. S5
+```{r}
 #| label: fig-coverage
 #| echo: false  
 #| fig.cap: Coverage of 95% confidence intervals for $\Delta sk$, $\Delta ku$ and $\Delta Zr$ effect estimates across simulations where samples ranged in group sample sizes between $n \in \{10, 20, \dots, 100, 150, 500\}$. A total of 100 simulated scenarios were assessed for $\Delta sk$ and $\Delta ku$ whereas 64 simulated scenarios were assessed for $\Delta Zr$. For each scenario we ran 2,500 simulations. 
@@ -811,6 +829,19 @@ In light of these simulation results, we suggest pairing the formula-based point
 fig_coverage <- image_read("./output/figs/coverage.png")
 fig_coverage
 ```
+
+##### Fig. S6
+```{r}
+#| label: fig-sampledist
+#| echo: false  
+#| fig.cap: Example sampling distributions of three different scenerios ($\Delta ku$ = 0, 1 or 2.5) for n = 10 and n = 500 samples for each group. For each scenario we ran 2,500 simulations. 
+
+fig_sampledist <- image_read("./output/figs/FigS_plos_samplingdist.png")
+fig_sampledist
+```
+
+## Summary
+In light of these simulation results, we suggest pairing the formula-based point estimators for skewness (Eq. 1 in main manuscript) and kurtosis (Eq. 3 in main manuscript) with jackknife standard errors for $\Delta sk$ and $\Delta ku$. For $\Delta Zr$, the standard analytic variance is recommended (Eqns. 9-12 in main manuscript). This choice balances efficiency under normality with robustness to realistic deviations from it, and aligns with our broader guidance to avoid very small group sizes for these statistics. Given the challenges in estimating $\Delta ku$, and the poor properties of its sampling variance, we recommend weighted meta-analytic models using sample size instead of sampling variance. 
 
 # Equations and custom functions to calculate effect sizes
 
