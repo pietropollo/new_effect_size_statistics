@@ -456,6 +456,11 @@ result_kurt <- result_kurt  %>% mutate(diff = ifelse(mean_g1 == mean_g2, 0, abs(
                                       kurt_diff = ifelse(kurtosis_g1 == kurtosis_g2, 0, abs(kurtosis_g1 - kurtosis_g2)),
                                       abs_ku_est = abs(ku_est))
 
+result_skew <- result_skew  %>% mutate(diff = ifelse(mean_g1 == mean_g2, 0, abs(mean_g1 - mean_g2)),
+                                      var_diff = ifelse(variance_g1 == variance_g2, 0, abs(variance_g1 - variance_g2)),
+                                      sk_diff = ifelse(skewness_g1 == skewness_g2, 0, abs(skewness_g1 - skewness_g2)),
+                                      abs_sk_est = abs(sk_diff))                                      
+
 model <- lm(coverage_ku_jack_sv_all ~ abs_ku_est + log(1/n) + abs_ku_est*log(1/n), data = result_kurt) 
 summary(model)
 hist(residuals(model)) # Check normality of residuals
@@ -463,18 +468,26 @@ hist(residuals(model)) # Check normality of residuals
 cor_factors <- coefficients(model)
 
 # When the groups differ in their means does bias vary?
-mean_diff<- result_kurt %>%
+mean_diff_ku <- result_kurt %>%
   ggplot() +
   geom_violin(aes(x = diff, y = bias_ku, group = diff, fill = diff)) + labs(x = "Mean difference between groups", y = TeX("Bias $\\Delta \\textit{ku}$")) + theme_classic() + theme(legend.position = "none")
 
 # When groups differ in their variances does bias vary?
-var_diff<- result_kurt %>%
+var_diff_ku <- result_kurt %>%
   ggplot() +
   geom_violin(aes(x = var_diff, y = bias_ku, group = var_diff, fill = var_diff)) + labs(x = "Variance difference between groups", y = TeX("Bias $\\Delta \\textit{ku}$")) + theme_classic() + theme(legend.position = "none")
 
-combined_mean_var <- mean_diff +
-  var_diff +
-  plot_layout(nrow = 1) +
+mean_diff_sk  <- result_skew %>%
+  ggplot() +
+  geom_violin(aes(x = diff, y = bias_sk, group = diff, fill = diff)) + labs(x = "Mean difference between groups", y = TeX("Bias $\\Delta \\textit{sk}$")) + theme_classic() + theme(legend.position = "none") 
+
+var_diff_sk  <- result_skew %>%
+  ggplot() +
+  geom_violin(aes(x = var_diff, y = bias_sk, group = var_diff, fill = var_diff)) + labs(x = "Variance difference between groups", y = TeX("Bias $\\Delta \\textit{sk}$")) + theme_classic() + theme(legend.position = "none")
+
+combined_mean_var <- (mean_diff_sk +
+  var_diff_sk)/ (mean_diff_ku +
+  var_diff_ku) +
   plot_annotation(tag_levels = 'A') &
   theme(plot.tag = element_text(size = 12))
 ggsave("./output/figs/combined_mean_var.png", plot = combined_mean_var, width = 10, height = 5)
