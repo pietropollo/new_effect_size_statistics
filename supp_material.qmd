@@ -1093,6 +1093,15 @@ map2_dfr(.x = rep(c("fat_mass",
             rownames = FALSE)
 ```
 
+## Meta-analysis validation
+
+Statistical validation of meta-analytic models was performed to study statistical error and bias in meta-analytic estimates, the influence of varying levels of heterogeneity, the impact of meta-analytical sample size, and the agreement between a summary-level MA and an IPD-type meta-analysis of idividual-level data. Simulations were performed along the following lines:
+1. Original IMPC data was subsampled to generate datasets of varying sizes (k = 5, 10, 20, 40, 60, 80 "studies" per meta-analysis; within-study sample size of 50 or 100 individuals).
+2. For each subsampled dataset, known effect size magnitude was introduced by Box-Cox transforming the data within sexes to generate known differences in skewness, or by introducing outliers to generate known differences in kurtosis. We generated three scenarions of effect-size magnitudes: small (0.3), medium (0.5), and large (1.0) for both skewness and kurtosis.
+3. Meta-analytical models were fitted to each simulated dataset to estimate effect sizes, using the estimators and sampling variances recommended from the simulation study (see package `orchaRd` for details). Each simulation scenario was repeated 200 times.
+
+See summary plots of the validations below: @fig-mavalidation-1, @fig-mavalidation-2, @fig-mavalidation-3, and @fig-mavalidation-4.
+
 # Visualisations
 
 ## Meta-analytic
@@ -1401,6 +1410,56 @@ images[[9]]
 images[[10]]
 ```
 :::
+
+## MA validation - visualisations
+
+### Fig. S24
+
+```{r}
+#| label: fig-mavalidation-1
+#| fig-cap: MA validation results for skewness and kurtosis differences for MA of varying size (horizontal axis) and within-study sample size of 50 or 100 (colour). Vertical axis shows the power to detect small (0.3), medium (0.5), and large (1.0) effect sizes for kurtosis (top panel) and skewness (bottom panel).
+#| echo: false
+#|  
+files <- list.files("./output/ma_validation/plots")
+images  <- lapply(files, 
+                  function(x) {
+                    magick::image_read(paste0("./output/ma_validation/plots/", 
+                                              x))
+                  })
+
+images[[4]]
+```
+
+### Fig. S25
+
+```{r}
+#| label: fig-mavalidation-2
+#| fig-cap: MA validation results for skewness and kurtosis differences for MA of varying size (horizontal axis) and within-study sample size of 50 or 100 (colour). Vertical axis shows the estimation bias for small (0.3), medium (0.5), and large (1.0) effect sizes for kurtosis (top panel) and skewness (bottom panel).
+#| echo: false
+#|  
+
+
+images[[1]]
+```
+
+### Fig. S26
+
+```{r}
+#| label: fig-mavalidation-3
+#| fig-cap: MA validation results for skewness and kurtosis (colour-coded) differences for MA of varying heterogeneity (horizontal axis). Top panel - estimation bias of main effect size; bottom panel - mean estimated between-study variance (on log scale). Within-study sample size was set to 100 and effect size magnitude to medium (0.5). Plots show one selected trait (glucose levels).
+#| echo: false
+#| 
+images[[2]]
+```
+
+### Fig. S27
+```{r}
+#| label: fig-mavalidation-4
+#| fig-cap: Comparison of summary-level meta-analysis and individual participant data (IPD)-type meta-analysis for skewness and kurtosis differences. Top panel - main effect size estimates from both types of MA for a number of traits (shape-coded), and both effect size metrics (skeweness/kurtosis differences, colour-coded); dashed line indicates the `y~x` line. Bottom-panel - Bland-Altman plot comparing both approches. Within-study sample size was set to 100 and effect size magnitude to medium (0.5).
+#| echo: false
+#| 
+images[[3]]
+```
 
 # Software and package versions  
 
