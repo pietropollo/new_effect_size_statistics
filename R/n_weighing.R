@@ -159,28 +159,26 @@ vtilde <- 1/dat$n0
 dat$effect_size_id <- 1:dim(dat)[1]
 dat$sampling_error_id <- dat$effect_size_id
 
-Vf   <- diag(as.numeric(vtilde))
+Vf <- diag(as.numeric(vtilde))
 levs <- levels(factor(dat$sampling_error_id))
 rownames(Vf) <- levs
 colnames(Vf) <- levs
 
-model <- rma.mv(
-  yi   = KU_delta_est,
-  V    = 0,
-    random = list(~ 1|effect_size_id,
-                  # this is like sampling error bit which usually goes to V
-                  ~ 1|sampling_error_id, 
-                  ~ 1|phenotyping_center, 
-                  ~ 1|strain_fig
-  ),
-  data   = dat,
-  method = "REML",
-  test = "t",
-    R      = list(sampling_error_id = Vf),
-    Rscale = FALSE,
-    # new optimizer
-  control=list(rel.tol=1e-8)
-    )
+model <- 
+  rma.mv(yi = KU_delta_est,
+         V = 0,
+         random = list(~ 1|effect_size_id,
+                       # this is like sampling error bit which usually goes to V
+                       ~ 1|sampling_error_id, 
+                       ~ 1|phenotyping_center, 
+                       ~ 1|strain_fig),
+         data = dat,
+         method = "REML",
+         test = "t",
+         R = list(sampling_error_id = Vf),
+         Rscale = FALSE,
+         # new optimizer
+         control = list(rel.tol = 1e-8))
 
 summary(model)
 
@@ -189,7 +187,8 @@ summary(model)
 sampling_variance <- model$sigma2[2]*vtilde
 
 # from Higgins - https://doi.org/10.1002/sim.1186
-av_sv <- sum(1 / sampling_variance) / sum((1 / sampling_variance)^2) * sum(1 / sampling_variance)^2 / (sum(1 / sampling_variance) * (length(sampling_variance) - 1))
+av_sv <- sum(1 / sampling_variance) / 
+  sum((1 / sampling_variance) ^ 2) * sum(1 / sampling_variance) ^ 2 / (sum(1 / sampling_variance) * (length(sampling_variance) - 1))
 
 # I2
 (model$sigma2[1] + model$sigma2[3] + model$sigma2[4])/(av_sv + model$sigma2[1] + model$sigma2[3] + model$sigma2[4])

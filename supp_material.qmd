@@ -130,16 +130,19 @@ process.ind_effects <- function(chosen_trait = "fat_mass",
                                 output = "results") {
   ind_effects <-
     df_meta_analysed %>% 
+    ungroup() %>% 
     filter(trait_name == chosen_trait,
            phenotyping_center %in% c("CCP-IMG",
                                      "HMGU",
                                      "JAX",
                                      "MRC H",
                                      "TCP")) %>% 
-    mutate(type = "individual") %>% 
+    mutate(type = "individual",
+           n0 = n_male * n_female / n_total) %>% 
     select(phenotyping_center,
            strain_fig,
            n = n_total,
+           n0,
            est = all_of(paste0(measure, 
                                "_",
                                "est")),
@@ -154,13 +157,43 @@ process.ind_effects <- function(chosen_trait = "fat_mass",
                                  "upper"))) %>% 
     rowid_to_column("effect_size_id")
   
-  model <- rma.mv(data = ind_effects,
-                  yi = est,
-                  V = var,
-                  test = "t",
-                  random = list(~ 1|effect_size_id,
-                                ~ 1|phenotyping_center, 
-                                ~ 1|strain_fig))
+  if (measure == "KU_delta") {
+    # getting n0
+    vtilde <- 1/ind_effects$n0
+    
+    ind_effects$sampling_error_id <- 
+      ind_effects$effect_size_id
+    
+    Vf <- diag(as.numeric(vtilde))
+    levs <- levels(factor(ind_effects$sampling_error_id))
+    rownames(Vf) <- levs
+    colnames(Vf) <- levs
+    
+    model <- 
+      rma.mv(data = ind_effects,
+             yi = est,
+             V = 0,
+             random = list(~ 1|effect_size_id,
+                           ~ 1|sampling_error_id,  # this is like sampling error bit which usually goes to V
+                           ~ 1|phenotyping_center, 
+                           ~ 1|strain_fig),
+             method = "REML",
+             test = "t",
+             R = list(sampling_error_id = Vf),
+             Rscale = FALSE,
+             # new optimizer
+             control = list(rel.tol = 1e-8))
+    
+  } else {
+    model <- rma.mv(data = ind_effects,
+                    yi = est,
+                    V = var,
+                    method = "REML",
+                    test = "t",
+                    random = list(~ 1|effect_size_id,
+                                  ~ 1|phenotyping_center, 
+                                  ~ 1|strain_fig))
+  }
   
   if (output == "results") {
     df_model <- data.frame(trait_name = chosen_trait,
@@ -171,23 +204,50 @@ process.ind_effects <- function(chosen_trait = "fat_mass",
                            phenotyping_center = "Mean",
                            strain_fig = "ES")
     
-    
     ind_effects %>% 
       bind_rows(df_model) %>% 
       mutate(est_type = measure,
              centre_and_strain = factor(paste0(phenotyping_center,
                                                "\n",
-                                               strain_fig))) %>% 
-      mutate(centre_and_strain = factor(centre_and_strain,
-                                        levels = c("Mean\nES",
-                                                   rev(levels(centre_and_strain)[-6]))))
+                                               strain_fig),
+                                        levels = rev(c("CCP-IMG\nNCrl",
+                                                       "HMGU\nNCrl",
+                                                       "HMGU\nNTac",
+                                                       "JAX\nNJ",
+                                                       "MRC H\nNTac",
+                                                       "TCP\nNCrl",
+                                                       "Mean\nES"))))
     
   } else if (output == "heterogeneity") {
-    tibble(trait_name_1 = chosen_trait,
-           trait_name_2 = NA,
-           est_type = measure) %>% 
-      add_column(as_tibble(t(i2_ml(model)))) %>% 
-      clean_names()
+    if (measure == "KU_delta") {
+      sampling_variance <- 
+        model$sigma2[2] * vtilde
+      
+      # from Higgins - https://doi.org/10.1002/sim.1186
+      av_sv <- 
+        sum(1 / sampling_variance) / 
+        sum((1 / sampling_variance) ^ 2) * sum(1 / sampling_variance) ^ 2 / 
+        (sum(1 / sampling_variance) * (length(sampling_variance) - 1))
+      
+      denominator <-
+        av_sv + model$sigma2[1] + model$sigma2[3] + model$sigma2[4]
+      
+      tibble(trait_name_1 = chosen_trait,
+             trait_name_2 = NA,
+             est_type = measure) %>% 
+        add_column(i2_total = (model$sigma2[1] + model$sigma2[3] + model$sigma2[4]) * 100 /
+                     denominator,
+                   i2_effect_size_id = model$sigma2[1] * 100 / denominator,
+                   i2_phenotyping_center = model$sigma2[3] * 100 / denominator,
+                   i2_strain_fig = model$sigma2[4] * 100 / denominator) %>% 
+        clean_names()
+    } else {
+      tibble(trait_name_1 = chosen_trait,
+             trait_name_2 = NA,
+             est_type = measure) %>% 
+        add_column(as_tibble(t(i2_ml(model)))) %>% 
+        clean_names()
+    }
   }
 }
 
@@ -284,8 +344,13 @@ process.cor_effects <-
                                                  "\n",
                                                  strain_fig))) %>% 
         mutate(centre_and_strain = factor(centre_and_strain,
-                                          levels = c("Mean\nES",
-                                                     rev(levels(centre_and_strain)[-5]))))
+                                          levels = rev(c("CCP-IMG\nNCrl",
+                                                         "HMGU\nNCrl",
+                                                         "HMGU\nNTac",
+                                                         "JAX\nNJ",
+                                                         "MRC H\nNTac",
+                                                         "TCP\nNCrl",
+                                                         "Mean\nES"))))
     } else if (output == "heterogeneity") {
       tibble(trait_name_1 = chosen_trait_1,
              trait_name_2 = chosen_trait_2,
@@ -373,8 +438,13 @@ ridgeline.custom <- function(chosen_trait = "fat_mass") {
                                              "\n",
                                              strain_fig))) %>% 
     mutate(centre_and_strain = factor(centre_and_strain,
-                                      levels = c("Mean\nES",
-                                                 rev(levels(centre_and_strain)[-5]))),
+                                      levels = rev(c("CCP-IMG\nNCrl",
+                                                     "HMGU\nNCrl",
+                                                     "HMGU\nNTac",
+                                                     "JAX\nNJ",
+                                                     "MRC H\nNTac",
+                                                     "TCP\nNCrl",
+                                                     "Mean\nES"))),
            value_s = scale(value)[, 1])
   
   sample_sizes <-
@@ -492,8 +562,9 @@ cor.plot.custom <-
       drop_na() %>% 
       mutate(centre_and_strain = factor(paste0(phenotyping_center,
                                                strain_fig))) %>% 
-      mutate(centre_and_strain = factor(centre_and_strain,
-                                        levels = rev(levels(centre_and_strain))),
+      mutate(
+        # centre_and_strain = factor(centre_and_strain,
+                                        # levels = rev(levels(centre_and_strain))),
              trait_1_s = scale(get(chosen_trait_1))[,1],
              trait_2_s = scale(get(chosen_trait_2))[,1])
     
@@ -773,7 +844,7 @@ As expected, both the analytical and jackknife estimates for $\Delta sk$ and $\D
 ```{r}
 #| label: fig-bias
 #| echo: false  
-#| fig.cap: Bias in $\Delta sk$, $\Delta ku$ and $\Delta Zr$ effect estimates across simulations where samples ranged in group sample sizes between $n \in \{10, 20, \dots, 100, 150, 500\}$. A total of 100 simulated scenarios were assessed for $\Delta sk$ and $\Delta ku$ whereas 64 simulated scenarios were assessed for $\Delta Zr$.For each scenario we ran 2,500 simulations.
+#| fig.cap: Bias in $\Delta sk$, $\Delta ku$ and $\Delta Zr$ effect estimates across simulations where samples ranged in group sample sizes between $n \in \{10, 20, \dots, 100, 150, 500\}$. A total of 100 simulated scenarios were assessed for $\Delta sk$ and $\Delta ku$ whereas 64 simulated scenarios were assessed for $\Delta Zr$. We ran 2,500 simulations for each scenario.
 
 fig_bias <- image_read("./output/figs/bias.png")
 fig_bias
@@ -796,7 +867,7 @@ plot_why
 ```{r}
 #| label: fig-mean_var
 #| echo: false  
-#| fig.cap: Bias for $\Delta sk$ and $\Delta ku$ for simulated scenarios was not related to group means or variances being different. For each scenario we ran 2,500 simulations.
+#| fig.cap: Bias for $\Delta sk$ and $\Delta ku$ for simulated scenarios was not related to group means or variances being different. We ran 2,500 simulations for each scenario.
 
 mean_var <- image_read("./output/figs/combined_mean_var.png")
 mean_var
@@ -810,7 +881,7 @@ In contrast to point estimators, the effectiveness of sampling variance estimato
 ```{r}
 #| label: fig-relbias
 #| echo: false  
-#| fig.cap: Relative Bias in $\Delta sk$, $\Delta ku$ and $\Delta Zr$ effect estimates across simulations where samples ranged in group sample sizes between $n \in \{10, 20, \dots, 100, 150, 500\}$. A total of 100 simulated scenarios were assessed for $\Delta sk$ and $\Delta ku$ whereas 64 simulated scenarios were assessed for $\Delta Zr$. Note that for relative bias different combinations of point estimates and sampling variance estimates were used in their calculation as indicated in their titles which show the calculation. Notation is as follows ku and sk are the skewness and kurtosis calculated using original formulas.  sk_sv and ku_sv are the sampling variance estimates using the original formulas.  jack_skew_sv and jack_ku_sv are the sampling variance estimates for skewness and kurtosis using jackknife. jack_skew_bc and jack_ku_bc are the bias corrected point estimates from the jackknife. For each scenario we ran 2,500 simulations.
+#| fig.cap: Relative Bias in $\Delta sk$, $\Delta ku$ and $\Delta Zr$ effect estimates across simulations where samples ranged in group sample sizes between $n \in \{10, 20, \dots, 100, 150, 500\}$. A total of 100 simulated scenarios were assessed for $\Delta sk$ and $\Delta ku$ whereas 64 simulated scenarios were assessed for $\Delta Zr$. Note that for relative bias different combinations of point estimates and sampling variance estimates were used in their calculation as indicated in their titles which show the calculation. Notation is as follows ku and sk are the skewness and kurtosis calculated using original formulas.  sk_sv and ku_sv are the sampling variance estimates using the original formulas.  jack_skew_sv and jack_ku_sv are the sampling variance estimates for skewness and kurtosis using jackknife. jack_skew_bc and jack_ku_bc are the bias corrected point estimates from the jackknife. We ran 2,500 simulations for each scenario.
 
 fig_relbias <- image_read("./output/figs/relativebias.png")
 fig_relbias
@@ -824,7 +895,7 @@ Coverage was generally close to nominal levels (95%) for $\Delta sk$ and $\Delta
 ```{r}
 #| label: fig-coverage
 #| echo: false  
-#| fig.cap: Coverage of 95% confidence intervals for $\Delta sk$, $\Delta ku$ and $\Delta Zr$ effect estimates across simulations where samples ranged in group sample sizes between $n \in \{10, 20, \dots, 100, 150, 500\}$. A total of 100 simulated scenarios were assessed for $\Delta sk$ and $\Delta ku$ whereas 64 simulated scenarios were assessed for $\Delta Zr$. For each scenario we ran 2,500 simulations. 
+#| fig.cap: Coverage of 95% confidence intervals for $\Delta sk$, $\Delta ku$ and $\Delta Zr$ effect estimates across simulations where samples ranged in group sample sizes between $n \in \{10, 20, \dots, 100, 150, 500\}$. A total of 100 simulated scenarios were assessed for $\Delta sk$ and $\Delta ku$ whereas 64 simulated scenarios were assessed for $\Delta Zr$. We ran 2,500 simulations for each scenario. 
 
 fig_coverage <- image_read("./output/figs/coverage.png")
 fig_coverage
@@ -834,7 +905,7 @@ fig_coverage
 ```{r}
 #| label: fig-sampledist
 #| echo: false  
-#| fig.cap: Example sampling distributions of three different scenerios ($\Delta ku$ = 0, 1 or 2.5) for n = 10 and n = 500 samples for each group. For each scenario we ran 2,500 simulations. 
+#| fig.cap: Example sampling distributions of three different scenerios ($\Delta ku$ = 0, 1, or 2.5) for n = 10 and n = 500 samples for each group. We ran 2,500 simulations for each scenario. 
 
 fig_sampledist <- image_read("./output/figs/FigS_plos_samplingdist.png")
 fig_sampledist
@@ -984,6 +1055,8 @@ df_meta_analysed <- # takes 30s to a minute to run
          phenotyping_center,
          strain_fig,
          n_total,
+         n_male,
+         n_female,
          prop_females,
          ROM_est,
          ROM_var,
