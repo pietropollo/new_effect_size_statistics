@@ -196,8 +196,7 @@ process.ind_effects <- function(chosen_trait = "fat_mass",
   }
   
   if (output == "results") {
-    df_model <- data.frame(trait_name = chosen_trait,
-                           est = model$beta[1],
+    df_model <- data.frame(est = model$beta[1],
                            var = model$se ^ 2,
                            lower = model$ci.lb,
                            upper = model$ci.ub,
@@ -207,6 +206,7 @@ process.ind_effects <- function(chosen_trait = "fat_mass",
     ind_effects %>% 
       bind_rows(df_model) %>% 
       mutate(est_type = measure,
+             trait_name = chosen_trait,
              centre_and_strain = factor(paste0(phenotyping_center,
                                                "\n",
                                                strain_fig),
@@ -364,18 +364,43 @@ process.cor_effects <-
 caterpillar.custom <- 
   function(chosen_trait = "fat_mass",
            measure = "KU_delta") {
-    plot <-
+    
+    df <-
       process.ind_effects(chosen_trait = chosen_trait,
-                          measure = measure) %>% 
+                          measure = measure)
+    
+    plot <-
+      df %>% 
       ggplot(aes(y = centre_and_strain,
                  x = est,
                  xmax = upper,
                  xmin = lower,
                  shape = strain_fig,
-                 col = phenotyping_center)) +
+                 col = phenotyping_center,
+                 size = as.factor(phenotyping_center == "Mean"))) +
       geom_pointrange() +
       geom_vline(xintercept = 0,
                  linetype = "dotted") +
+      annotate(geom = "label",
+               # x = df$est,
+               x = 0,
+               y = as.numeric(df$centre_and_strain) - 0.28,
+               label = paste0(round(df$est, 
+                                    2),
+                              " (",
+                              round(df$lower, 
+                                    2),
+                              ", ",
+                              round(df$upper, 
+                                    2),
+                              ")"),
+               size = 2.4,
+               label.size = 0,
+               fill = "white",
+               col = "black") +
+      scale_shape_manual(values = c(18:15)) +
+      scale_size_manual(values = c(0.5,
+                                   0.7)) +
       theme_classic() +
       theme(legend.position = "none",
             axis.text.y = element_blank(),
@@ -383,43 +408,35 @@ caterpillar.custom <-
             plot.tag.position = c(0.15, 
                                   0.98))
     
-    if (measure == "ROM") {
-      plot +
-        labs(x = "lnRR") +
-        scale_x_continuous(limits = c(-0.51, 
-                                      0.51),
-                           breaks = c(-0.5, 
-                                      0, 
-                                      0.5)) +
-        theme(axis.title.x = ggtext::element_markdown(face = "italic"))
-    } else if (measure == "VR") {
-      plot +
-        labs(x = "lnVR") +
-        scale_x_continuous(limits = c(-1, 
-                                      1),
-                           breaks = c(-1, 
-                                      0, 
-                                      1)) +
-        theme(axis.title.x = ggtext::element_markdown(face = "italic"))
-    } else if (measure == "SK_delta") {
-      plot +
-        labs(x = "&Delta;*sk*") +
-        scale_x_continuous(limits = c(-2.1, 
-                                      2.1),
-                           breaks = c(-2,
-                                      0, 
-                                      2)) +
-        theme(axis.title.x = ggtext::element_markdown())
-    } else if (measure == "KU_delta") {
-      plot +
-        labs(x = "&Delta;*ku*") +
-        scale_x_continuous(limits = c(-15, 
-                                      15),
-                           breaks = c(-15, 
-                                      0, 
-                                      15)) +
-        theme(axis.title.x = ggtext::element_markdown())
+    lab_x <- 
+      case_when(measure == "ROM" ~ "lnRR",
+                measure == "VR" ~ "lnVR",
+                measure == "SK_delta" ~ "&Delta;*sk*",
+                measure == "KU_delta" ~ "&Delta;*ku*")
+    
+    if (chosen_trait %in% c("fat_mass",
+                            "heart_weight")) {
+      lim_x <-
+        case_when(measure == "ROM" ~ 0.5,
+                  measure == "VR" ~ 1,
+                  measure == "SK_delta" ~ 3,
+                  measure == "KU_delta" ~ 45)
+    } else {
+      lim_x <-
+        case_when(measure == "ROM" ~ 0.5,
+                  measure == "VR" ~ 0.5,
+                  measure == "SK_delta" ~ 1,
+                  measure == "KU_delta" ~ 6)
     }
+    
+    plot +
+      labs(x = lab_x) +
+      scale_x_continuous(limits = c(- lim_x * 1.02, 
+                                    lim_x * 1.02),
+                         breaks = c(- lim_x, 
+                                    0, 
+                                    lim_x)) +
+      theme(axis.title.x = ggtext::element_markdown(face = "italic"))
   }
 
 ridgeline.custom <- function(chosen_trait = "fat_mass") {
@@ -488,7 +505,7 @@ ridgeline.custom <- function(chosen_trait = "fat_mass") {
                             na.rm = T)),
              y = as.numeric(sample_sizes$centre_and_strain) - 0.15,
              label = sample_sizes$label,
-             size = 2) +
+             size = 2.3) +
     theme_classic() +
     theme(legend.position = "none",
           axis.title.x = element_text(size = 12, 
@@ -507,17 +524,38 @@ cor.caterpillar.custom <-
   function(chosen_trait_1 = "fat_mass",
            chosen_trait_2 = "heart_weight") {
     
-    process.cor_effects(chosen_trait_1 = chosen_trait_1,
-                        chosen_trait_2 = chosen_trait_2) %>% 
+    df <-
+      process.cor_effects(chosen_trait_1 = chosen_trait_1,
+                          chosen_trait_2 = chosen_trait_2)
+    
+    df %>% 
       ggplot(aes(y = centre_and_strain,
                  x = delta_zr_est,
                  xmax = delta_zr_upper,
                  xmin = delta_zr_lower,
                  shape = strain_fig,
-                 col = phenotyping_center)) +
+                 col = phenotyping_center,
+                 size = as.factor(phenotyping_center == "Mean"))) +
       geom_pointrange() +
       geom_vline(xintercept = 0,
                  linetype = "dotted") +
+      annotate(geom = "label",
+               # x = df$delta_zr_est,
+               x = 0,
+               y = as.numeric(df$centre_and_strain) - 0.15,
+               label = paste0(round(df$delta_zr_est, 
+                                    2),
+                              " (",
+                              round(df$delta_zr_lower, 
+                                    2),
+                              ", ",
+                              round(df$delta_zr_upper, 
+                                    2),
+                              ")"),
+               size = 2.4,
+               label.size = 0,
+               fill = "white",
+               col = "black") +
       labs(y = "Phenotyping centre and mice strain",
            x = "&Delta;*Zr*", 
            shape = "Strain") +
@@ -526,6 +564,9 @@ cor.caterpillar.custom <-
                          breaks = c(-1, 
                                     0, 
                                     1)) +
+      scale_shape_manual(values = c(18:15)) +
+      scale_size_manual(values = c(0.6,
+                                   0.8)) +
       theme_classic() +
       theme(legend.position = "none",
             axis.title.x = ggtext::element_markdown(size = 12, 
@@ -562,10 +603,7 @@ cor.plot.custom <-
       drop_na() %>% 
       mutate(centre_and_strain = factor(paste0(phenotyping_center,
                                                strain_fig))) %>% 
-      mutate(
-        # centre_and_strain = factor(centre_and_strain,
-                                        # levels = rev(levels(centre_and_strain))),
-             trait_1_s = scale(get(chosen_trait_1))[,1],
+      mutate(trait_1_s = scale(get(chosen_trait_1))[,1],
              trait_2_s = scale(get(chosen_trait_2))[,1])
     
     sample_sizes <-
@@ -615,11 +653,12 @@ cor.plot.custom <-
                                                         "_", 
                                                         " ")),
                         " (scaled)")) +
-        annotate(geom = "text",
+        annotate(geom = "label",
                  x = mean(chosen_lims),
                  y = 4.5,
                  label = sample_sizes$label[i],
-                 size = 2) +
+                 size = 2.4,
+                 label.size = 0) +
         theme_classic() +
         theme(legend.position = "none",
               plot.tag.position = c(0.05, 
@@ -1108,6 +1147,9 @@ map2_dfr(.x = rep(c("fat_mass",
                     "KU_delta"), 
                   4),
          .f = process.ind_effects) %>% 
+  dplyr::select(- c(effect_size_id,
+                    sampling_error_id,
+                    n0)) %>% 
   mutate(est_type = case_when(est_type == "ROM" ~ "lnRR",
                               est_type == "VR" ~ "lnVR",
                               est_type == "SK_delta" ~ "delta_sk",
@@ -1128,6 +1170,7 @@ map2_dfr(.x = c("fat_mass",
   mutate(relationship = rep(c("fat mass and heart weight",
                               "glucose and total cholesterol"),
                             each = 7)) %>% 
+  dplyr::select(- effect_size_id) %>% 
   relocate(relationship) %>%  
   datatable(.,
             extensions = "Buttons",
